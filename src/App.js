@@ -1,15 +1,8 @@
 import React from "react";
-import LoginForm from "./components/LoginForm";
-import RegisterForm from "./components/RegisterForm";
+import AppRouter from "./router";
 
 function App() {
-  return (
-      <div>
-        <LoginForm />
-        <hr />
-        <RegisterForm />
-      </div>
-  );
+    return <AppRouter />;
 }
 
 export default App;
