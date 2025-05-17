@@ -3,16 +3,10 @@ import React from "react";
 const Menu = () => {
     return (
         <div>
-            <h1>Bienvenido al menú principal</h1>
-            <p>Has iniciado sesión correctamente.</p>
+            <h2>Bienvenido al menú principal</h2>
+            {/* Aquí podrías mostrar más cosas según el rol del usuario */}
         </div>
     );
 };
-
-const logout = () => {
-    localStorage.removeItem("token");
-    window.location.href = "/login";
-};
-
 
 export default Menu;

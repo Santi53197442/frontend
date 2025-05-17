@@ -1,16 +1,13 @@
 import React, { useState } from "react";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
-
-const API_URL = "https://back-production-a1b0.up.railway.app";
+import { Link, useNavigate } from "react-router-dom";
 
 const Register = () => {
-    const [formData, setFormData] = useState({
+    const [form, setForm] = useState({
         nombre: "",
         apellido: "",
         ci: "",
-        contrasenia: "",
         email: "",
+        contrasenia: "",
         telefono: "",
         fechaNac: "",
     });
@@ -18,33 +15,40 @@ const Register = () => {
     const navigate = useNavigate();
 
     const handleChange = (e) => {
-        setFormData({...formData, [e.target.name]: e.target.value });
+        setForm({ ...form, [e.target.name]: e.target.value });
     };
 
     const handleRegister = async (e) => {
         e.preventDefault();
+        const response = await fetch("https://back-production-a1b0.up.railway.app/api/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(form),
+        });
 
-        try {
-            await axios.post(`${API_URL}/auth/register`, formData);
+        if (response.ok) {
             alert("Registro exitoso");
             navigate("/login");
-        } catch (err) {
+        } else {
             alert("Error al registrar");
         }
     };
 
     return (
-        <form onSubmit={handleRegister}>
+        <div>
             <h2>Registro</h2>
-            <input name="nombre" placeholder="Nombre" onChange={handleChange} required />
-            <input name="apellido" placeholder="Apellido" onChange={handleChange} required />
-            <input name="ci" placeholder="CI" onChange={handleChange} required />
-            <input name="contrasenia" placeholder="Contraseña" type="password" onChange={handleChange} required />
-            <input name="email" placeholder="Email" type="email" onChange={handleChange} required />
-            <input name="telefono" placeholder="Teléfono" onChange={handleChange} required />
-            <input name="fechaNac" type="date" onChange={handleChange} required />
-            <button type="submit">Registrarse</button>
-        </form>
+            <form onSubmit={handleRegister}>
+                <input name="nombre" placeholder="Nombre" onChange={handleChange} />
+                <input name="apellido" placeholder="Apellido" onChange={handleChange} />
+                <input name="ci" placeholder="CI" onChange={handleChange} />
+                <input name="email" placeholder="Email" onChange={handleChange} />
+                <input name="contrasenia" type="password" placeholder="Contraseña" onChange={handleChange} />
+                <input name="telefono" placeholder="Teléfono" onChange={handleChange} />
+                <input name="fechaNac" placeholder="Fecha de Nacimiento (YYYY-MM-DD)" onChange={handleChange} />
+                <button type="submit">Registrar</button>
+            </form>
+            <Link to="/login">¿Ya tienes cuenta? Inicia sesión</Link>
+        </div>
     );
 };
 

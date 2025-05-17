@@ -1,8 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
-
-const API_URL = "https://back-production-a1b0.up.railway.app"; // Ajustá si usás /api
+import { useNavigate, Link } from "react-router-dom";
 
 const Login = () => {
     const [email, setEmail] = useState("");
@@ -11,27 +8,31 @@ const Login = () => {
 
     const handleLogin = async (e) => {
         e.preventDefault();
+        const response = await fetch("https://back-production-a1b0.up.railway.app/api/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, contrasenia }),
+        });
 
-        try {
-            const res = await axios.post(`${API_URL}/auth/login`, {
-                email,
-                contrasenia,
-            });
-
-            localStorage.setItem("token", res.data.token);
+        if (response.ok) {
+            const data = await response.json();
+            localStorage.setItem("token", data.token); // Si usás JWT, por ejemplo
             navigate("/menu");
-        } catch (err) {
-            alert("Credenciales inválidas");
+        } else {
+            alert("Login fallido");
         }
     };
 
     return (
-        <form onSubmit={handleLogin}>
-            <h2>Iniciar Sesión</h2>
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" required />
-            <input type="password" value={contrasenia} onChange={(e) => setContrasenia(e.target.value)} placeholder="Contraseña" required />
-            <button type="submit">Ingresar</button>
-        </form>
+        <div>
+            <h2>Iniciar sesión</h2>
+            <form onSubmit={handleLogin}>
+                <input placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+                <input placeholder="Contraseña" type="password" value={contrasenia} onChange={(e) => setContrasenia(e.target.value)} />
+                <button type="submit">Entrar</button>
+            </form>
+            <Link to="/register">¿No tienes cuenta? Regístrate</Link>
+        </div>
     );
 };
 
