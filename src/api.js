@@ -1,4 +1,4 @@
-const API_URL = "https://TU_BACKEND_DEPLOYADO_EN_RAILWAY/api";
+const API_URL = "https://back-production-a1b0.up.railway.app/api";
 
 export const login = async (credentials) => {
     const res = await fetch(`${API_URL}/auth/login`, {
