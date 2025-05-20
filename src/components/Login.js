@@ -8,7 +8,7 @@ const Login = () => {
 
     const handleLogin = async (e) => {
         e.preventDefault();
-        const response = await fetch("https://back-production-a1b0.up.railway.app/api/login", {
+        const response = await fetch("${process.env.REACT_APP_API_URL}/login", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email, contrasenia }),
