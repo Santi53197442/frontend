@@ -20,7 +20,7 @@ const Register = () => {
 
     const handleRegister = async (e) => {
         e.preventDefault();
-        const response = await fetch("https://back-production-a1b0.up.railway.app/api/register", {
+        const response = await fetch("${process.env.REACT_APP_API_URL}/register", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(form),
