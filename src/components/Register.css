@@ -5,30 +5,28 @@
     justify-content: center;
     align-items: center;
     min-height: calc(100vh - 60px - 70px); /* Ajusta según altura de header/footer */
-    padding: 40px 20px; /* Más padding vertical para formularios más largos */
+    padding: 40px 20px;
     background-color: #f4f7f6;
     box-sizing: border-box;
 }
 
 .register-form-container {
     background-color: #fff;
-    padding: 35px 45px; /* Un poco más de padding interno */
-    border-radius: 10px; /* Bordes más redondeados */
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.12); /* Sombra un poco más pronunciada */
+    padding: 35px 45px;
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.12);
     text-align: center;
     width: 100%;
-    max-width: 600px; /* Aumentamos el ancho máximo */
+    max-width: 600px;
 }
 
 .register-form-container h2 {
     margin-top: 0;
-    margin-bottom: 30px; /* Más espacio después del título */
+    margin-bottom: 30px;
     color: #333;
-    font-size: 2em; /* Título más grande */
+    font-size: 2em;
     font-weight: 600;
 }
-
-/* .register-logo ya no es necesario si se eliminó el logo */
 
 .register-form .form-group {
     margin-bottom: 20px;
@@ -37,7 +35,7 @@
 
 .register-form .form-row {
     display: flex;
-    gap: 25px; /* Un poco más de espacio entre campos en la misma fila */
+    gap: 25px;
     margin-bottom: 20px;
 }
 
@@ -50,7 +48,7 @@
 .register-form .form-group label {
     display: block;
     margin-bottom: 8px;
-    color: #454545; /* Un gris un poco más oscuro para las etiquetas */
+    color: #454545;
     font-weight: 500;
     font-size: 0.9em;
 }
@@ -60,32 +58,32 @@
 .register-form .form-group input[type="password"],
 .register-form .form-group input[type="date"] {
     width: 100%;
-    padding: 12px 15px; /* Inputs un poco más altos */
-    border: 1px solid #ced4da; /* Un color de borde estándar */
-    border-radius: 5px; /* Bordes de input más redondeados */
+    padding: 12px 15px;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
     box-sizing: border-box;
-    font-size: 1em; /* Tamaño de fuente del input */
+    font-size: 1em;
     transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
 }
 
 .register-form .form-group input:focus {
-    border-color: #80bdff; /* Azul más claro para el focus, típico de Bootstrap */
+    border-color: #80bdff;
     outline: 0;
-    box-shadow: 0 0 0 0.25rem rgba(0,123,255,.25); /* Sombra de focus más pronunciada */
+    box-shadow: 0 0 0 0.25rem rgba(0,123,255,.25);
 }
 
 .register-button {
     width: 100%;
-    padding: 14px; /* Botón más alto */
+    padding: 14px;
     background-color: #007bff;
     color: white;
     border: none;
     border-radius: 5px;
-    font-size: 1.15em; /* Texto del botón un poco más grande */
+    font-size: 1.15em;
     font-weight: bold;
     cursor: pointer;
     transition: background-color 0.2s;
-    margin-top: 20px; /* Más espacio antes del botón */
+    margin-top: 20px;
 }
 
 .register-button:hover {
@@ -100,8 +98,8 @@
 .error-message, .success-message {
     font-size: 0.9em;
     margin-top: 0;
-    margin-bottom: 20px; /* Más espacio para los mensajes */
-    padding: 12px; /* Más padding para los mensajes */
+    margin-bottom: 20px;
+    padding: 12px;
     border-radius: 5px;
     text-align: center;
 }
@@ -119,7 +117,7 @@
 }
 
 .login-link-text {
-    margin-top: 30px; /* Más espacio antes del enlace a login */
+    margin-top: 30px;
     font-size: 0.95em;
     color: #555;
 }
@@ -134,8 +132,7 @@
     text-decoration: underline;
 }
 
-/* Media query para apilar campos en la misma fila en pantallas pequeñas */
-@media (max-width: 650px) { /* Ajustado el breakpoint un poco */
+@media (max-width: 650px) {
     .register-form .form-row {
         flex-direction: column;
         gap: 0;
@@ -147,8 +144,8 @@
         margin-bottom: 0;
     }
     .register-form-container {
-        padding: 25px 20px; /* Menos padding en móvil */
-        margin: 20px 0; /* Margen para que no pegue a los bordes en móvil si el page-container no tiene suficiente padding */
+        padding: 25px 20px;
+        margin: 20px 0;
     }
     .register-form-container h2 {
         font-size: 1.8em;

@@ -1,10 +1,8 @@
 // src/components/Register.js
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { registerUser } from "../services/api";
-import './Register.css';
-
-// const logoUrl = '/images/logo-omnibus.png'; // Ya no necesitamos el logo aquí
+import { registerUser } from "../services/api"; // Asegúrate que esta función exista y funcione
+import './Register.css'; // Importaremos este archivo CSS
 
 const Register = () => {
     const [form, setForm] = useState({
@@ -13,7 +11,7 @@ const Register = () => {
         ci: "",
         email: "",
         contrasenia: "",
-        confirmarContrasenia: "", // <-- NUEVO CAMPO
+        confirmarContrasenia: "",
         telefono: "",
         fechaNac: "",
         rol: "CLIENTE"
@@ -32,13 +30,11 @@ const Register = () => {
         setError("");
         setSuccessMessage("");
 
-        // Validación de contraseña
         if (form.contrasenia !== form.confirmarContrasenia) {
             setError("Las contraseñas no coinciden.");
             setIsLoading(false);
             return;
         }
-        // Puedes añadir más validaciones de fortaleza de contraseña aquí
 
         setIsLoading(true);
 
@@ -53,7 +49,6 @@ const Register = () => {
             return;
         }
 
-        // Excluimos confirmarContrasenia del payload que se envía al backend
         const { confirmarContrasenia, ...payloadToSubmit } = form;
 
         const finalPayload = {
@@ -83,21 +78,18 @@ const Register = () => {
         <div className="register-page-container">
             <div className="register-form-container">
                 <h2>Crear Cuenta</h2>
-                {/* <img src={logoUrl} alt="Logo" className="register-logo" /> */} {/* LOGO ELIMINADO */}
 
                 {error && <p className="error-message">{error}</p>}
                 {successMessage && <p className="success-message">{successMessage}</p>}
 
                 <form onSubmit={handleRegister} className="register-form">
-                    <div className="form-row">
-                        <div className="form-group half-width">
-                            <label htmlFor="nombre">Nombre</label>
-                            <input id="nombre" name="nombre" placeholder="Tu nombre" value={form.nombre} onChange={handleChange} required disabled={isLoading} />
-                        </div>
-                        <div className="form-group half-width">
-                            <label htmlFor="apellido">Apellido</label>
-                            <input id="apellido" name="apellido" placeholder="Tu apellido" value={form.apellido} onChange={handleChange} required disabled={isLoading} />
-                        </div>
+                    <div className="form-group"> {/* Nombre en su propio renglón */}
+                        <label htmlFor="nombre">Nombre</label>
+                        <input id="nombre" name="nombre" placeholder="Tu nombre" value={form.nombre} onChange={handleChange} required disabled={isLoading} />
+                    </div>
+                    <div className="form-group"> {/* Apellido en su propio renglón */}
+                        <label htmlFor="apellido">Apellido</label>
+                        <input id="apellido" name="apellido" placeholder="Tu apellido" value={form.apellido} onChange={handleChange} required disabled={isLoading} />
                     </div>
 
                     <div className="form-group">
@@ -110,12 +102,12 @@ const Register = () => {
                         <input id="email" type="email" name="email" placeholder="tu@email.com" value={form.email} onChange={handleChange} required disabled={isLoading} />
                     </div>
 
-                    <div className="form-group"> {/* Contraseña */}
+                    <div className="form-group">
                         <label htmlFor="contrasenia">Contraseña</label>
                         <input id="contrasenia" name="contrasenia" type="password" placeholder="Crea una contraseña" value={form.contrasenia} onChange={handleChange} required disabled={isLoading} />
                     </div>
 
-                    <div className="form-group"> {/* Confirmar Contraseña */}
+                    <div className="form-group">
                         <label htmlFor="confirmarContrasenia">Confirmar Contraseña</label>
                         <input id="confirmarContrasenia" name="confirmarContrasenia" type="password" placeholder="Vuelve a escribir la contraseña" value={form.confirmarContrasenia} onChange={handleChange} required disabled={isLoading} />
                     </div>
