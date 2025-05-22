@@ -1,11 +1,6 @@
 // src/AuthContext.js
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import apiClient from './services/api'; // Importa la instancia configurada de Axios
-
-// src/AuthContext.js
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import apiClient from './services/api'; // Asumiendo que tu instancia de Axios está aquí
 
 const AuthContext = createContext(null);
