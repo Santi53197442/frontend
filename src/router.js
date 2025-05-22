@@ -1,20 +1,32 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+// src/router.js (o AppRouter.js)
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"; // Import BrowserRouter
 import Login from "./components/Login";
 import Register from "./components/Register";
-import Menu from "./components/Menu";
+import Menu from "./components/Menu"; // Asumo que tienes este componente
+import ProtectedRoute from "./components/ProtectedRoute";
+import { AuthProvider } from "./AuthContext"; // Importa AuthProvider
 
 const AppRouter = () => {
-    const isLoggedIn = !!localStorage.getItem("token");
-
+    // La lógica de isLoggedIn ahora se maneja en AuthContext y ProtectedRoute
     return (
-        <Router>
+        <AuthProvider> {/* Envuelve tus rutas con AuthProvider */}
+            {/* <BrowserRouter> Ya no necesitas BrowserRouter aquí si lo pones en index.js o App.js */}
             <Routes>
-                <Route path="/" element={<Navigate to="/login" />} />
+                <Route path="/" element={<Navigate to="/login" replace />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
-                <Route path="/menu" element={isLoggedIn ? <Menu /> : <Navigate to="/login" />} />
+
+                {/* Rutas Protegidas */}
+                <Route element={<ProtectedRoute />}>
+                    <Route path="/menu" element={<Menu />} />
+                    {/* Añade aquí otras rutas protegidas */}
+                    {/* <Route path="/dashboard" element={<Dashboard />} /> */}
+                </Route>
+
+                <Route path="*" element={<Navigate to="/" replace />} /> {/* Ruta catch-all */}
             </Routes>
-        </Router>
+            {/* </BrowserRouter> */}
+        </AuthProvider>
     );
 };
 
