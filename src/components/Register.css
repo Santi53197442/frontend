@@ -1,0 +1,156 @@
+/* src/components/Register.css */
+
+.register-page-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 60px - 70px); /* Ajusta según altura de header/footer */
+    padding: 30px 20px; /* Más padding vertical para formularios más largos */
+    background-color: #f4f7f6;
+    box-sizing: border-box;
+}
+
+.register-form-container {
+    background-color: #fff;
+    padding: 30px 40px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 100%;
+    max-width: 550px; /* Un poco más ancho para acomodar más campos */
+}
+
+.register-form-container h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #333;
+    font-size: 1.8em;
+    font-weight: 600;
+}
+
+.register-logo {
+    width: 90px; /* Un poco más pequeño que en el login si se prefiere */
+    height: 90px;
+    margin-bottom: 20px;
+    object-fit: contain;
+}
+
+.register-form .form-group {
+    margin-bottom: 18px; /* Un poco menos de margen entre grupos */
+    text-align: left;
+}
+
+.register-form .form-row {
+    display: flex;
+    gap: 20px; /* Espacio entre campos en la misma fila */
+    margin-bottom: 18px;
+}
+
+.register-form .form-group.half-width {
+    flex: 1; /* Para que ocupen el espacio disponible en la fila */
+    margin-bottom: 0; /* El margen lo maneja .form-row */
+}
+
+
+.register-form .form-group label {
+    display: block;
+    margin-bottom: 6px; /* Menos margen para la etiqueta */
+    color: #555;
+    font-weight: 500;
+    font-size: 0.85em; /* Etiqueta un poco más pequeña */
+}
+
+.register-form .form-group input[type="text"],
+.register-form .form-group input[type="email"],
+.register-form .form-group input[type="password"],
+.register-form .form-group input[type="date"] {
+    width: 100%;
+    padding: 10px 12px; /* Padding un poco menor */
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 0.95em;
+}
+
+.register-form .form-group input:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+.register-button {
+    width: 100%;
+    padding: 12px;
+    background-color: #007bff; /* Azul para el botón de registro, como los de Vercel */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-top: 15px;
+}
+
+.register-button:hover {
+    background-color: #0056b3; /* Azul más oscuro */
+}
+
+.register-button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.error-message, .success-message {
+    font-size: 0.9em;
+    margin-top: 0;
+    margin-bottom: 15px;
+    padding: 10px;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.error-message {
+    color: #721c24;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+}
+
+.success-message {
+    color: #155724;
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+}
+
+.login-link-text { /* Reutiliza el nombre de clase si los estilos son idénticos */
+    margin-top: 25px;
+    font-size: 0.9em;
+    color: #555;
+}
+
+.login-link-text a {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.login-link-text a:hover {
+    text-decoration: underline;
+}
+
+/* Media query para apilar campos en la misma fila en pantallas pequeñas */
+@media (max-width: 600px) {
+    .register-form .form-row {
+        flex-direction: column; /* Apila los campos */
+        gap: 0; /* Quita el gap, el .form-group.half-width manejará el margen */
+    }
+    .register-form .form-group.half-width {
+        margin-bottom: 18px; /* Restaura el margen inferior */
+    }
+    .register-form .form-group.half-width:last-child {
+        margin-bottom: 0; /* El último no necesita margen si .form-row ya lo tiene */
+    }
+    .register-form-container {
+        padding: 20px; /* Menos padding en móvil */
+    }
+}
