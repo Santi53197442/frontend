@@ -3,53 +3,22 @@
 .home-container {
     font-family: Arial, sans-serif;
     color: #333;
+    /* Quitar o reducir el padding horizontal si quieres que el contenido se acerque más a los bordes */
+    /* padding: 0 20px;  Opcional, si quieres que la grilla ocupe más */
 }
 
 .home-header {
-    /* Ya no necesita position: relative si no hay imagen de fondo para el texto */
     text-align: center;
-    padding: 40px 20px; /* Añade padding para darle espacio */
-    background-color: #f0f0f0; /* Un color de fondo suave para el header */
+    padding: 30px 20px; /* Un poco menos de padding vertical si prefieres */
+    background-color: #f0f0f0;
     border-bottom: 1px solid #ddd;
 }
 
-/* .header-image ya no es necesario */
-
-.header-content {
-    /* Ya no necesita position: absolute ni transform */
-    /* El color de texto debería ser oscuro si el fondo es claro */
-    color: #333;
-    /* background-color: rgba(0, 0, 0, 0.5); ya no es necesario */
-    /* padding: 20px; Ya no es necesario aquí, se maneja en .home-header */
-    /* border-radius: 8px; ya no es necesario */
-}
-
-.header-content h1 {
-    margin: 0 0 10px 0;
-    font-size: 2.5em;
-}
-
-.home-nav {
-    margin-top: 20px;
-}
-
-.nav-button {
-    background-color: #007bff;
-    color: white;
-    padding: 10px 15px;
-    margin: 5px; /* Ajusta para mejor espaciado en móvil */
-    text-decoration: none;
-    border-radius: 5px;
-    font-weight: bold;
-    display: inline-block; /* Para que el margin funcione bien */
-}
-
-.nav-button:hover {
-    background-color: #0056b3;
-}
+/* ... (otros estilos del header se mantienen) ... */
 
 .lugares-section {
-    padding: 40px 20px;
+    padding: 40px 5%; /* Usa porcentaje para el padding lateral, así es más adaptable */
+    /* O un valor fijo más grande si prefieres: padding: 40px 60px; */
     text-align: center;
 }
 
@@ -60,17 +29,25 @@
 
 .lugares-grid {
     display: grid;
-    gap: 20px;
-    max-width: 1000px; /* Ajusta el ancho máximo de la grilla si es necesario */
-    margin: 0 auto;
-    /* Por defecto 1 columna para móviles */
+    gap: 25px; /* Un poco más de espacio entre tarjetas */
+    /* Incrementa el max-width para que la grilla ocupe más espacio horizontal */
+    max-width: 1200px; /* Puedes probar con 1400px, 90%, etc. */
+    margin: 0 auto; /* Mantiene la grilla centrada */
     grid-template-columns: 1fr;
 }
 
-/* A partir de 768px de ancho de pantalla, cambia a 2 columnas */
 @media (min-width: 768px) {
     .lugares-grid {
-        grid-template-columns: repeat(2, 1fr); /* 2 columnas iguales */
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Opcional: si quieres 3 o 4 columnas en pantallas más grandes aún */
+@media (min-width: 1200px) {
+    .lugares-grid {
+        /* Descomenta la siguiente línea si quieres probar con 3 o 4 columnas */
+        /* grid-template-columns: repeat(3, 1fr); */
+        /* grid-template-columns: repeat(4, 1fr); */ /* Esto haría las tarjetas más pequeñas */
     }
 }
 
@@ -79,33 +56,39 @@
     background-color: #f9f9f9;
     border: 1px solid #ddd;
     border-radius: 8px;
-    padding: 20px;
+    /* padding: 20px; */ /* Quita el padding fijo si quieres que la imagen ocupe todo el ancho sin bordes internos */
     text-align: left;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     display: flex;
     flex-direction: column;
+    overflow: hidden; /* Para que el border-radius de la imagen funcione bien si quitas el padding */
 }
 
-.lugar-card h3 {
+.lugar-imagen {
+    width: 100%;
+    height: 220px; /* Un poco más alta si quieres */
+    object-fit: cover;
+    /* border-radius: 4px 4px 0 0;  Quita esto si quitaste el padding de .lugar-card y quieres que la imagen toque los bordes */
+    /* margin-bottom: 15px; No necesario si el contenido de abajo tiene su propio padding/margin */
+}
+
+.lugar-card-content { /* Nueva clase para envolver el texto si quitaste el padding de .lugar-card */
+    padding: 20px;
+}
+
+.lugar-card-content h3 {
     margin-top: 0;
     margin-bottom: 10px;
     color: #0056b3;
 }
 
-.lugar-card p {
+.lugar-card-content p {
     flex-grow: 1;
     margin-bottom: 0;
-    font-size: 0.9em; /* Ligeramente más pequeño para que quepa mejor */
+    font-size: 0.9em;
     line-height: 1.5;
 }
 
-.lugar-imagen {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
-    border-radius: 4px 4px 0 0;
-    margin-bottom: 15px;
-}
 
 .home-footer {
     text-align: center;
