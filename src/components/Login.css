@@ -29,10 +29,10 @@
 }
 
 .login-logo {
-    width: 100px; /* Ajusta el tamaño de tu logo */
-    height: 100px;
+    width: 150px;
+    height: 150px;
     margin-bottom: 25px;
-    object-fit: contain; /* Para que el logo se vea bien sin recortarse */
+    object-fit: contain;
 }
 
 .login-form .form-group {
