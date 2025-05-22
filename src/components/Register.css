@@ -39,11 +39,11 @@
     margin-bottom: 20px;
 }
 
+/* Esta clase es para los inputs que están DENTRO de un .form-row */
 .register-form .form-group.half-width {
     flex: 1;
-    margin-bottom: 0;
+    margin-bottom: 0; /* El .form-row ya maneja el margen inferior general */
 }
-
 
 .register-form .form-group label {
     display: block;
@@ -53,11 +53,13 @@
     font-size: 0.9em;
 }
 
-.register-form .form-group input[type="text"],
-.register-form .form-group input[type="email"],
-.register-form .form-group input[type="password"],
-.register-form .form-group input[type="date"] {
-    width: 100%;
+/* Regla general para todos los inputs directos dentro de un .form-group */
+/* Esto incluye Nombre, Apellido, CI, Email, Contraseña, ConfirmarContraseña */
+.register-form .form-group > input[type="text"],
+.register-form .form-group > input[type="email"],
+.register-form .form-group > input[type="password"],
+.register-form .form-group > input[type="date"] {
+    width: 100%; /* Asegura que ocupen todo el ancho de su .form-group padre */
     padding: 12px 15px;
     border: 1px solid #ced4da;
     border-radius: 5px;
@@ -66,7 +68,15 @@
     transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
 }
 
-.register-form .form-group input:focus {
+/* Estilos para inputs dentro de .form-group.half-width (si es necesario anular algo) */
+/* En este caso, heredan width: 100% de la regla anterior, lo cual es correcto para que llenen su contenedor half-width */
+.register-form .form-group.half-width input[type="text"],
+.register-form .form-group.half-width input[type="date"] {
+    /* width: 100%; ya está heredado y es correcto */
+}
+
+
+.register-form .form-group input:focus { /* Aplica a todos los inputs al hacer focus */
     border-color: #80bdff;
     outline: 0;
     box-shadow: 0 0 0 0.25rem rgba(0,123,255,.25);
@@ -140,6 +150,7 @@
     .register-form .form-group.half-width {
         margin-bottom: 20px;
     }
+    /* Evita doble margen si el half-width es el último elemento antes de un form-row que ya tiene margen */
     .register-form .form-group.half-width:last-child {
         margin-bottom: 0;
     }

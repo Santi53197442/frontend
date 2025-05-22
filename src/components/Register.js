@@ -1,8 +1,8 @@
 // src/components/Register.js
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { registerUser } from "../services/api"; // Asegúrate que esta función exista y funcione
-import './Register.css'; // Importaremos este archivo CSS
+import { registerUser } from "../services/api";
+import './Register.css';
 
 const Register = () => {
     const [form, setForm] = useState({
@@ -32,11 +32,11 @@ const Register = () => {
 
         if (form.contrasenia !== form.confirmarContrasenia) {
             setError("Las contraseñas no coinciden.");
-            setIsLoading(false);
+            setIsLoading(false); // Mantén el loading en false si hay error de validación
             return;
         }
 
-        setIsLoading(true);
+        setIsLoading(true); // Mueve setIsLoading(true) aquí, después de validaciones iniciales
 
         if (form.ci && isNaN(parseInt(form.ci))) {
             setError("CI debe ser un número.");
@@ -83,13 +83,13 @@ const Register = () => {
                 {successMessage && <p className="success-message">{successMessage}</p>}
 
                 <form onSubmit={handleRegister} className="register-form">
-                    <div className="form-group"> {/* Nombre en su propio renglón */}
+                    <div className="form-group">
                         <label htmlFor="nombre">Nombre</label>
-                        <input id="nombre" name="nombre" placeholder="Tu nombre" value={form.nombre} onChange={handleChange} required disabled={isLoading} />
+                        <input id="nombre" name="nombre" type="text" placeholder="Tu nombre" value={form.nombre} onChange={handleChange} required disabled={isLoading} />
                     </div>
-                    <div className="form-group"> {/* Apellido en su propio renglón */}
+                    <div className="form-group">
                         <label htmlFor="apellido">Apellido</label>
-                        <input id="apellido" name="apellido" placeholder="Tu apellido" value={form.apellido} onChange={handleChange} required disabled={isLoading} />
+                        <input id="apellido" name="apellido" type="text" placeholder="Tu apellido" value={form.apellido} onChange={handleChange} required disabled={isLoading} />
                     </div>
 
                     <div className="form-group">
