@@ -34,7 +34,6 @@ const Home = () => {
     return (
         <div className="home-container">
             <header className="home-header">
-                <img src={headerImageUrl} alt="Paisajes de Uruguay" className="header-image" />
                 <div className="header-content">
                     <h1>Descubre Uruguay</h1>
                     <p>Explora los destinos más encantadores de nuestro país.</p>
