@@ -8,25 +8,25 @@ const lugaresTuristicos = [
         id: 1,
         nombre: "Colonia del Sacramento",
         descripcion: "Una ciudad histórica con calles empedradas y arquitectura colonial portuguesa y española. Su Barrio Histórico es Patrimonio de la Humanidad por la UNESCO, perfecto para perderse en el tiempo.",
-        imagenUrl: '/images/colonia.jpg' // Ruta a la imagen de Colonia
+        imagenUrl: '/images/colonia.png' // Ruta a la imagen de Colonia
     },
     {
         id: 2,
         nombre: "Punta del Este",
         descripcion: "Famosa por sus playas glamorosas, vida nocturna vibrante y la icónica escultura de La Mano en Playa Brava. Un destino de verano por excelencia con opciones para todos los gustos.",
-        imagenUrl: '/images/punta_del_este.jpg' // Ruta a la imagen de Punta del Este
+        imagenUrl: '/images/punta_del_este.png' // Ruta a la imagen de Punta del Este
     },
     {
         id: 3,
         nombre: "Montevideo",
         descripcion: "La capital del país, una ciudad llena de cultura, historia y una hermosa rambla costanera. Desde el Mercado del Puerto hasta sus teatros y museos, Montevideo ofrece una rica experiencia urbana.",
-        imagenUrl: '/images/montevideo.jpg' // Ruta a la imagen de Montevideo
+        imagenUrl: '/images/montevideo.png' // Ruta a la imagen de Montevideo
     },
     {
         id: 4,
         nombre: "Rocha",
         descripcion: "Un departamento conocido por sus playas vírgenes, paisajes naturales y un ambiente más rústico y tranquilo. Ideal para los amantes de la naturaleza, el surf y la desconexión.",
-        imagenUrl: '/images/rocha.jpg' // Ruta a la imagen de Rocha
+        imagenUrl: '/images/rocha.png' // Ruta a la imagen de Rocha
     }
 ];
 
