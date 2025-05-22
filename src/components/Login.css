@@ -1,0 +1,112 @@
+/* src/components/Login.css */
+
+.login-page-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 60px - 70px); /* 100% de la altura visible menos altura del header y footer (aprox) */
+    padding: 20px;
+    background-color: #f4f7f6; /* Un fondo suave para la página */
+    box-sizing: border-box;
+}
+
+.login-form-container {
+    background-color: #fff;
+    padding: 30px 40px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 100%;
+    max-width: 400px; /* Ancho máximo del formulario */
+}
+
+.login-form-container h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #333;
+    font-size: 1.8em;
+    font-weight: 600;
+}
+
+.login-logo {
+    width: 100px; /* Ajusta el tamaño de tu logo */
+    height: 100px;
+    margin-bottom: 25px;
+    object-fit: contain; /* Para que el logo se vea bien sin recortarse */
+}
+
+.login-form .form-group {
+    margin-bottom: 20px;
+    text-align: left; /* Alinea las etiquetas a la izquierda */
+}
+
+.login-form .form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #555;
+    font-weight: 500;
+    font-size: 0.9em;
+}
+
+.login-form .form-group input[type="email"],
+.login-form .form-group input[type="password"] {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box; /* Para que el padding no afecte el ancho total */
+    font-size: 1em;
+}
+
+.login-form .form-group input[type="email"]:focus,
+.login-form .form-group input[type="password"]:focus {
+    border-color: #007bff; /* Color del borde al hacer focus */
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+.login-button {
+    width: 100%;
+    padding: 12px;
+    background-color: #28a745; /* Verde similar al de la imagen */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-top: 10px; /* Espacio antes del botón */
+}
+
+.login-button:hover {
+    background-color: #218838; /* Verde más oscuro al hacer hover */
+}
+
+.login-button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.error-message {
+    color: #dc3545; /* Rojo para mensajes de error */
+    font-size: 0.9em;
+    margin-top: -10px; /* Para acercarlo al campo anterior si hay error */
+    margin-bottom: 15px;
+}
+
+.register-link-text {
+    margin-top: 25px;
+    font-size: 0.9em;
+    color: #555;
+}
+
+.register-link-text a {
+    color: #007bff; /* Azul para el enlace de registro */
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.register-link-text a:hover {
+    text-decoration: underline;
+}
