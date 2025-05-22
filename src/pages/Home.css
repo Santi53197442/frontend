@@ -3,97 +3,133 @@
 .home-container {
     font-family: Arial, sans-serif;
     color: #333;
-    /* Quitar o reducir el padding horizontal si quieres que el contenido se acerque más a los bordes */
-    /* padding: 0 20px;  Opcional, si quieres que la grilla ocupe más */
+    /* padding: 0 20px;  Opcional: quitar o reducir si quieres que el contenido se acerque más a los bordes */
 }
 
 .home-header {
     text-align: center;
-    padding: 30px 20px; /* Un poco menos de padding vertical si prefieres */
+    padding: 30px 20px;
     background-color: #f0f0f0;
     border-bottom: 1px solid #ddd;
 }
 
-/* ... (otros estilos del header se mantienen) ... */
+.header-content {
+    color: #333;
+}
+
+.header-content h1 {
+    margin: 0 0 10px 0;
+    font-size: 2.5em;
+}
+
+.home-nav {
+    margin-top: 20px;
+}
+
+.nav-button {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 15px;
+    margin: 5px;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    display: inline-block;
+}
+
+.nav-button:hover {
+    background-color: #0056b3;
+}
 
 .lugares-section {
     padding: 40px 5%; /* Usa porcentaje para el padding lateral, así es más adaptable */
-    /* O un valor fijo más grande si prefieres: padding: 40px 60px; */
     text-align: center;
 }
 
 .lugares-section h2 {
-    font-size: 2em;
-    margin-bottom: 30px;
+    font-size: 2.2em; /* Un poco más grande el título de la sección */
+    margin-bottom: 40px; /* Más espacio debajo del título */
+    color: #2c3e50; /* Un color un poco más oscuro para el título */
 }
 
 .lugares-grid {
     display: grid;
-    gap: 25px; /* Un poco más de espacio entre tarjetas */
-    /* Incrementa el max-width para que la grilla ocupe más espacio horizontal */
+    gap: 30px; /* Un poco más de espacio entre tarjetas */
     max-width: 1200px; /* Puedes probar con 1400px, 90%, etc. */
-    margin: 0 auto; /* Mantiene la grilla centrada */
-    grid-template-columns: 1fr;
+    margin: 0 auto;
+    grid-template-columns: 1fr; /* Por defecto 1 columna para móviles */
 }
 
+/* Media query para tablets y pantallas pequeñas (2 columnas) */
 @media (min-width: 768px) {
     .lugares-grid {
         grid-template-columns: repeat(2, 1fr);
     }
 }
 
-/* Opcional: si quieres 3 o 4 columnas en pantallas más grandes aún */
+/* Opcional: Media query para pantallas más grandes (ej. 3 columnas) */
+/* Descomenta y ajusta si quieres más columnas en pantallas muy anchas */
+/*
 @media (min-width: 1200px) {
     .lugares-grid {
-        /* Descomenta la siguiente línea si quieres probar con 3 o 4 columnas */
-        /* grid-template-columns: repeat(3, 1fr); */
-        /* grid-template-columns: repeat(4, 1fr); */ /* Esto haría las tarjetas más pequeñas */
+        grid-template-columns: repeat(3, 1fr);
     }
 }
-
+*/
 
 .lugar-card {
-    background-color: #f9f9f9;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    /* padding: 20px; */ /* Quita el padding fijo si quieres que la imagen ocupe todo el ancho sin bordes internos */
+    background-color: #ffffff; /* Fondo blanco para las tarjetas */
+    border: 1px solid #e0e0e0; /* Un borde más suave */
+    border-radius: 10px; /* Bordes un poco más redondeados */
     text-align: left;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.08); /* Sombra inicial más sutil */
     display: flex;
     flex-direction: column;
-    overflow: hidden; /* Para que el border-radius de la imagen funcione bien si quitas el padding */
+    overflow: hidden; /* Importante para que el border-radius afecte a la imagen */
+
+    /* Transición para la animación */
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.lugar-card:hover {
+    transform: translateY(-8px) scale(1.03); /* Levanta un poco más y agranda un poco más */
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15); /* Sombra más pronunciada al hacer hover */
 }
 
 .lugar-imagen {
     width: 100%;
-    height: 220px; /* Un poco más alta si quieres */
-    object-fit: cover;
-    /* border-radius: 4px 4px 0 0;  Quita esto si quitaste el padding de .lugar-card y quieres que la imagen toque los bordes */
-    /* margin-bottom: 15px; No necesario si el contenido de abajo tiene su propio padding/margin */
+    height: 220px; /* Altura de la imagen, puedes ajustarla */
+    object-fit: cover; /* Asegura que la imagen cubra el área sin distorsionarse */
+    /* El border-radius de la imagen no es necesario si .lugar-card tiene overflow: hidden */
 }
 
-.lugar-card-content { /* Nueva clase para envolver el texto si quitaste el padding de .lugar-card */
-    padding: 20px;
+.lugar-card-content {
+    padding: 20px; /* Padding interno para el texto */
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; /* Para que el contenido de texto ocupe el espacio disponible */
 }
 
 .lugar-card-content h3 {
     margin-top: 0;
-    margin-bottom: 10px;
-    color: #0056b3;
+    margin-bottom: 12px; /* Un poco más de espacio */
+    color: #1a5276; /* Un azul más oscuro para los títulos de las tarjetas */
+    font-size: 1.4em;
 }
 
 .lugar-card-content p {
-    flex-grow: 1;
+    flex-grow: 1; /* Asegura que el párrafo ocupe el espacio vertical */
     margin-bottom: 0;
-    font-size: 0.9em;
-    line-height: 1.5;
+    font-size: 0.95em; /* Tamaño de fuente para la descripción */
+    line-height: 1.6; /* Interlineado para mejor legibilidad */
+    color: #566573; /* Un gris oscuro para el texto */
 }
-
 
 .home-footer {
     text-align: center;
-    padding: 20px;
-    background-color: #333;
-    color: white;
-    margin-top: 40px;
+    padding: 25px 20px; /* Un poco más de padding */
+    background-color: #2c3e50; /* Un color de fondo más oscuro y moderno para el footer */
+    color: #ecf0f1; /* Un color de texto más claro para el footer */
+    margin-top: 50px; /* Más espacio antes del footer */
+    font-size: 0.9em;
 }
