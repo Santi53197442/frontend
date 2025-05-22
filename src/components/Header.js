@@ -1,54 +1,68 @@
 // src/components/Header.js
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react'; // Importa useRef
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../AuthContext'; // Asumiendo que tu AuthContext está aquí
-import './Header.css'; // Crearemos este archivo para los estilos
+import { useAuth } from '../AuthContext';
+import './Header.css';
 
-// Asume que tienes un logo en public/images/logo.png o similar
-const logoUrl = '/images/logo-omnibus.png'; // Cambia esto a la ruta de tu logo
+const logoUrl = '/images/logo-omnibus.png'; // Cambia esto a la ruta de tu logo si es diferente
 
 const Header = () => {
     const { user, logout, isAuthenticated } = useAuth();
     const navigate = useNavigate();
-    const [menuOpen, setMenuOpen] = useState(false);
+    const [mainMenuOpen, setMainMenuOpen] = useState(false);
     const [userMenuOpen, setUserMenuOpen] = useState(false);
+
+    // Referencias a los menús para detectar clics fuera
+    const mainMenuRef = useRef(null);
+    const userMenuRef = useRef(null);
 
     const handleLogout = () => {
         logout();
-        setUserMenuOpen(false); // Cierra el menú de usuario
-        navigate('/login');
+        setUserMenuOpen(false);
+        // navigate('/login'); // logout ya navega
     };
 
-    const toggleMenu = () => {
-        setMenuOpen(!menuOpen);
+    const toggleMainMenu = () => {
+        setMainMenuOpen(!mainMenuOpen);
+        setUserMenuOpen(false); // Cierra el otro menú si está abierto
     };
 
     const toggleUserMenu = () => {
         setUserMenuOpen(!userMenuOpen);
+        setMainMenuOpen(false); // Cierra el otro menú si está abierto
     };
 
-    // Cierra los menús si se hace clic fuera de ellos (opcional pero buena UX)
-    // Esto es un ejemplo simple, podrías necesitar algo más robusto para producción
-    React.useEffect(() => {
+    // Hook para cerrar menús al hacer clic fuera
+    useEffect(() => {
         const handleClickOutside = (event) => {
-            if (menuOpen && !event.target.closest('.main-menu-button-container')) {
-                setMenuOpen(false);
+            if (mainMenuRef.current && !mainMenuRef.current.contains(event.target)) {
+                setMainMenuOpen(false);
             }
-            if (userMenuOpen && !event.target.closest('.user-actions')) {
+            if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
                 setUserMenuOpen(false);
             }
         };
+
         document.addEventListener("mousedown", handleClickOutside);
         return () => {
             document.removeEventListener("mousedown", handleClickOutside);
         };
-    }, [menuOpen, userMenuOpen]);
+    }, []); // Solo se ejecuta al montar y desmontar
 
+    const getDisplayName = () => {
+        if (user && user.nombre && user.apellido && user.nombre !== "null" && user.apellido !== "null") {
+            // Verifica que no sean la cadena "null" si localStorage guarda "null" como string
+            return `${user.nombre} ${user.apellido}`;
+        } else if (user && user.email) {
+            return user.email;
+        }
+        return 'Usuario'; // Fallback si no hay datos o el usuario es null
+    };
 
     return (
         <header className="app-header">
             <div className="header-left">
-                <Link to="/" className="logo-link">
+                <Link to={isAuthenticated ? (user?.rol === 'admin' ? "/menu" : "/home-cliente") : "/"} className="logo-link">
                     <img src={logoUrl} alt="Logo Sistema" className="logo-image" />
                     <h1>Sistema de Ómnibus</h1>
                 </Link>
@@ -56,14 +70,13 @@ const Header = () => {
 
             <div className="header-right">
                 {isAuthenticated && user ? (
-                    <div className="user-actions">
+                    <div className="user-actions" ref={userMenuRef}> {/* Añade ref */}
                         <button onClick={toggleUserMenu} className="user-menu-button">
-                            Bienvenido, {user.email || 'Usuario'} {/* Asume que user.email existe */}
+                            {getDisplayName()}
                             <span className={`arrow ${userMenuOpen ? 'up' : 'down'}`}>▼</span>
                         </button>
                         {userMenuOpen && (
                             <div className="dropdown-menu user-dropdown">
-                                {/* <Link to="/perfil" onClick={() => setUserMenuOpen(false)}>Mi Perfil</Link> */}
                                 <button onClick={handleLogout} className="logout-button">Cerrar Sesión</button>
                             </div>
                         )}
@@ -75,18 +88,18 @@ const Header = () => {
                     </div>
                 )}
 
-                {/* Menú principal si es necesario (como el de la imagen) */}
-                {isAuthenticated && ( // Solo muestra el menú si está autenticado
-                    <div className="main-menu-button-container">
-                        <button onClick={toggleMenu} className="main-menu-button">
-                            Menú <span className={`arrow ${menuOpen ? 'up' : 'down'}`}>▼</span>
+                {/* Menú principal (ej. para admin) */}
+                {isAuthenticated && user && user.rol === 'admin' && (
+                    <div className="main-menu-button-container" ref={mainMenuRef}> {/* Añade ref */}
+                        <button onClick={toggleMainMenu} className="main-menu-button">
+                            Menú Admin <span className={`arrow ${mainMenuOpen ? 'up' : 'down'}`}>▼</span>
                         </button>
-                        {menuOpen && (
+                        {mainMenuOpen && (
                             <div className="dropdown-menu main-dropdown">
-                                <Link to="/crear-usuario" onClick={() => setMenuOpen(false)}>Crear Usuario</Link>
-                                <Link to="/eliminar-usuario" onClick={() => setMenuOpen(false)}>Eliminar Usuario</Link>
-                                <Link to="/listar-usuarios" onClick={() => setMenuOpen(false)}>Listar Usuarios</Link>
-                                {/* Más opciones del menú aquí */}
+                                <Link to="/crear-usuario" onClick={() => setMainMenuOpen(false)}>Crear Usuario</Link>
+                                <Link to="/eliminar-usuario" onClick={() => setMainMenuOpen(false)}>Eliminar Usuario</Link>
+                                <Link to="/listar-usuarios" onClick={() => setMainMenuOpen(false)}>Listar Usuarios</Link>
+                                {/* Agrega aquí más enlaces para el admin si es necesario */}
                             </div>
                         )}
                     </div>
