@@ -1,7 +1,7 @@
 // src/components/Register.js
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { registerUser } from "../services/api"; // Importa la función de api.js
+import { registerUser } from "../services/api"; // Importa la función de
 
 const Register = () => {
     const [form, setForm] = useState({

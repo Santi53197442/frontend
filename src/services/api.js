@@ -1,4 +1,4 @@
-// src/services/api.js
+
 import axios from 'axios';
 
 // TU URL BASE DEL BACKEND (Asegúrate que esta sea la correcta)
