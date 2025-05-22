@@ -7,14 +7,14 @@ const ProtectedRoute = () => {
     const { isAuthenticated, loading } = useAuth();
 
     if (loading) {
-        return <div>Verificando autenticación...</div>; // O un spinner
+        return <div>Verificando autenticación...</div>;
     }
 
     if (!isAuthenticated) {
         return <Navigate to="/login" replace />;
     }
 
-    return <Outlet />; // Renderiza el componente hijo si está autenticado
+    return <Outlet />;
 };
 
 export default ProtectedRoute;
