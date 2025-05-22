@@ -1,11 +1,10 @@
 // src/components/Register.js
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { registerUser } from "../services/api"; // Asegúrate que esta función exista y funcione
-import './Register.css'; // Importaremos este archivo CSS
+import { registerUser } from "../services/api";
+import './Register.css';
 
-// Puedes usar el mismo logo o uno diferente si lo deseas
-const logoUrl = '/images/logo-omnibus.png';
+// const logoUrl = '/images/logo-omnibus.png'; // Ya no necesitamos el logo aquí
 
 const Register = () => {
     const [form, setForm] = useState({
@@ -14,10 +13,10 @@ const Register = () => {
         ci: "",
         email: "",
         contrasenia: "",
+        confirmarContrasenia: "", // <-- NUEVO CAMPO
         telefono: "",
         fechaNac: "",
-        rol: "CLIENTE" // El backend espera "ROLE_CLIENTE", tu AuthController añade "ROLE_"
-                       // Si el backend lo maneja, puedes enviar "CLIENTE" o "USER"
+        rol: "CLIENTE"
     });
     const [error, setError] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
@@ -32,9 +31,17 @@ const Register = () => {
         e.preventDefault();
         setError("");
         setSuccessMessage("");
+
+        // Validación de contraseña
+        if (form.contrasenia !== form.confirmarContrasenia) {
+            setError("Las contraseñas no coinciden.");
+            setIsLoading(false);
+            return;
+        }
+        // Puedes añadir más validaciones de fortaleza de contraseña aquí
+
         setIsLoading(true);
 
-        // Validación simple
         if (form.ci && isNaN(parseInt(form.ci))) {
             setError("CI debe ser un número.");
             setIsLoading(false);
@@ -46,20 +53,21 @@ const Register = () => {
             return;
         }
 
-        const payload = {
-            ...form,
-            // Asegurar que ci y telefono sean números si el backend espera Integer y si se ingresaron
+        // Excluimos confirmarContrasenia del payload que se envía al backend
+        const { confirmarContrasenia, ...payloadToSubmit } = form;
+
+        const finalPayload = {
+            ...payloadToSubmit,
             ci: form.ci ? parseInt(form.ci) : null,
             telefono: form.telefono ? parseInt(form.telefono) : null,
         };
 
         try {
-            const response = await registerUser(payload); // Tu función de API
+            const response = await registerUser(finalPayload);
             setSuccessMessage(response.data || "Registro exitoso. Serás redirigido al login.");
-            // alert(response.data || "Registro exitoso. Por favor, inicia sesión.");
             setTimeout(() => {
                 navigate("/login");
-            }, 2000); // Redirige después de 2 segundos para que el usuario vea el mensaje
+            }, 2500);
         } catch (err) {
             const errorMessage = typeof err.response?.data === 'string'
                 ? err.response.data
@@ -72,16 +80,16 @@ const Register = () => {
     };
 
     return (
-        <div className="register-page-container"> {/* Contenedor para centrar en la página */}
+        <div className="register-page-container">
             <div className="register-form-container">
                 <h2>Crear Cuenta</h2>
-                <img src={logoUrl} alt="Logo" className="register-logo" />
+                {/* <img src={logoUrl} alt="Logo" className="register-logo" /> */} {/* LOGO ELIMINADO */}
 
                 {error && <p className="error-message">{error}</p>}
                 {successMessage && <p className="success-message">{successMessage}</p>}
 
                 <form onSubmit={handleRegister} className="register-form">
-                    <div className="form-row"> {/* Para poner nombre y apellido en la misma fila */}
+                    <div className="form-row">
                         <div className="form-group half-width">
                             <label htmlFor="nombre">Nombre</label>
                             <input id="nombre" name="nombre" placeholder="Tu nombre" value={form.nombre} onChange={handleChange} required disabled={isLoading} />
@@ -94,7 +102,7 @@ const Register = () => {
 
                     <div className="form-group">
                         <label htmlFor="ci">CI (Cédula de Identidad)</label>
-                        <input id="ci" name="ci" type="text" placeholder="Ej: 12345678 (sin puntos ni guiones)" value={form.ci} onChange={handleChange} required disabled={isLoading} />
+                        <input id="ci" name="ci" type="text" placeholder="Ej: 12345678" value={form.ci} onChange={handleChange} required disabled={isLoading} />
                     </div>
 
                     <div className="form-group">
@@ -102,9 +110,14 @@ const Register = () => {
                         <input id="email" type="email" name="email" placeholder="tu@email.com" value={form.email} onChange={handleChange} required disabled={isLoading} />
                     </div>
 
-                    <div className="form-group">
+                    <div className="form-group"> {/* Contraseña */}
                         <label htmlFor="contrasenia">Contraseña</label>
                         <input id="contrasenia" name="contrasenia" type="password" placeholder="Crea una contraseña" value={form.contrasenia} onChange={handleChange} required disabled={isLoading} />
+                    </div>
+
+                    <div className="form-group"> {/* Confirmar Contraseña */}
+                        <label htmlFor="confirmarContrasenia">Confirmar Contraseña</label>
+                        <input id="confirmarContrasenia" name="confirmarContrasenia" type="password" placeholder="Vuelve a escribir la contraseña" value={form.confirmarContrasenia} onChange={handleChange} required disabled={isLoading} />
                     </div>
 
                     <div className="form-row">
@@ -118,10 +131,8 @@ const Register = () => {
                         </div>
                     </div>
 
-                    {/* No se muestra el campo ROL si es siempre CLIENTE desde el frontend */}
-
                     <button type="submit" className="register-button" disabled={isLoading}>
-                        {isLoading ? "Registrando..." : "Registrar Cuenta"}
+                        {isLoading ? "Registrando..." : "Crear Mi Cuenta"}
                     </button>
                 </form>
                 <p className="login-link-text">
