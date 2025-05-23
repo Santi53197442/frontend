@@ -10,6 +10,7 @@ import ForgotPasswordPage from './components/ForgotPassword'; // Asumiendo que e
 import ResetPasswordPage from './components/ResetPassword';   // Asumiendo que está en components
 import Home from "./pages/Home"; // Página de inicio pública
 
+
 // Autenticados Genéricos
 import ProtectedRoute from "./components/ProtectedRoute";
 import EditProfile from "./components/EditProfile";
@@ -18,7 +19,7 @@ import EditProfile from "./components/EditProfile";
 // Específicos de Administrador (debes crear estos componentes)
 // import AdminDashboard from './pages/admin/AdminDashboard';
 // import AdminGestionUsuarios from './pages/admin/AdminGestionUsuarios';
-import AdminCreateUserPage from './pages/admin/AdminCreateUserPage'; // Página para crear Admin/Vendedor
+import AdminCreateUserPage from './components/AdminCreateUserPage'; // Página para crear Admin/Vendedor
 
 // Específicos de Vendedor (debes crear estos componentes)
 // import VendedorPanel from './pages/vendedor/VendedorPanel';
