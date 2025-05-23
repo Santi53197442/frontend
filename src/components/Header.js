@@ -1,10 +1,10 @@
 // src/components/Header.js
-import React, { useState, useEffect, useRef } from 'react'; // Importa useRef
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
 import './Header.css';
 
-const logoUrl = '/images/logo-omnibus.png'; // Cambia esto a la ruta de tu logo si es diferente
+const logoUrl = '/images/logo-omnibus.png'; // Asegúrate que esta ruta sea correcta
 
 const Header = () => {
     const { user, logout, isAuthenticated } = useAuth();
@@ -12,14 +12,12 @@ const Header = () => {
     const [mainMenuOpen, setMainMenuOpen] = useState(false);
     const [userMenuOpen, setUserMenuOpen] = useState(false);
 
-    // Referencias a los menús para detectar clics fuera
     const mainMenuRef = useRef(null);
     const userMenuRef = useRef(null);
 
     const handleLogout = () => {
         logout();
-        setUserMenuOpen(false);
-        // navigate('/login'); // logout ya navega
+        setUserMenuOpen(false); // También cierra el menú de usuario al hacer logout
     };
 
     const toggleMainMenu = () => {
@@ -32,7 +30,6 @@ const Header = () => {
         setMainMenuOpen(false); // Cierra el otro menú si está abierto
     };
 
-    // Hook para cerrar menús al hacer clic fuera
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (mainMenuRef.current && !mainMenuRef.current.contains(event.target)) {
@@ -47,22 +44,21 @@ const Header = () => {
         return () => {
             document.removeEventListener("mousedown", handleClickOutside);
         };
-    }, []); // Solo se ejecuta al montar y desmontar
+    }, []);
 
     const getDisplayName = () => {
         if (user && user.nombre && user.apellido && user.nombre !== "null" && user.apellido !== "null") {
-            // Verifica que no sean la cadena "null" si localStorage guarda "null" como string
             return `${user.nombre} ${user.apellido}`;
         } else if (user && user.email) {
             return user.email;
         }
-        return 'Usuario'; // Fallback si no hay datos o el usuario es null
+        return 'Usuario';
     };
 
     return (
         <header className="app-header">
             <div className="header-left">
-                <Link to={isAuthenticated ? (user?.rol === 'admin' ? "/menu" : "/home-cliente") : "/"} className="logo-link">
+                <Link to={isAuthenticated ? (user?.rol === 'admin' ? "/menu" : "/") : "/"} className="logo-link">
                     <img src={logoUrl} alt="Logo Sistema" className="logo-image" />
                     <h1>Sistema de Ómnibus</h1>
                 </Link>
@@ -70,13 +66,14 @@ const Header = () => {
 
             <div className="header-right">
                 {isAuthenticated && user ? (
-                    <div className="user-actions" ref={userMenuRef}> {/* Añade ref */}
+                    <div className="user-actions" ref={userMenuRef}>
                         <button onClick={toggleUserMenu} className="user-menu-button">
                             {getDisplayName()}
                             <span className={`arrow ${userMenuOpen ? 'up' : 'down'}`}>▼</span>
                         </button>
                         {userMenuOpen && (
                             <div className="dropdown-menu user-dropdown">
+                                <Link to="/editar-perfil" onClick={() => setUserMenuOpen(false)}>Editar Mis Datos</Link> {/* <-- ENLACE AÑADIDO/ACTUALIZADO */}
                                 <button onClick={handleLogout} className="logout-button">Cerrar Sesión</button>
                             </div>
                         )}
@@ -90,7 +87,7 @@ const Header = () => {
 
                 {/* Menú principal (ej. para admin) */}
                 {isAuthenticated && user && user.rol === 'admin' && (
-                    <div className="main-menu-button-container" ref={mainMenuRef}> {/* Añade ref */}
+                    <div className="main-menu-button-container" ref={mainMenuRef}>
                         <button onClick={toggleMainMenu} className="main-menu-button">
                             Menú Admin <span className={`arrow ${mainMenuOpen ? 'up' : 'down'}`}>▼</span>
                         </button>

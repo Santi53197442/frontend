@@ -1,0 +1,150 @@
+/* src/components/EditProfile.css */
+
+.edit-profile-page-container {
+    display: flex;
+    flex-direction: column; /* Para centrar el contenido si es más pequeño que la altura de la pantalla */
+    justify-content: center; /* Centra verticalmente si hay espacio */
+    align-items: center; /* Centra horizontalmente */
+    min-height: calc(100vh - 60px - 70px); /* Ajusta 60px y 70px a la altura de tu header y footer */
+    padding: 20px; /* Padding alrededor de toda la página de edición */
+    background-color: #f4f7f6; /* Un fondo suave para la página */
+    box-sizing: border-box;
+}
+
+.edit-profile-form-container {
+    background-color: #ffffff;
+    padding: 30px 40px; /* Padding interno del contenedor del formulario */
+    border-radius: 10px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1); /* Sombra un poco más definida */
+    width: 100%;
+    max-width: 650px; /* Ancho máximo del formulario */
+    box-sizing: border-box; /* Asegura que el padding no aumente el tamaño total */
+}
+
+.edit-profile-form-container h2 {
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 30px; /* Más espacio después del título */
+    color: #333;
+    font-size: 2em; /* Título un poco más grande */
+    font-weight: 600;
+}
+
+.edit-profile-form .form-group {
+    margin-bottom: 22px; /* Espacio entre cada grupo de label e input */
+    text-align: left; /* Para que las etiquetas se alineen a la izquierda */
+}
+
+.edit-profile-form .form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #4a5568; /* Un gris más oscuro y moderno para las etiquetas */
+    font-weight: 500;
+    font-size: 0.9em;
+}
+
+.edit-profile-form .form-group input[type="text"],
+.edit-profile-form .form-group input[type="email"],
+.edit-profile-form .form-group input[type="date"] {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #cbd5e0; /* Un color de borde más suave */
+    border-radius: 6px; /* Bordes un poco más redondeados para los inputs */
+    box-sizing: border-box;
+    font-size: 1em;
+    color: #2d3748; /* Color de texto del input */
+    transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+}
+
+.edit-profile-form .form-group input[type="text"]:focus,
+.edit-profile-form .form-group input[type="email"]:focus,
+.edit-profile-form .form-group input[type="date"]:focus {
+    border-color: #4299e1; /* Un azul diferente para el focus */
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(66, 153, 225, 0.25); /* Sombra de focus correspondiente */
+}
+
+/* Estilo para inputs deshabilitados (si por ejemplo, decides que el email no se puede editar) */
+.edit-profile-form .form-group input:disabled {
+    background-color: #e2e8f0; /* Fondo gris claro */
+    color: #718096; /* Texto gris más oscuro */
+    cursor: not-allowed;
+    border-color: #e2e8f0;
+}
+
+.submit-button {
+    width: 100%;
+    padding: 14px;
+    background-color: #38a169; /* Un verde más suave y moderno */
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+    margin-top: 15px; /* Espacio antes del botón */
+}
+
+.submit-button:hover:not(:disabled) { /* Solo aplica hover si no está deshabilitado */
+    background-color: #2f855a; /* Verde más oscuro al hacer hover */
+}
+
+.submit-button:disabled {
+    background-color: #9ae6b4; /* Un verde muy claro cuando está deshabilitado */
+    cursor: not-allowed;
+}
+
+.error-message, .success-message {
+    font-size: 0.9em;
+    margin-top: -10px; /* Para acercarlo al último campo si hay error/éxito justo después */
+    margin-bottom: 20px;
+    padding: 12px 15px;
+    border-radius: 6px;
+    text-align: center;
+    border-width: 1px;
+    border-style: solid;
+}
+
+.error-message {
+    color: #c53030; /* Rojo oscuro para texto de error */
+    background-color: #fed7d7; /* Fondo rojo claro */
+    border-color: #fc8181; /* Borde rojo */
+}
+
+.success-message {
+    color: #2f855a; /* Verde oscuro para texto de éxito */
+    background-color: #c6f6d5; /* Fondo verde claro */
+    border-color: #68d391; /* Borde verde */
+}
+
+.loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px; /* O la altura que desees para el mensaje de carga */
+    font-size: 1.2em;
+    color: #4a5568;
+}
+
+/* Media query para pantallas más pequeñas */
+@media (max-width: 700px) {
+    .edit-profile-form-container {
+        padding: 25px 20px;
+        margin: 20px 0; /* Añade un poco de margen vertical en móvil */
+        border-radius: 8px; /* Un poco menos de redondeo si prefieres */
+    }
+    .edit-profile-form-container h2 {
+        font-size: 1.8em;
+        margin-bottom: 25px;
+    }
+    .edit-profile-form .form-group input[type="text"],
+    .edit-profile-form .form-group input[type="email"],
+    .edit-profile-form .form-group input[type="date"] {
+        padding: 10px 12px; /* Inputs un poco más pequeños en móvil */
+    }
+    .submit-button {
+        padding: 12px;
+        font-size: 1em;
+    }
+}
