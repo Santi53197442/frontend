@@ -1,18 +1,13 @@
 // src/components/Menu.js
 import React from 'react';
-import { Link, NavLink } from 'react-router-dom'; // NavLink para estilos activos
+import { Link, NavLink } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
 import './Menu.css'; // Asume que tienes un Menu.css
 
-const logoUrl = process.env.PUBLIC_URL + '/images/logo-omnibus.png'; // O tu ruta al logo
+const logoUrl = process.env.PUBLIC_URL + '/images/logo-omnibus.png';
 
 const Menu = () => {
     const { user, isAuthenticated, logout } = useAuth();
-
-    // No renderizar el menú si no está autenticado, o mostrar un menú diferente
-    // if (!isAuthenticated) {
-    //     return null; // O un menú para usuarios no logueados
-    // }
 
     return (
         <header className="app-header">
@@ -20,34 +15,36 @@ const Menu = () => {
                 <img src={logoUrl} alt="Omnibus Logo" className="app-logo" />
             </Link>
             <nav className="main-nav">
-                {isAuthenticated && user ? (
+                {isAuthenticated && user ? ( // Menú para usuarios autenticados
                     <>
                         <NavLink to="/" className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>Inicio</NavLink>
 
                         {/* Enlaces específicos por rol */}
                         {user.rol === 'administrador' && (
-                            <NavLink to="/admin/dashboard" className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>Dashboard Admin</NavLink>
-                        )}
-                        {user.rol === 'administrador' && (
-                            <NavLink to="/admin/gestion-usuarios" className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>Usuarios</NavLink>
+                            <>
+                                {/* <NavLink to="/admin/dashboard" className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>Dashboard Admin</NavLink> */}
+                                {/* <NavLink to="/admin/gestion-usuarios" className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>Gestionar Usuarios</NavLink> */}
+                                <NavLink to="/admin/crear-usuario" className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>Crear Admin/Vendedor</NavLink> {/* <-- NUEVO ENLACE */}
+                            </>
                         )}
 
                         {user.rol === 'vendedor' && (
-                            <NavLink to="/vendedor/panel" className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>Panel Vendedor</NavLink>
-                        )}
-                        {user.rol === 'vendedor' && (
-                            <NavLink to="/vendedor/productos" className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>Mis Productos</NavLink>
+                            <>
+                                {/* <NavLink to="/vendedor/panel" className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>Panel Vendedor</NavLink> */}
+                                {/* <NavLink to="/vendedor/mis-productos" className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>Mis Productos</NavLink> */}
+                            </>
                         )}
 
-                        {/* Enlaces comunes para usuarios logueados */}
-                        {(user.rol === 'cliente' || user.rol === 'vendedor' || user.rol === 'administrador') && (
-                            <NavLink to="/mis-reservas" className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>Mis Reservas</NavLink>
-                        )}
+                        {/* Enlaces comunes para usuarios logueados (ejemplo) */}
+                        {/* <NavLink to="/mis-reservas" className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>Mis Reservas</NavLink> */}
                         <NavLink to="/editar-perfil" className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>Mi Perfil</NavLink>
 
-                        <button onClick={logout} className="nav-item logout-button">Cerrar Sesión ({user.email})</button>
+                        <div className="user-info-logout">
+                            <span className="user-email-display">({user.email} - {user.rol})</span>
+                            <button onClick={logout} className="nav-item logout-button">Cerrar Sesión</button>
+                        </div>
                     </>
-                ) : (
+                ) : ( // Menú para usuarios NO autenticados
                     <>
                         <NavLink to="/login" className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>Iniciar Sesión</NavLink>
                         <NavLink to="/register" className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>Registrarse</NavLink>

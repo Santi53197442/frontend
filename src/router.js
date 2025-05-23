@@ -2,74 +2,81 @@
 import React from 'react';
 import { Routes, Route, Navigate } from "react-router-dom";
 
-// Componentes y Páginas existentes
+// --- Componentes y Páginas ---
+// Públicos
 import Login from "./components/Login";
 import Register from "./components/Register";
-// import Menu from "./components/Menu"; // Menu usualmente es parte del layout, no una ruta en sí misma
-import Home from "./pages/Home";
+import ForgotPasswordPage from './components/ForgotPassword'; // Asumiendo que está en components
+import ResetPasswordPage from './components/ResetPassword';   // Asumiendo que está en components
+import Home from "./pages/Home"; // Página de inicio pública
+
+// Autenticados Genéricos
 import ProtectedRoute from "./components/ProtectedRoute";
 import EditProfile from "./components/EditProfile";
+// import UserDashboard from './pages/UserDashboard'; // Si tienes un dashboard común para logueados
 
-// Nuevos componentes para recuperación de contraseña
-// Asumo que los moviste a /components según tu captura de pantalla anterior
-import ForgotPasswordPage from './components/ForgotPassword';
-import ResetPasswordPage from './components/ResetPassword';
+// Específicos de Administrador (debes crear estos componentes)
+// import AdminDashboard from './pages/admin/AdminDashboard';
+// import AdminGestionUsuarios from './pages/admin/AdminGestionUsuarios';
+import AdminCreateUserPage from './pages/admin/AdminCreateUserPage'; // Página para crear Admin/Vendedor
 
-// Páginas de ejemplo para diferentes roles (debes crearlas)
-// import AdminDashboard from './pages/AdminDashboard';
-// import VendedorPanel from './pages/VendedorPanel';
-// import ClienteDashboard from './pages/ClienteDashboard'; // Podría ser Home o una específica
-// import UnauthorizedPage from './pages/UnauthorizedPage'; // Para acceso denegado
+// Específicos de Vendedor (debes crear estos componentes)
+// import VendedorPanel from './pages/vendedor/VendedorPanel';
+// import VendedorMisProductos from './pages/vendedor/VendedorMisProductos';
+
+// Específicos de Cliente (debes crear estos componentes)
+// import MisReservasPage from './pages/cliente/MisReservasPage';
+
+// Otros
+// import UnauthorizedPage from './pages/UnauthorizedPage';
+// import NotFoundPage from './pages/NotFoundPage';
+
 
 const AppRouter = () => {
     return (
         <Routes>
             {/* --- Rutas Públicas --- */}
+            <Route path="/" element={<Home />} /> {/* Página de inicio pública */}
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
             {/* <Route path="/unauthorized" element={<UnauthorizedPage />} /> */}
 
-
-            {/* --- Rutas que podrían ser públicas o protegidas según tu lógica --- */}
-            {/* Si Home es para todos, incluso no logueados: */}
-            <Route path="/" element={<Home />} />
-
-
-            {/* --- Rutas Protegidas (Autenticación Requerida) --- */}
+            {/* --- Rutas Protegidas (Autenticación General Requerida) --- */}
             <Route element={<ProtectedRoute />}>
-                {/* Rutas comunes para cualquier usuario autenticado */}
+                {/* Rutas comunes para CUALQUIER usuario autenticado */}
                 <Route path="/editar-perfil" element={<EditProfile />} />
-                {/* Si Home fuera solo para usuarios logueados, iría aquí: */}
-                {/* <Route path="/dashboard" element={<Home />} /> */}
-                {/* <Route path="/cliente-dashboard" element={<ClienteDashboard />} /> */}
+                {/* Ejemplo: Si /dashboard es un inicio común para usuarios logueados */}
+                {/* <Route path="/dashboard" element={<UserDashboard />} /> */}
+                {/* Ejemplo: Ruta para "Mis Reservas", accesible por todos los roles logueados */}
+                {/* <Route path="/mis-reservas" element={<MisReservasPage />} /> */}
             </Route>
 
             {/* --- Rutas Protegidas por Rol Específico --- */}
-            {/* Administrador */}
+
+            {/* Rutas de Administrador */}
             <Route element={<ProtectedRoute allowedRoles={['administrador']} />}>
                 {/* <Route path="/admin/dashboard" element={<AdminDashboard />} /> */}
-                {/* <Route path="/admin/gestion-usuarios" element={<GestionUsuarios />} /> */}
-                {/* Si tu Menu.js es una PÁGINA solo para admin y se accede por ruta /menu: */}
-                {/* <Route path="/menu" element={<Menu />} /> */}
+                {/* <Route path="/admin/gestion-usuarios" element={<AdminGestionUsuarios />} /> */}
+                <Route path="/admin/crear-usuario" element={<AdminCreateUserPage />} /> {/* <-- NUEVA RUTA AÑADIDA */}
             </Route>
 
-            {/* Vendedor */}
+            {/* Rutas de Vendedor */}
             <Route element={<ProtectedRoute allowedRoles={['vendedor']} />}>
                 {/* <Route path="/vendedor/panel" element={<VendedorPanel />} /> */}
-                {/* <Route path="/vendedor/mis-productos" element={<MisProductosVendedor />} /> */}
+                {/* <Route path="/vendedor/mis-productos" element={<VendedorMisProductos />} /> */}
             </Route>
 
-            {/* Cliente (si tiene rutas específicas protegidas más allá de Home/Dashboard) */}
+            {/* Rutas de Cliente (si hay rutas específicas que no sean el dashboard general) */}
             {/* <Route element={<ProtectedRoute allowedRoles={['cliente']} />}>
-                <Route path="/mis-compras" element={<MisCompras />} />
+                 <Route path="/cliente/mis-compras-especificas" element={<ClienteMisCompras />} />
             </Route> */}
 
 
-            {/* Ruta Catch-all: Redirige a Home o a una página 404 */}
+            {/* Ruta Catch-all: Idealmente a una página 404 */}
             {/* <Route path="*" element={<NotFoundPage />} /> */}
-            <Route path="*" element={<Navigate to="/" replace />} />
+            <Route path="*" element={<Navigate to="/" replace />} /> {/* O redirige a Home */}
         </Routes>
     );
 };
