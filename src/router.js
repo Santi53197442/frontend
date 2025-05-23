@@ -9,11 +9,8 @@ import Menu from "./components/Menu"; // Asumo que Menu es un componente que se 
 import Home from "./pages/Home";
 import ProtectedRoute from "./components/ProtectedRoute";
 import EditProfile from "./components/EditProfile";
-
-// Nuevos Componentes/Páginas para recuperación de contraseña
-// Asegúrate de que las rutas de importación sean correctas según dónde los coloques (components o pages)
-import ForgotPasswordPage from './pages/ForgotPassword'; // O './components/ForgotPassword'
-import ResetPasswordPage from './pages/ResetPassword';   // O './components/ResetPassword'
+import ForgotPasswordPage from './components/ForgotPassword'; // O './components/ForgotPassword'
+import ResetPasswordPage from './components/ResetPassword';   // O './components/ResetPassword'
 
 const AppRouter = () => {
     return (
