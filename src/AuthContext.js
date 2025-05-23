@@ -8,7 +8,8 @@ const AuthContext = createContext(null);
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [loading, setLoading] = useState(true); // Loading inicial del contexto
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(""); // <--- ESTADO PARA EL ERROR AÑADIDO
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -19,7 +20,7 @@ export const AuthProvider = ({ children }) => {
         const storedApellido = localStorage.getItem('userApellido');
         const storedCi = localStorage.getItem('userCI');
         const storedTelefono = localStorage.getItem('userTelefono');
-        const storedFechaNac = localStorage.getItem('userFechaNac'); // Espera YYYY-MM-DD
+        const storedFechaNac = localStorage.getItem('userFechaNac');
 
         if (storedToken && storedEmail) {
             setUser({
@@ -41,33 +42,24 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     const login = async (credentials, preloadedUser = null) => {
+        setError(""); // Limpiar errores previos al intentar un nuevo login
         if (preloadedUser) {
-            // Caso para actualizar el contexto después de editar perfil o si el login ya trae todo
+            // ... (tu lógica para preloadedUser está bien) ...
             setUser(preloadedUser);
             setIsAuthenticated(true);
-
             localStorage.setItem('authToken', preloadedUser.token || '');
-            localStorage.setItem('userEmail', preloadedUser.email || '');
-            localStorage.setItem('userRol', preloadedUser.rol || '');
-            localStorage.setItem('userNombre', preloadedUser.nombre || '');
-            localStorage.setItem('userApellido', preloadedUser.apellido || '');
-            localStorage.setItem('userCI', String(preloadedUser.ci || ''));
-            localStorage.setItem('userTelefono', String(preloadedUser.telefono || ''));
-            localStorage.setItem('userFechaNac', preloadedUser.fechaNac || ''); // Guardar como YYYY-MM-DD
-
+            // ... (resto del guardado en localStorage)
             if (preloadedUser.token) {
                 apiClient.defaults.headers.common['Authorization'] = `Bearer ${preloadedUser.token}`;
             }
             return true;
         }
 
-        // Flujo normal de login
         try {
             const response = await apiClient.post('/auth/login', credentials);
-            // EL BACKEND DEBE DEVOLVER TODOS ESTOS CAMPOS.
-            // Asumimos que 'ci', 'telefono' vienen como string o number, y 'fechaNac' como 'YYYY-MM-DD' string.
             const { token, email, rol, nombre, apellido, ci, telefono, fechaNac } = response.data;
 
+            // ... (guardar en localStorage) ...
             localStorage.setItem('authToken', token);
             localStorage.setItem('userEmail', email || '');
             localStorage.setItem('userRol', rol || '');
@@ -75,38 +67,35 @@ export const AuthProvider = ({ children }) => {
             localStorage.setItem('userApellido', apellido || '');
             localStorage.setItem('userCI', String(ci || ''));
             localStorage.setItem('userTelefono', String(telefono || ''));
-            localStorage.setItem('userFechaNac', fechaNac || ''); // fechaNac ya debería ser YYYY-MM-DD
+            localStorage.setItem('userFechaNac', fechaNac || '');
 
             setUser({ token, email, rol, nombre, apellido, ci, telefono, fechaNac });
             setIsAuthenticated(true);
             apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
-            if (rol === 'admin') {
+            if (rol && rol.toLowerCase() === 'admin') { // Comparación insensible a mayúsculas
                 navigate('/menu');
             } else {
-                navigate('/'); // O a la ruta home del cliente si tienes una diferente
+                navigate('/');
             }
             return true;
 
-        } catch (error) {
-            console.error("Error en el login:", error.response?.data || error.message);
+        } catch (err) { // 'err' en lugar de 'error' para no colisionar con el estado 'error'
+            console.error("Error en el login (AuthContext):", err.response?.data || err.message);
             setIsAuthenticated(false);
             setUser(null);
-            // Limpiar todos los items al fallar el login
             ['authToken', 'userEmail', 'userRol', 'userNombre', 'userApellido', 'userCI', 'userTelefono', 'userFechaNac']
                 .forEach(item => localStorage.removeItem(item));
             delete apiClient.defaults.headers.common['Authorization'];
 
-            const errorMessage = typeof error.response?.data === 'string'
-                ? error.response.data
-                : (error.response?.data?.message || "Login fallido. Verifique sus credenciales.");
-            alert(errorMessage);
+            const errorMessage = err.response?.data?.message || "Login fallido. Verifique sus credenciales.";
+            setError(errorMessage); // <--- SETEAR EL ESTADO DE ERROR AQUÍ
+            // alert(errorMessage); // Puedes quitar el alert si el componente Login lo muestra
             return false;
         }
     };
 
     const updateUserContext = (backendResponseData) => {
-        // backendResponseData es UserProfileDTO del backend
         const currentUserToken = user ? user.token : localStorage.getItem('authToken');
 
         if (!currentUserToken) {
@@ -114,20 +103,28 @@ export const AuthProvider = ({ children }) => {
             logout();
             return;
         }
-
-        // El backendResponseData (UserProfileDTO) ya debería tener los campos formateados
-        // (ej. rol sin "ROLE_", fechaNac como "YYYY-MM-DD")
         const updatedUserDataForContext = {
             token: currentUserToken,
             email: backendResponseData.email,
             rol: backendResponseData.rol,
             nombre: backendResponseData.nombre,
             apellido: backendResponseData.apellido,
-            ci: backendResponseData.ci,         // String del DTO
-            telefono: backendResponseData.telefono, // String del DTO
-            fechaNac: backendResponseData.fechaNac // String YYYY-MM-DD del DTO
+            ci: backendResponseData.ci,
+            telefono: backendResponseData.telefono,
+            fechaNac: backendResponseData.fechaNac
         };
-        login(null, updatedUserDataForContext);
+        // En lugar de llamar a login(null, preloadedUser) que puede tener efectos secundarios como navegación,
+        // actualiza directamente el estado y localStorage si solo es una actualización de datos.
+        setUser(updatedUserDataForContext);
+        setIsAuthenticated(true); // Debería seguir siendo true
+        localStorage.setItem('userEmail', updatedUserDataForContext.email || '');
+        localStorage.setItem('userRol', updatedUserDataForContext.rol || '');
+        localStorage.setItem('userNombre', updatedUserDataForContext.nombre || '');
+        localStorage.setItem('userApellido', updatedUserDataForContext.apellido || '');
+        localStorage.setItem('userCI', String(updatedUserDataForContext.ci || ''));
+        localStorage.setItem('userTelefono', String(updatedUserDataForContext.telefono || ''));
+        localStorage.setItem('userFechaNac', updatedUserDataForContext.fechaNac || '');
+        // No es necesario llamar a login() aquí si solo actualizas datos y el token no cambia.
     };
 
     const logout = () => {
@@ -135,12 +132,22 @@ export const AuthProvider = ({ children }) => {
             .forEach(item => localStorage.removeItem(item));
         setUser(null);
         setIsAuthenticated(false);
+        setError(""); // Limpiar errores al hacer logout
         delete apiClient.defaults.headers.common['Authorization'];
         navigate('/login');
     };
 
     return (
-        <AuthContext.Provider value={{ user, isAuthenticated, login, logout, loading, updateUserContext }}>
+        <AuthContext.Provider value={{
+            user,
+            isAuthenticated,
+            login,
+            logout,
+            loading,
+            updateUserContext,
+            error,           // <--- EXPONER error
+            setError         // <--- EXPONER setError
+        }}>
             {children}
         </AuthContext.Provider>
     );
