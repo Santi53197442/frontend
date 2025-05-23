@@ -9,13 +9,13 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(""); // <--- ESTADO PARA EL ERROR AÑADIDO
+    const [error, setError] = useState(""); // Estado para errores de autenticación
     const navigate = useNavigate();
 
     useEffect(() => {
         const storedToken = localStorage.getItem('authToken');
         const storedEmail = localStorage.getItem('userEmail');
-        const storedRol = localStorage.getItem('userRol');
+        const storedRol = localStorage.getItem('userRol'); // Debería ser "cliente", "administrador", etc.
         const storedNombre = localStorage.getItem('userNombre');
         const storedApellido = localStorage.getItem('userApellido');
         const storedCi = localStorage.getItem('userCI');
@@ -34,35 +34,21 @@ export const AuthProvider = ({ children }) => {
                 fechaNac: storedFechaNac || null
             });
             setIsAuthenticated(true);
-            if (storedToken) {
-                apiClient.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
-            }
+            apiClient.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
         }
         setLoading(false);
     }, []);
 
-    const login = async (credentials, preloadedUser = null) => {
-        setError(""); // Limpiar errores previos al intentar un nuevo login
-        if (preloadedUser) {
-            // ... (tu lógica para preloadedUser está bien) ...
-            setUser(preloadedUser);
-            setIsAuthenticated(true);
-            localStorage.setItem('authToken', preloadedUser.token || '');
-            // ... (resto del guardado en localStorage)
-            if (preloadedUser.token) {
-                apiClient.defaults.headers.common['Authorization'] = `Bearer ${preloadedUser.token}`;
-            }
-            return true;
-        }
-
+    const login = async (credentials) => {
+        setError(""); // Limpiar errores previos
         try {
             const response = await apiClient.post('/auth/login', credentials);
+            // 'rol' aquí ya es el string simple del backend DTO (ej. "cliente")
             const { token, email, rol, nombre, apellido, ci, telefono, fechaNac } = response.data;
 
-            // ... (guardar en localStorage) ...
             localStorage.setItem('authToken', token);
             localStorage.setItem('userEmail', email || '');
-            localStorage.setItem('userRol', rol || '');
+            localStorage.setItem('userRol', rol || ''); // Guardar el rol simple
             localStorage.setItem('userNombre', nombre || '');
             localStorage.setItem('userApellido', apellido || '');
             localStorage.setItem('userCI', String(ci || ''));
@@ -73,14 +59,17 @@ export const AuthProvider = ({ children }) => {
             setIsAuthenticated(true);
             apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
-            if (rol && rol.toLowerCase() === 'admin') { // Comparación insensible a mayúsculas
-                navigate('/menu');
-            } else {
-                navigate('/');
+            // Redirección basada en el rol (string simple)
+            if (rol && rol.toLowerCase() === 'administrador') {
+                navigate('/admin/dashboard'); // Asegúrate que esta ruta exista y sea para admin
+            } else if (rol && rol.toLowerCase() === 'vendedor') {
+                navigate('/vendedor/panel'); // Asegúrate que esta ruta exista y sea para vendedor
+            } else { // Cliente o rol no reconocido/default
+                navigate('/'); // Ruta principal para clientes
             }
             return true;
 
-        } catch (err) { // 'err' en lugar de 'error' para no colisionar con el estado 'error'
+        } catch (err) {
             console.error("Error en el login (AuthContext):", err.response?.data || err.message);
             setIsAuthenticated(false);
             setUser(null);
@@ -89,8 +78,7 @@ export const AuthProvider = ({ children }) => {
             delete apiClient.defaults.headers.common['Authorization'];
 
             const errorMessage = err.response?.data?.message || "Login fallido. Verifique sus credenciales.";
-            setError(errorMessage); // <--- SETEAR EL ESTADO DE ERROR AQUÍ
-            // alert(errorMessage); // Puedes quitar el alert si el componente Login lo muestra
+            setError(errorMessage);
             return false;
         }
     };
@@ -100,9 +88,10 @@ export const AuthProvider = ({ children }) => {
 
         if (!currentUserToken) {
             console.error("AuthContext: No hay token para actualizar el contexto del usuario.");
-            logout();
+            logout(); // Si no hay token, desloguear
             return;
         }
+        // backendResponseData.rol ya es el string simple
         const updatedUserDataForContext = {
             token: currentUserToken,
             email: backendResponseData.email,
@@ -113,10 +102,9 @@ export const AuthProvider = ({ children }) => {
             telefono: backendResponseData.telefono,
             fechaNac: backendResponseData.fechaNac
         };
-        // En lugar de llamar a login(null, preloadedUser) que puede tener efectos secundarios como navegación,
-        // actualiza directamente el estado y localStorage si solo es una actualización de datos.
+
         setUser(updatedUserDataForContext);
-        setIsAuthenticated(true); // Debería seguir siendo true
+        setIsAuthenticated(true);
         localStorage.setItem('userEmail', updatedUserDataForContext.email || '');
         localStorage.setItem('userRol', updatedUserDataForContext.rol || '');
         localStorage.setItem('userNombre', updatedUserDataForContext.nombre || '');
@@ -124,7 +112,6 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem('userCI', String(updatedUserDataForContext.ci || ''));
         localStorage.setItem('userTelefono', String(updatedUserDataForContext.telefono || ''));
         localStorage.setItem('userFechaNac', updatedUserDataForContext.fechaNac || '');
-        // No es necesario llamar a login() aquí si solo actualizas datos y el token no cambia.
     };
 
     const logout = () => {
@@ -132,7 +119,7 @@ export const AuthProvider = ({ children }) => {
             .forEach(item => localStorage.removeItem(item));
         setUser(null);
         setIsAuthenticated(false);
-        setError(""); // Limpiar errores al hacer logout
+        setError("");
         delete apiClient.defaults.headers.common['Authorization'];
         navigate('/login');
     };
@@ -145,8 +132,8 @@ export const AuthProvider = ({ children }) => {
             logout,
             loading,
             updateUserContext,
-            error,           // <--- EXPONER error
-            setError         // <--- EXPONER setError
+            error,
+            setError
         }}>
             {children}
         </AuthContext.Provider>
