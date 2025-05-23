@@ -1,9 +1,9 @@
 // src/components/EditProfile.js
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../AuthContext'; // Asegúrate que la ruta sea correcta
-import apiClient from '../services/api'; // Tu instancia de Axios
-import './EditProfile.css'; // Crearemos este archivo CSS
+import { useAuth } from '../AuthContext';
+import apiClient from '../services/api';
+import './EditProfile.css';
 
 const EditProfile = () => {
     const { user, updateUserContext, isAuthenticated, loading: authLoading } = useAuth();
@@ -15,25 +15,26 @@ const EditProfile = () => {
         ci: '',
         email: '',
         telefono: '',
-        fechaNac: ''
+        fechaNac: '' // Espera YYYY-MM-DD
     });
-    const [isLoading, setIsLoading] = useState(false); // Para el submit del formulario
+    const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
 
     useEffect(() => {
-        if (!authLoading) { // Espera a que el contexto de autenticación termine de cargar
+        if (!authLoading) {
             if (!isAuthenticated || !user) {
-                navigate('/login'); // Redirige si no está autenticado o no hay datos de usuario
+                navigate('/login');
             } else {
                 // Cargar datos del usuario en el formulario
+                // Los datos del 'user' en AuthContext ya deberían estar formateados si es necesario
                 setFormData({
                     nombre: user.nombre || '',
                     apellido: user.apellido || '',
-                    ci: user.ci || '',
+                    ci: user.ci || '', // user.ci ya es string desde AuthContext
                     email: user.email || '',
-                    telefono: user.telefono || '',
-                    fechaNac: user.fechaNac ? (typeof user.fechaNac === 'string' ? user.fechaNac.split('T')[0] : '') : '' // Formato YYYY-MM-DD
+                    telefono: user.telefono || '', // user.telefono ya es string desde AuthContext
+                    fechaNac: user.fechaNac || '' // user.fechaNac ya es string YYYY-MM-DD desde AuthContext
                 });
             }
         }
@@ -49,7 +50,6 @@ const EditProfile = () => {
         setSuccessMessage('');
         setIsLoading(true);
 
-        // Validaciones básicas (puedes expandirlas)
         if (formData.ci && (isNaN(parseInt(formData.ci)) || String(formData.ci).length < 7 || String(formData.ci).length > 8) ) {
             setError("CI debe ser un número de 7 u 8 dígitos.");
             setIsLoading(false);
@@ -61,28 +61,27 @@ const EditProfile = () => {
             return;
         }
 
+        // El payload para UpdateUserDTO del backend
         const payload = {
             nombre: formData.nombre,
             apellido: formData.apellido,
-            ci: formData.ci ? parseInt(formData.ci) : null,
-            email: formData.email, // Considera si el backend permite cambiar email y cómo lo maneja
-            telefono: formData.telefono ? parseInt(formData.telefono) : null,
-            fechaNac: formData.fechaNac // En formato YYYY-MM-DD
+            ci: formData.ci, // Enviar como string, el backend lo parseará
+            email: formData.email,
+            telefono: formData.telefono, // Enviar como string
+            fechaNac: formData.fechaNac // Enviar como string YYYY-MM-DD
         };
 
         try {
-            // Endpoint PUT para actualizar perfil
-            const response = await apiClient.put('/api/user/profile', payload);
+            const response = await apiClient.put('/api/user/profile', payload); // O '/auth/profile' si esa es tu ruta
 
             setSuccessMessage('¡Datos actualizados con éxito!');
 
-            if (response.data) {
-                updateUserContext(response.data); // Actualiza AuthContext con los datos del backend
+            if (response.data) { // response.data es UserProfileDTO del backend
+                updateUserContext(response.data);
             }
 
             setTimeout(() => {
                 setSuccessMessage('');
-                // Opcional: navigate('/perfil-usuario') o a donde desees
             }, 3000);
 
         } catch (err) {
@@ -96,8 +95,6 @@ const EditProfile = () => {
         }
     };
 
-    // Muestra un estado de carga mientras el AuthContext se inicializa
-    // o si el usuario no está disponible aún.
     if (authLoading || (!authLoading && !user)) {
         return <div className="loading-container">Cargando datos del usuario...</div>;
     }
@@ -125,7 +122,6 @@ const EditProfile = () => {
                     <div className="form-group">
                         <label htmlFor="email">Email</label>
                         <input id="email" name="email" type="email" value={formData.email} onChange={handleChange} required disabled={isLoading} />
-                        {/* Podrías añadir una nota aquí si cambiar el email tiene implicaciones o deshabilitarlo */}
                     </div>
                     <div className="form-group">
                         <label htmlFor="telefono">Teléfono</label>
