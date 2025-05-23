@@ -1,8 +1,8 @@
-// src/pages/ForgotPassword.js
+// src/pages/ForgotPasswordPage.js
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import apiClient from '../services/api'; // Usa tu apiClient configurado
-// import './ForgotPassword.css'; // Si creas CSS específico
+import apiClient from '../services/api'; // Asumiendo que api.js está en src/services/
+import './ForgotPasswordPage.css';
 
 function ForgotPasswordPage() {
     const [email, setEmail] = useState('');
@@ -15,13 +15,14 @@ function ForgotPasswordPage() {
         setMessage('');
         setError('');
         setLoading(true);
+
         if (!email) {
             setError('Por favor, ingresa tu correo electrónico.');
             setLoading(false);
             return;
         }
+
         try {
-            // Endpoint: /auth/forgot-password
             const response = await apiClient.post('/auth/forgot-password', { email });
             setMessage(response.data.message);
         } catch (err) {
@@ -32,10 +33,10 @@ function ForgotPasswordPage() {
     };
 
     return (
-        <div className="forgot-password-container" style={{ maxWidth: '400px', margin: 'auto', padding: '20px' }}>
+        <div className="forgot-password-container">
             <h2>Recuperar Contraseña</h2>
             <form onSubmit={handleSubmit}>
-                <div style={{ marginBottom: '15px' }}>
+                <div className="form-group">
                     <label htmlFor="email">Correo Electrónico:</label>
                     <input
                         type="email"
@@ -44,17 +45,18 @@ function ForgotPasswordPage() {
                         onChange={(e) => setEmail(e.target.value)}
                         required
                         autoComplete="email"
-                        style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+                        placeholder="tu@email.com"
+                        disabled={loading}
                     />
                 </div>
-                <button type="submit" disabled={loading} style={{ padding: '10px 15px' }}>
+                <button type="submit" disabled={loading}>
                     {loading ? 'Enviando...' : 'Enviar Enlace de Recuperación'}
                 </button>
             </form>
-            {message && <p style={{ color: 'green', marginTop: '10px' }}>{message}</p>}
-            {error && <p style={{ color: 'red', marginTop: '10px' }}>{error}</p>}
-            <p style={{ marginTop: '20px' }}>
-                <Link to="/login">Volver al Login</Link>
+            {message && <p className="success-message">{message}</p>}
+            {error && <p className="error-message">{error}</p>}
+            <p style={{ textAlign: 'center', marginTop: '20px' }}>
+                <Link to="/login" className="login-link">Volver al Login</Link>
             </p>
         </div>
     );
