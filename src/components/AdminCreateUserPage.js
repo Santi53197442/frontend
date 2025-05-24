@@ -1,6 +1,6 @@
 // src/pages/admin/AdminCreateUserPage.js
 import React, { useState } from 'react';
-import apiClient from '../../services/api'; // Ajusta la ruta si api.js está en src/services/
+import apiClient from '../services/api'; // Ajusta la ruta si api.js está en src/services/
 import './AdminCreateUserPage.css'; // Crearemos este archivo CSS
 
 const AdminCreateUserPage = () => {
