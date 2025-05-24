@@ -2,16 +2,31 @@
 import React from 'react';
 import { Routes, Route, Navigate } from "react-router-dom";
 
-// --- Componentes y Páginas ---
-// ... (tus imports existentes)
-import AdminCreateUserPage from './components/AdminCreateUserPage'; // O donde esté
-import AdminDashboard from './pages/admin/AdminDashboard';
-import AdminUserBatchUploadPage from './pages/admin/AdminUserBatchUploadPage'; // <-- IMPORTA LA NUEVA PÁGINA
+// --- IMPORTACIONES DE COMPONENTES Y PÁGINAS ---
+// Asegúrate de que las rutas sean correctas según tu estructura de carpetas
+import Home from "./pages/Home"; // Asumiendo que Home.js está en src/pages/
+import Login from "./components/Login"; // Asumiendo que Login.js está en src/components/
+import Register from "./components/Register"; // Asumiendo que Register.js está en src/components/
+import ForgotPasswordPage from './components/ForgotPassword'; // O la ruta correcta a este componente
+import ResetPasswordPage from './components/ResetPassword'; // O la ruta correcta
+import ProtectedRoute from "./components/ProtectedRoute"; // Asumiendo que está en src/components/
+import EditProfile from "./components/EditProfile"; // Asumiendo que está en src/components/
 
 // --- LAYOUTS ---
 import AdminLayout from './layouts/AdminLayout';
 
-// ... (otros imports)
+// --- PÁGINAS DE ADMIN ---
+import AdminCreateUserPage from './components/AdminCreateUserPage'; // Verifica esta ruta, podría ser src/pages/admin/
+import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminUserBatchUploadPage from './pages/admin/AdminUserBatchUploadPage';
+
+// --- PÁGINAS DE OTROS ROLES (Ejemplos, descomenta e importa si los creas) ---
+// import VendedorPanel from './pages/vendedor/VendedorPanel';
+// import ClienteMisReservas from './pages/cliente/ClienteMisReservas';
+
+// --- PÁGINAS ADICIONALES (Ejemplos, descomenta e importa si los creas) ---
+// import UnauthorizedPage from './pages/UnauthorizedPage';
+// import NotFoundPage from './pages/NotFoundPage';
 
 const AppRouter = () => {
     return (
@@ -22,27 +37,37 @@ const AppRouter = () => {
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
+            {/* <Route path="/unauthorized" element={<UnauthorizedPage />} /> */}
 
             {/* --- Rutas Protegidas (Autenticación General Requerida) --- */}
             <Route element={<ProtectedRoute />}>
                 <Route path="/editar-perfil" element={<EditProfile />} />
+                {/* <Route path="/mis-reservas" element={<ClienteMisReservas />} /> */}
             </Route>
 
             {/* --- Rutas de Administración (Layout de Admin y Protección por Rol) --- */}
             <Route element={<ProtectedRoute allowedRoles={['administrador']} />}>
-                <Route path="/admin" element={<AdminLayout />}> {/* Ruta padre para el layout de admin */}
-                    <Route index element={<AdminDashboard />} /> {/* Ruta por defecto para /admin */}
+                <Route path="/admin" element={<AdminLayout />}>
+                    <Route index element={<AdminDashboard />} />
                     <Route path="dashboard" element={<AdminDashboard />} />
                     <Route path="crear-usuario" element={<AdminCreateUserPage />} />
-                    {/* === NUEVA RUTA PARA CARGA MASIVA === */}
                     <Route path="carga-masiva-usuarios" element={<AdminUserBatchUploadPage />} />
-                    {/* ==================================== */}
                     {/* <Route path="gestion-productos" element={<AdminGestionProductos />} /> */}
-                    {/* Añade más rutas hijas de admin aquí */}
                 </Route>
             </Route>
 
-            {/* ... (tus otras rutas) ... */}
+            {/* --- Rutas de Vendedor (Ejemplo) --- */}
+            {/*
+            <Route element={<ProtectedRoute allowedRoles={['vendedor']} />}>
+                <Route path="/vendedor" element={<VendedorLayout />}>
+                    <Route index element={<VendedorPanel />} />
+                    <Route path="panel" element={<VendedorPanel />} />
+                </Route>
+            </Route>
+            */}
+
+            {/* Ruta Catch-all */}
+            {/* <Route path="*" element={<NotFoundPage />} /> */}
             <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
     );
