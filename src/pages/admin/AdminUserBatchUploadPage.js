@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import apiClient from '../../services/api'; // Ajusta la ruta si api.js está en una ubicación diferente
 
 // Opcional: Si quieres añadir estilos específicos para esta página
-// import './AdminUserBatchUploadPage.css';
+import './AdminUserBatchUploadPage.css';
 
 function AdminUserBatchUploadPage() {
     const [selectedFile, setSelectedFile] = useState(null);

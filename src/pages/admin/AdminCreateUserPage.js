@@ -73,7 +73,7 @@ const AdminCreateUserPage = () => {
         try {
             // La ruta es relativa a apiClient.defaults.baseURL (que ahora es https://.../api)
             // Esta llamada irá a: https://web-production-2443c.up.railway.app/api/admin/users/create-privileged
-            const response = await apiClient.post('/admin/users/create-privileged', payload);
+            const response = await apiClient.post('/admin/create-privileged', payload);
             setSuccessMessage(response.data.message || "Usuario creado exitosamente.");
             setFormData(initialFormData);
         } catch (err) {
