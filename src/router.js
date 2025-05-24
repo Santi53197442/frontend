@@ -15,7 +15,7 @@ import EditProfile from "./components/EditProfile";
 import AdminLayout from './layouts/AdminLayout'; // <-- IMPORTAR ADMIN LAYOUT
 
 // --- PÁGINAS DE ADMIN ---
-import AdminCreateUserPage from './pages/admin/AdminCreateUserPage'; // Tu página existente
+import AdminCreateUserPage from './components/AdminCreateUserPage';
 import AdminDashboard from './pages/admin/AdminDashboard';     // Debes crear este componente
 
 // --- PÁGINAS DE OTROS ROLES (Ejemplos, debes crearlas si las necesitas) ---
