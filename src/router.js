@@ -16,7 +16,7 @@ import EditProfile from "./components/EditProfile"; // Asumiendo que está en sr
 import AdminLayout from './layouts/AdminLayout';
 
 // --- PÁGINAS DE ADMIN ---
-import AdminCreateUserPage from './components/AdminCreateUserPage'; // Verifica esta ruta, podría ser src/pages/admin/
+import AdminCreateUserPage from './pages/admin/AdminCreateUserPage'; // Verifica esta ruta, podría ser src/pages/admin/
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminUserBatchUploadPage from './pages/admin/AdminUserBatchUploadPage';
 

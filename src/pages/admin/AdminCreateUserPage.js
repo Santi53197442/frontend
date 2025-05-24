@@ -1,7 +1,7 @@
 // src/pages/admin/AdminCreateUserPage.js
 import React, { useState } from 'react';
-import apiClient from '../services/api'; // Ajusta la ruta si api.js está en src/services/
-import './AdminCreateUserPage.css'; // Crearemos este archivo CSS
+import apiClient from '../../services/api'; // Ajusta la ruta si api.js está en una ubicación diferente
+import './AdminCreateUserPage.css'; // Asegúrate de tener este archivo CSS o quita la importación
 
 const AdminCreateUserPage = () => {
     const initialFormData = {
@@ -13,9 +13,9 @@ const AdminCreateUserPage = () => {
         confirmarContrasenia: '',
         telefono: '',
         fechaNac: '',
-        tipoRolACrear: 'VENDEDOR', // Valor por defecto
-        codigoVendedor: '',      // Específico para VENDEDOR
-        areaResponsabilidad: ''  // Específico para ADMINISTRADOR
+        tipoRolACrear: 'VENDEDOR',
+        codigoVendedor: '',
+        areaResponsabilidad: ''
     };
     const [formData, setFormData] = useState(initialFormData);
     const [error, setError] = useState('');
@@ -30,61 +30,70 @@ const AdminCreateUserPage = () => {
         e.preventDefault();
         setError('');
         setSuccessMessage('');
+        setIsLoading(true);
 
         if (formData.contrasenia !== formData.confirmarContrasenia) {
             setError("Las contraseñas no coinciden.");
+            setIsLoading(false);
             return;
         }
         if (formData.contrasenia.length < 6) {
             setError("La contraseña debe tener al menos 6 caracteres.");
+            setIsLoading(false);
             return;
         }
-        // Podrías añadir más validaciones de frontend aquí (ej. formato de CI, teléfono)
-
-        setIsLoading(true);
 
         const payload = {
             nombre: formData.nombre,
             apellido: formData.apellido,
-            ci: formData.ci ? parseInt(formData.ci) : null,
+            // El backend espera String para CI y Teléfono según tu DTO CreatePrivilegedUserDTO
+            // y los convierte a Integer en el método processPrivilegedUserCreation.
+            // Si tu DTO realmente espera Integer, entonces el parseInt aquí es correcto.
+            // Si tu DTO espera String para que el backend lo parsee, envía como String.
+            // Voy a asumir que el backend espera String para CI y Teléfono y los parsea internamente.
+            ci: formData.ci.trim(),
             email: formData.email,
             contrasenia: formData.contrasenia,
-            telefono: formData.telefono ? parseInt(formData.telefono) : null,
-            fechaNac: formData.fechaNac,
+            telefono: formData.telefono.trim(),
+            fechaNac: formData.fechaNac, // Asegúrate de que el formato YYYY-MM-DD sea enviado
             tipoRolACrear: formData.tipoRolACrear,
         };
 
         if (formData.tipoRolACrear === 'VENDEDOR') {
-            if (!formData.codigoVendedor.trim()) { // trim() para evitar espacios en blanco
+            if (!formData.codigoVendedor.trim()) {
                 setError("El código de vendedor es obligatorio para el rol Vendedor.");
                 setIsLoading(false);
                 return;
             }
             payload.codigoVendedor = formData.codigoVendedor.trim();
         } else if (formData.tipoRolACrear === 'ADMINISTRADOR') {
-            payload.areaResponsabilidad = formData.areaResponsabilidad.trim() || "General"; // Valor por defecto si está vacío
+            payload.areaResponsabilidad = formData.areaResponsabilidad.trim() || "General";
         }
 
         try {
-            const response = await apiClient.post('/api/admin/users/create-privileged', payload);
+            // La ruta es relativa a apiClient.defaults.baseURL (que ahora es https://.../api)
+            // Esta llamada irá a: https://web-production-2443c.up.railway.app/api/admin/users/create-privileged
+            const response = await apiClient.post('/admin/users/create-privileged', payload);
             setSuccessMessage(response.data.message || "Usuario creado exitosamente.");
-            setFormData(initialFormData); // Resetear el formulario
+            setFormData(initialFormData);
         } catch (err) {
+            let errorMessage = "Ocurrió un error inesperado.";
             if (err.response && err.response.data) {
                 if (typeof err.response.data === 'object' && err.response.data.messageGeneral) {
-                    let validationErrors = "Por favor corrige los siguientes errores:\n";
+                    errorMessage = "Por favor corrige los siguientes errores:\n";
                     for (const key in err.response.data) {
                         if (key !== 'messageGeneral') {
-                            validationErrors += `- ${err.response.data[key]}\n`;
+                            errorMessage += `- ${err.response.data[key]}\n`;
                         }
                     }
-                    setError(validationErrors.trim());
+                    errorMessage = errorMessage.trim();
                 } else {
-                    setError(err.response.data.message || "Error al crear el usuario.");
+                    errorMessage = err.response.data.message || "Error al crear el usuario.";
                 }
-            } else {
-                setError("Ocurrió un error inesperado. Revisa la consola para más detalles.");
+            } else if (err.message) {
+                errorMessage = `Error de red o servidor: ${err.message}`;
             }
+            setError(errorMessage);
             console.error("Error creando usuario privilegiado:", err.response || err);
         } finally {
             setIsLoading(false);
@@ -92,7 +101,7 @@ const AdminCreateUserPage = () => {
     };
 
     return (
-        <div className="admin-create-user-page-container"> {/* Clase específica para la página */}
+        <div className="admin-create-user-page-container">
             <h2>Crear Nuevo Usuario (Admin/Vendedor)</h2>
 
             {successMessage && <p className="form-success-message">{successMessage}</p>}
@@ -113,11 +122,11 @@ const AdminCreateUserPage = () => {
                 <div className="form-row">
                     <div className="form-group">
                         <label htmlFor="ci">CI (Cédula):</label>
-                        <input type="text" id="ci" name="ci" placeholder="Ej: 12345678 (sin puntos ni guiones)" value={formData.ci} onChange={handleChange} required disabled={isLoading} />
+                        <input type="text" id="ci" name="ci" placeholder="Ej: 12345678" value={formData.ci} onChange={handleChange} required disabled={isLoading} pattern="\d+" title="Solo números" />
                     </div>
                     <div className="form-group">
                         <label htmlFor="email">Email:</label>
-                        <input type="email" id="email" name="email" placeholder="usuario@ejemplo.com" value={formData.email} onChange={handleChange} required disabled={isLoading} autoComplete="new-password" /> {/* new-password para evitar autofill de login */}
+                        <input type="email" id="email" name="email" placeholder="usuario@ejemplo.com" value={formData.email} onChange={handleChange} required disabled={isLoading} autoComplete="new-password" />
                     </div>
                 </div>
 
@@ -135,7 +144,7 @@ const AdminCreateUserPage = () => {
                 <div className="form-row">
                     <div className="form-group">
                         <label htmlFor="telefono">Teléfono:</label>
-                        <input type="tel" id="telefono" name="telefono" placeholder="Ej: 099123456" value={formData.telefono} onChange={handleChange} required disabled={isLoading} />
+                        <input type="tel" id="telefono" name="telefono" placeholder="Ej: 099123456" value={formData.telefono} onChange={handleChange} required disabled={isLoading} pattern="\d+" title="Solo números" />
                     </div>
                     <div className="form-group">
                         <label htmlFor="fechaNac">Fecha de Nacimiento:</label>
