@@ -1,67 +1,40 @@
 // src/layouts/AdminLayout.js
 import React from 'react';
-import { NavLink, Outlet, Navigate } from 'react-router-dom';
-import { useAuth } from '../AuthContext'; // Ajusta la ruta si es necesario
-import './AdminLayout.css';
+import { Outlet, Link, NavLink } from 'react-router-dom'; // NavLink para estilos activos
+import './AdminLayout.css'; // Tus estilos para el layout
 
 const AdminLayout = () => {
-    const { user, isAuthenticated, loading } = useAuth();
-
-    if (loading) {
-        return <div>Cargando...</div>; // O un spinner más elaborado
-    }
-
-    // Doble chequeo, aunque ProtectedRoute debería prevenir acceso no autorizado
-    if (!isAuthenticated || !user || user.rol !== 'administrador') {
-        console.warn("Intento de acceso no autorizado a AdminLayout o usuario no es admin.");
-        return <Navigate to="/login" replace />;
-    }
-
     return (
         <div className="admin-layout">
             <aside className="admin-sidebar">
-                <h3>Panel de Admin</h3>
-                <nav className="admin-sidebar-nav">
+                <div className="sidebar-header">
+                    <h3>Panel de Admin</h3>
+                </div>
+                <nav className="sidebar-nav">
                     <ul>
                         <li>
-                            <NavLink
-                                to="/admin/dashboard"
-                                className={({ isActive }) => isActive ? "admin-nav-link active" : "admin-nav-link"}
-                            >
+                            <NavLink to="/admin/dashboard" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
                                 Dashboard
                             </NavLink>
                         </li>
                         <li>
-                            <NavLink
-                                to="/admin/crear-usuario"
-                                className={({ isActive }) => isActive ? "admin-nav-link active" : "admin-nav-link"}
-                            >
+                            <NavLink to="/admin/crear-usuario" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
                                 Crear Usuario
                             </NavLink>
                         </li>
-                        {/* Ejemplo de más enlaces de administración
+                        {/* === ENLACE PARA CARGA MASIVA EN SIDEBAR === */}
                         <li>
-                            <NavLink
-                                to="/admin/gestion-viajes"
-                                className={({ isActive }) => isActive ? "admin-nav-link active" : "admin-nav-link"}
-                            >
-                                Gestionar Viajes
+                            <NavLink to="/admin/carga-masiva-usuarios" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
+                                Carga Masiva
                             </NavLink>
                         </li>
-                        <li>
-                            <NavLink
-                                to="/admin/reportes"
-                                className={({ isActive }) => isActive ? "admin-nav-link active" : "admin-nav-link"}
-                            >
-                                Reportes
-                            </NavLink>
-                        </li>
-                        */}
+                        {/* ========================================== */}
+                        {/* Otros enlaces */}
                     </ul>
                 </nav>
             </aside>
             <main className="admin-content">
-                <Outlet /> {/* Aquí se renderizarán las rutas hijas */}
+                <Outlet /> {/* Aquí se renderizarán las rutas hijas (Dashboard, CrearUsuario, CargaMasiva, etc.) */}
             </main>
         </div>
     );

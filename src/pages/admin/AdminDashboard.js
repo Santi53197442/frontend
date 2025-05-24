@@ -1,9 +1,9 @@
 // src/pages/admin/AdminDashboard.js
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../../AuthContext'; // Ajusta la ruta si es diferente
-import UserBatchUpload from '../../components/UserBatchUpload'; // <-- AÑADE ESTA IMPORTACIÓN
+import { useAuth } from '../../AuthContext'; // Ajusta la ruta
 import './AdminDashboard.css';
+// No necesitas importar UserBatchUpload aquí ahora
 
 const AdminDashboard = () => {
     const { user } = useAuth();
@@ -11,10 +11,18 @@ const AdminDashboard = () => {
     const adminActions = [
         {
             title: "Crear Usuario",
-            description: "Añadir nuevos administradores o vendedores al sistema.",
+            description: "Añadir nuevos administradores o vendedores individualmente.",
             link: "/admin/crear-usuario",
             color: "#2980b9"
         },
+        // === NUEVA ACCIÓN PARA CARGA MASIVA ===
+        {
+            title: "Carga Masiva de Usuarios",
+            description: "Subir un archivo CSV para crear múltiples usuarios.",
+            link: "/admin/carga-masiva-usuarios", // Enlace a la nueva ruta
+            color: "#8e44ad" // Morado, por ejemplo
+        },
+        // =====================================
         {
             title: "Gestionar Viajes",
             description: "Configurar rutas, horarios y disponibilidad de viajes.",
@@ -52,12 +60,7 @@ const AdminDashboard = () => {
                 </div>
             </section>
 
-            {/* === SECCIÓN PARA LA CARGA MASIVA === */}
-            <section className="admin-batch-upload-section">
-                <UserBatchUpload />
-            </section>
-            {/* ===================================== */}
-
+            {/* La sección de carga masiva ya no estará aquí directamente */}
         </div>
     );
 };
