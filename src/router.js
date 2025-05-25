@@ -20,7 +20,7 @@ import AdminCreateUserPage from './pages/admin/AdminCreateUserPage'; // Verifica
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminUserBatchUploadPage from './pages/admin/AdminUserBatchUploadPage';
 import AdminUserListPage from "./pages/admin/AdminUserListPage";
-import AdminUserListDeletePage from './pages/AdminUserListDeletePage';
+import AdminUserListDeletePage from './pages/admin/AdminUserListDeletePage';
 
 // --- PÁGINAS DE OTROS ROLES (Ejemplos, descomenta e importa si los creas) ---
 // import VendedorPanel from './pages/vendedor/VendedorPanel';
