@@ -1,0 +1,86 @@
+.user-list-container {
+    padding: 20px;
+    max-width: 1200px; /* Limita el ancho máximo para mejor legibilidad en pantallas grandes */
+    margin: 20px auto; /* Centra el contenedor */
+    background-color: #f9f9f9; /* Un fondo suave */
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Sombra sutil */
+}
+
+.user-list-container h2 {
+    color: #333;
+    margin-bottom: 25px;
+    text-align: center;
+    font-size: 2rem; /* Tamaño de fuente más grande para el título */
+    border-bottom: 2px solid #007bff; /* Línea azul debajo del título */
+    padding-bottom: 10px;
+    display: inline-block; /* Para que el borde solo ocupe el ancho del texto */
+}
+
+.user-list-title-wrapper { /* Nuevo contenedor para centrar el título */
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.user-list-table-responsive {
+    overflow-x: auto; /* Permite scroll horizontal en tablas grandes en pantallas pequeñas */
+}
+
+.user-list-table {
+    width: 100%;
+    border-collapse: collapse; /* Elimina espacios entre bordes de celdas */
+    margin-top: 20px;
+    font-size: 0.95rem; /* Un poco más pequeño para que quepa más info */
+}
+
+.user-list-table th,
+.user-list-table td {
+    padding: 12px 15px; /* Más padding para mejor espaciado */
+    text-align: left;
+    border-bottom: 1px solid #ddd; /* Líneas horizontales sutiles */
+    vertical-align: middle; /* Alinea verticalmente el contenido */
+}
+
+.user-list-table thead th {
+    background-color: #007bff; /* Azul primario para el encabezado */
+    color: white;
+    font-weight: 600; /* Un poco más de peso para el encabezado */
+    border-top: 1px solid #007bff; /* Borde superior para consistencia */
+}
+
+/* Estilo para la primera columna (ID) si quieres diferenciarla */
+.user-list-table td:first-child,
+.user-list-table th:first-child {
+    /* font-weight: bold; */ /* Ejemplo si quieres el ID en negrita */
+}
+
+.user-list-table tbody tr:hover {
+    background-color: #f1f1f1; /* Resaltado al pasar el mouse */
+    cursor: default; /* O 'pointer' si las filas son clickeables */
+}
+
+/* Estilo para filas alternas (opcional, para mejor legibilidad en tablas largas) */
+.user-list-table tbody tr:nth-of-type(even) {
+    /* background-color: #f8f8f8; */ /* Descomenta para filas con colores alternos */
+}
+
+.loading-message,
+.error-message,
+.no-users-message {
+    text-align: center;
+    padding: 20px;
+    font-size: 1.1rem;
+    margin-top: 30px;
+}
+
+.error-message {
+    color: #dc3545; /* Rojo para errores */
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 5px;
+    padding: 15px;
+}
+
+.no-users-message {
+    color: #6c757d; /* Gris para mensajes informativos */
+}

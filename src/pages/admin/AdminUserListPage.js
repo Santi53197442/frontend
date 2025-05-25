@@ -1,6 +1,7 @@
 // src/pages/admin/AdminUserListPage.js
 import React, { useState, useEffect } from 'react';
 import apiClient from '../../services/api'; // Ajusta la ruta a tu api.js
+import './AdminUserListPage.css';
 
 function AdminUserListPage() {
     const [users, setUsers] = useState([]);
