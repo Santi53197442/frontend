@@ -13,7 +13,7 @@ import EditProfile from "./components/EditProfile";
 
 // --- LAYOUTS ---
 import AdminLayout from './layouts/AdminLayout';
-import VendedorLayout from './layouts/VendedorLayout'; // <-- NUEVO: Importar VendedorLayout
+import VendedorLayout from './layouts/VendedorLayout';
 
 // --- PÁGINAS DE ADMIN ---
 import AdminCreateUserPage from './pages/admin/AdminCreateUserPage';
@@ -23,8 +23,10 @@ import AdminUserListPage from "./pages/admin/AdminUserListPage";
 import AdminUserListDeletePage from './pages/admin/AdminUserListDeletePage';
 
 // --- PÁGINAS DE VENDEDOR ---
-import VendedorDashboard from './pages/vendedor/VendedorDashboard';         // <-- NUEVO
-import VendedorAltaLocalidadPage from './pages/vendedor/VendedorAltaLocalidadPage'; // <-- NUEVO
+import VendedorDashboard from './pages/vendedor/VendedorDashboard';
+import VendedorAltaLocalidadPage from './pages/vendedor/VendedorAltaLocalidadPage';
+import VendedorLocalidadMasivo from './pages/vendedor/VendedorLocalidadMasivo';
+
 // import VendedorMisLocalidadesPage from './pages/vendedor/VendedorMisLocalidadesPage'; // Si la creas
 
 // --- PÁGINAS ADICIONALES (Ejemplos, descomenta e importa si los creas) ---
@@ -69,6 +71,7 @@ const AppRouter = () => {
                     <Route index element={<VendedorDashboard />} />
                     <Route path="dashboard" element={<VendedorDashboard />} />
                     <Route path="alta-localidad" element={<VendedorAltaLocalidadPage />} />
+                    <Route path="alta-masiva-localidades" element={<VendedorLocalidadMasivo />} />
                     {/* <Route path="mis-localidades" element={<VendedorMisLocalidadesPage />} /> */}
                 </Route>
             </Route>

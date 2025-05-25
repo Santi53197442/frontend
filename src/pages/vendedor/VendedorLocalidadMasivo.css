@@ -1,0 +1,225 @@
+/* src/pages/vendedor/VendedorLocalidadMasivo.css */
+
+.localidad-masivo-page-container { /* Renombrado de .batch-upload-page-container */
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 0 1rem; /* Espacio lateral para viewports pequeños */
+}
+
+/* Estilos para la tarjeta del formulario (reutilizables si ya los tienes definidos globalmente o en VendedorLayout.css) */
+.form-card {
+    background-color: #ffffff;
+    padding: 2rem 2.5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e0e0e0;
+}
+
+/* Estilos para el título del formulario (reutilizables) */
+.form-title {
+    font-size: 1.75rem;
+    color: #333;
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 1rem; /* Reducido un poco */
+    font-weight: 600;
+}
+
+.upload-instructions {
+    font-size: 0.95rem;
+    color: #555;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    padding: 0.75rem; /* Ajustado */
+    background-color: #f8f9fa; /* Fondo claro */
+    border-radius: 4px;
+    border: 1px dashed #ced4da; /* Borde discontinuo */
+}
+
+.localidad-masivo-form .form-group { /* Renombrado de .batch-upload-form */
+    margin-bottom: 1.5rem;
+}
+
+/* Estilo personalizado para el input de archivo */
+.file-input-group { /* Esta clase puede mantenerse */
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+.file-input-label {
+    display: block;
+    padding: 0.8rem 1rem;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #495057;
+    background-color: #e9ecef; /* Gris claro para el label del input */
+    border: 1px solid #ced4da;
+    border-radius: 0.3rem;
+    cursor: pointer;
+    text-align: center;
+    transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+    overflow: hidden;
+    text-overflow: ellipsis; /* Para nombres de archivo largos */
+    white-space: nowrap;
+}
+
+.file-input-label:hover {
+    background-color: #dde2e6; /* Un poco más oscuro al hacer hover */
+    border-color: #adb5bd;
+}
+
+.file-input-hidden { /* Mantiene el input real oculto */
+    width: 0.1px;
+    height: 0.1px;
+    opacity: 0;
+    overflow: hidden;
+    position: absolute;
+    z-index: -1;
+}
+
+.file-input-hidden:focus + .file-input-label {
+    border-color: #80bdff; /* Azul suave para el foco */
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Mensajes (reutilizables) */
+.message {
+    padding: 0.8rem 1.2rem;
+    margin-bottom: 1.5rem;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    text-align: center;
+}
+
+.error-message {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.success-message { /* Si lo llegaras a usar directamente en esta página */
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.message.preview-error { /* Error específico de validación de archivo en el cliente */
+    margin-top: 0.5rem;
+    text-align: left; /* Para que se alinee con el input */
+}
+
+
+/* Botón de envío (puede heredar estilos globales o del VendedorLayout.css) */
+.submit-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 0.8rem 1.5rem;
+    font-size: 1.05rem;
+    font-weight: 500;
+    color: #fff;
+    background-color: #28a745; /* Verde para "procesar" */
+    border: 1px solid #28a745;
+    border-radius: 0.3rem;
+    cursor: pointer;
+    transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+}
+.submit-button:hover:not(:disabled) {
+    background-color: #218838; /* Verde más oscuro */
+    border-color: #1e7e34;
+}
+.submit-button:disabled {
+    background-color: #6c757d; /* Gris para deshabilitado */
+    border-color: #6c757d;
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+.spinner { /* Spinner para el botón de carga (reutilizable) */
+    display: inline-block;
+    width: 1em; /* Relativo al tamaño de fuente del botón */
+    height: 1em;
+    margin-right: 0.75em; /* Espacio entre spinner y texto */
+    border: 2px solid rgba(255, 255, 255, 0.3); /* Borde semi-transparente */
+    border-radius: 50%;
+    border-top-color: #fff; /* Color del segmento que gira */
+    animation: spin 0.8s linear infinite; /* Animación de giro */
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+
+/* Contenedor de resultados de la carga */
+.upload-results-container {
+    margin-top: 2.5rem; /* Más espacio arriba */
+    padding: 1.5rem;
+    background-color: #f8f9fa; /* Fondo gris claro */
+    border: 1px solid #dee2e6; /* Borde sutil */
+    border-radius: 6px;
+}
+
+.upload-results-container h3 {
+    margin-top: 0;
+    margin-bottom: 1.25rem; /* Espacio debajo del título de resultados */
+    color: #343a40; /* Gris oscuro */
+    border-bottom: 1px solid #ced4da;
+    padding-bottom: 0.75rem;
+    font-size: 1.25rem; /* Tamaño ajustado */
+}
+.upload-results-container p {
+    margin-bottom: 0.6rem; /* Espacio entre párrafos de resumen */
+    font-size: 0.95rem;
+    line-height: 1.6; /* Mejor legibilidad */
+}
+.upload-results-container .success-count strong {
+    color: #155724; /* Verde para el texto "Creadas exitosamente" */
+}
+.upload-results-container .failure-count strong {
+    color: #721c24; /* Rojo para el texto "Fallaron" */
+}
+
+.details-section {
+    margin-top: 1.5rem; /* Espacio antes de las secciones de detalles */
+    padding-top: 1rem;
+    border-top: 1px dashed #ced4da; /* Separador discontinuo */
+}
+.details-section h4 {
+    margin-top: 0;
+    margin-bottom: 0.75rem;
+    font-size: 1.1rem;
+    color: #495057; /* Gris medio para los subtítulos de detalles */
+}
+.details-section ul {
+    list-style-type: none;
+    padding-left: 0;
+    max-height: 250px; /* Altura máxima con scroll para listas largas */
+    overflow-y: auto;
+    border: 1px solid #e0e0e0;
+    padding: 0.75rem; /* Padding interno de la lista */
+    border-radius: 4px;
+    background-color: #fff; /* Fondo blanco para la lista de detalles */
+}
+.details-section li {
+    padding: 0.4rem 0.5rem; /* Padding para cada item de la lista */
+    font-size: 0.9rem;
+    border-bottom: 1px solid #f1f1f1; /* Separador muy sutil entre items */
+    word-break: break-word; /* Para errores largos */
+}
+.details-section li:last-child {
+    border-bottom: none;
+}
+.success-detail {
+    color: #155724; /* Verde para detalles de éxito */
+}
+.failure-detail {
+    color: #721c24; /* Rojo para detalles de fallo */
+}
+
+/* Mensaje de error de la API (general) */
+.message.api-error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}

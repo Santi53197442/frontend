@@ -36,11 +36,11 @@ const VendedorLayout = () => {
                         {/* Ejemplo de otros enlaces que podrías tener */}
                         <li>
                             <NavLink
-                                to="/vendedor/mis-ventas" // Necesitarás crear esta ruta/página
+                                to="/vendedor/alta-masiva-localidades"
                                 className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
                             >
                                 {/* <i className="icon fas fa-dollar-sign"></i> */}
-                                <span>Mis Ventas</span>
+                                <span>Alta masiva de Localidades</span>
                             </NavLink>
                         </li>
                         <li>
