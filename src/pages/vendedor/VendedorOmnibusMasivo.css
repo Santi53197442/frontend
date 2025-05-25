@@ -1,0 +1,134 @@
+/* src/pages/vendedor/VendedorOmnibusMasivo.css */
+
+.omnibus-masivo-page-container { /* Renombrado de .batch-upload-page-container o .localidad-masivo-page-container */
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+/* Estilos para la tarjeta del formulario (pueden ser comunes) */
+.form-card {
+    background-color: #ffffff;
+    padding: 2rem 2.5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e0e0e0;
+}
+
+/* Estilos para el título del formulario (pueden ser comunes) */
+.form-title {
+    font-size: 1.75rem;
+    color: #333;
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.upload-instructions {
+    font-size: 0.95rem;
+    color: #555;
+    margin-bottom: 1.5rem;
+    text-align: center; /* Centrado para mejor lectura */
+    padding: 0.75rem;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    border: 1px dashed #ced4da;
+    line-height: 1.5; /* Espacio entre líneas si las instrucciones son largas */
+}
+
+.omnibus-masivo-form .form-group { /* Renombrado de .batch-upload-form o .localidad-masivo-form */
+    margin-bottom: 1.5rem;
+}
+
+/* Estilo personalizado para el input de archivo (puede ser común) */
+.file-input-group {
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+.file-input-label {
+    display: block;
+    padding: 0.8rem 1rem;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #495057;
+    background-color: #e9ecef;
+    border: 1px solid #ced4da;
+    border-radius: 0.3rem;
+    cursor: pointer;
+    text-align: center;
+    transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.file-input-label:hover {
+    background-color: #dde2e6;
+    border-color: #adb5bd;
+}
+
+.file-input-hidden {
+    width: 0.1px;
+    height: 0.1px;
+    opacity: 0;
+    overflow: hidden;
+    position: absolute;
+    z-index: -1;
+}
+
+.file-input-hidden:focus + .file-input-label {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Mensajes (pueden ser comunes) */
+.message { padding: 0.8rem 1.2rem; margin-bottom: 1.5rem; border-radius: 6px; font-size: 0.95rem; text-align: center; }
+.error-message { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+.success-message { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+.message.preview-error { margin-top: 0.5rem; text-align: left; }
+
+
+/* Botón de envío (puede ser común) */
+.submit-button {
+    display: flex; align-items: center; justify-content: center; width: 100%;
+    padding: 0.8rem 1.5rem; font-size: 1.05rem; font-weight: 500; color: #fff;
+    background-color: #28a745; border: 1px solid #28a745; border-radius: 0.3rem;
+    cursor: pointer; transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+}
+.submit-button:hover:not(:disabled) { background-color: #218838; border-color: #1e7e34; }
+.submit-button:disabled { background-color: #6c757d; border-color: #6c757d; opacity: 0.65; cursor: not-allowed; }
+.spinner {
+    display: inline-block; width: 1em; height: 1em; margin-right: 0.75em;
+    border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 50%;
+    border-top-color: #fff; animation: spin 0.8s linear infinite;
+}
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+/* Contenedor de resultados (puede ser común) */
+.upload-results-container {
+    margin-top: 2.5rem; padding: 1.5rem; background-color: #f8f9fa;
+    border: 1px solid #dee2e6; border-radius: 6px;
+}
+.upload-results-container h3 {
+    margin-top: 0; margin-bottom: 1.25rem; color: #343a40;
+    border-bottom: 1px solid #ced4da; padding-bottom: 0.75rem; font-size: 1.25rem;
+}
+.upload-results-container p { margin-bottom: 0.6rem; font-size: 0.95rem; line-height: 1.6; }
+.upload-results-container .success-count strong { color: #155724; }
+.upload-results-container .failure-count strong { color: #721c24; }
+
+.details-section {
+    margin-top: 1.5rem; padding-top: 1rem; border-top: 1px dashed #ced4da;
+}
+.details-section h4 { margin-top: 0; margin-bottom: 0.75rem; font-size: 1.1rem; color: #495057; }
+.details-section ul {
+    list-style-type: none; padding-left: 0; max-height: 250px; overflow-y: auto;
+    border: 1px solid #e0e0e0; padding: 0.75rem; border-radius: 4px; background-color: #fff;
+}
+.details-section li { padding: 0.4rem 0.5rem; font-size: 0.9rem; border-bottom: 1px solid #f1f1f1; word-break: break-word; }
+.details-section li:last-child { border-bottom: none; }
+.success-detail { color: #155724; }
+.failure-detail { color: #721c24; }
+.message.api-error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }

@@ -71,6 +71,14 @@ const VendedorLayout = () => {
                                 <span>Editar Perfil</span>
                             </NavLink>
                         </li>
+                        <li>
+                            <NavLink
+                                to="/vendedor/alta-masiva-omnibus"
+                                className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
+                            >
+                                <span>Omnibus Masivo (CSV)</span>
+                            </NavLink>
+                        </li>
                     </ul>
                 </nav>
                 <div className="sidebar-footer">

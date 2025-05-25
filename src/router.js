@@ -74,6 +74,7 @@ const AppRouter = () => {
                     <Route path="alta-localidad" element={<VendedorAltaLocalidadPage />} />
                     <Route path="alta-masiva-localidades" element={<VendedorLocalidadMasivo />} />
                     <Route path="alta-omnibus" element={<VendedorAltaOmnibusPage />} />
+                    <Route path="alta-masiva-omnibus" element={<VendedorOmnibusMasivo />} />
                     {/* <Route path="mis-localidades" element={<VendedorMisLocalidadesPage />} /> */}
                 </Route>
             </Route>
