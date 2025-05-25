@@ -14,7 +14,7 @@ function AdminUserListPage() {
             try {
                 // Tu apiClient ya incluye el token y el BASE_URL con /api
                 // El endpoint es '/users' relativo a BASE_URL
-                const response = await apiClient.get('/users');
+                const response = await apiClient.get('/admin/users');
 
                 setUsers(response.data); // response.data debería ser List<UserViewDTO>
 
