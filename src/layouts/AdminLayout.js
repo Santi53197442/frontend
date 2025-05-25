@@ -28,6 +28,14 @@ const AdminLayout = () => {
                                 Carga Masiva
                             </NavLink>
                         </li>
+                        <li>
+                            <NavLink
+                                to="/admin/listar-usuarios"  // <--- ENLACE AÑADIDO
+                                className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
+                            >
+                                Listar Usuarios
+                            </NavLink>
+                        </li>
                         {/* ========================================== */}
                         {/* Otros enlaces */}
                     </ul>
