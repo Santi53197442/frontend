@@ -1,46 +1,78 @@
 // src/layouts/VendedorLayout.js
 import React from 'react';
-import { Outlet, Link, NavLink } from 'react-router-dom'; // Importa NavLink
-import './VendedorLayout.css'; // Asegúrate de crear este archivo y descomentar esta línea
+import { Outlet, NavLink } from 'react-router-dom'; // NavLink para estilos activos
+import './VendedorLayout.css'; // Asegúrate de crear este archivo y que la ruta sea correcta
 
 const VendedorLayout = () => {
     return (
         <div className="vendedor-layout">
-            <header className="vendedor-header">
-                <h1>Panel de Vendedor</h1>
-                {/* Podrías añadir aquí un logo o el nombre del usuario si lo tienes */}
-            </header>
-            <div className="vendedor-main-content">
-                <aside className="vendedor-sidebar">
-                    <nav className="vendedor-nav">
-                        {/* Usamos NavLink para estilos de enlace activo */}
-                        <NavLink
-                            to="/vendedor/dashboard"
-                            className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
-                        >
-                            Dashboard
-                        </NavLink>
-                        <NavLink
-                            to="/vendedor/alta-localidad"
-                            className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
-                        >
-                            Alta de Localidad
-                        </NavLink>
-                        {/* <NavLink
-                            to="/vendedor/mis-localidades"
-                            className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
-                        >
-                            Mis Localidades
-                        </NavLink> */}
-                    </nav>
-                </aside>
-                <main className="vendedor-page-content">
-                    <Outlet /> {/* Aquí se renderizarán las páginas hijas */}
-                </main>
-            </div>
-            <footer className="vendedor-footer">
-                <p>© {new Date().getFullYear()} Tu Nombre de Aplicación. Todos los derechos reservados.</p>
-            </footer>
+            <aside className="vendedor-sidebar">
+                <div className="sidebar-header">
+                    {/* Podrías poner un logo o un título más genérico si es multimarca */}
+                    <NavLink to="/vendedor/dashboard" className="sidebar-logo-link">
+                        <h3>Panel Vendedor</h3>
+                    </NavLink>
+                </div>
+                <nav className="sidebar-nav">
+                    <ul>
+                        <li>
+                            <NavLink
+                                to="/vendedor/dashboard"
+                                className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
+                            >
+                                {/* <i className="icon fas fa-tachometer-alt"></i>  Si usas Font Awesome */}
+                                <span>Dashboard</span>
+                            </NavLink>
+                        </li>
+                        <li>
+                            <NavLink
+                                to="/vendedor/alta-localidad"
+                                className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
+                            >
+                                {/* <i className="icon fas fa-map-marker-alt"></i> */}
+                                <span>Alta de Localidad</span>
+                            </NavLink>
+                        </li>
+                        {/* Ejemplo de otros enlaces que podrías tener */}
+                        <li>
+                            <NavLink
+                                to="/vendedor/mis-ventas" // Necesitarás crear esta ruta/página
+                                className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
+                            >
+                                {/* <i className="icon fas fa-dollar-sign"></i> */}
+                                <span>Mis Ventas</span>
+                            </NavLink>
+                        </li>
+                        <li>
+                            <NavLink
+                                to="/vendedor/horarios" // Necesitarás crear esta ruta/página
+                                className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
+                            >
+                                {/* <i className="icon fas fa-clock"></i> */}
+                                <span>Consultar Horarios</span>
+                            </NavLink>
+                        </li>
+                        {/* Separador opcional si tienes muchas secciones */}
+                        {/* <li className="menu-separator-container"><hr className="menu-separator" /></li> */}
+                        <li>
+                            <NavLink
+                                to="/editar-perfil" // Ruta general de edición de perfil
+                                className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
+                            >
+                                {/* <i className="icon fas fa-user-edit"></i> */}
+                                <span>Editar Perfil</span>
+                            </NavLink>
+                        </li>
+                    </ul>
+                </nav>
+                <div className="sidebar-footer">
+                    {/* Podrías poner un enlace de "Cerrar Sesión" o info del usuario aquí */}
+                    <p>© {new Date().getFullYear()} TuApp</p>
+                </div>
+            </aside>
+            <main className="vendedor-content">
+                <Outlet /> {/* Aquí se renderizarán las rutas hijas */}
+            </main>
         </div>
     );
 };

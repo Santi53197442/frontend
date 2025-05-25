@@ -1,165 +1,146 @@
 /* src/layouts/VendedorLayout.css */
 
-/* Estilos generales para el layout del vendedor */
-.vendedor-layout {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh; /* Asegura que el layout ocupe al menos toda la altura de la pantalla */
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    background-color: #f4f6f8; /* Un fondo claro para el layout general */
+/* Reseteo básico y fuente global (igual que AdminLayout para consistencia) */
+body, html { /* Aplica esto en tu App.css o index.css globalmente si aún no lo has hecho */
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #eef0f2; /* Un gris muy claro para el fondo general de la página */
     color: #333;
 }
 
-/* Header del Vendedor */
-.vendedor-header {
-    background-color: #343a40; /* Un color oscuro para el header */
-    color: white;
-    padding: 1rem 2rem;
-    text-align: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.vendedor-header h1 {
-    margin: 0;
-    font-size: 1.8rem;
-}
-
-/* Contenedor principal que incluye sidebar y contenido de la página */
-.vendedor-main-content {
+.vendedor-layout {
     display: flex;
-    flex-grow: 1; /* Hace que esta sección ocupe el espacio restante */
+    min-height: 100vh;
 }
 
-/* Sidebar / Navegación lateral */
 .vendedor-sidebar {
-    width: 250px; /* Ancho de la barra lateral */
-    background-color: #ffffff; /* Fondo blanco para la sidebar */
-    padding: 1.5rem 0;
-    border-right: 1px solid #e0e0e0; /* Un borde sutil */
-    box-shadow: 2px 0 5px rgba(0,0,0,0.05);
-}
-
-.vendedor-nav {
+    width: 260px;
+    background-color: #343a40; /* Gris oscuro, casi negro. Puedes usar #2c3e50 si prefieres un tono más azulado. */
+    color: #adb5bd; /* Color de texto claro para contraste con el fondo oscuro */
+    padding: 20px 0;
+    box-shadow: 3px 0px 10px rgba(0, 0, 0, 0.1); /* Sombra sutil */
     display: flex;
     flex-direction: column;
+    transition: width 0.3s ease;
 }
 
-.vendedor-nav .nav-link {
-    padding: 0.8rem 1.5rem;
+.sidebar-header {
+    padding: 0 20px;
+    margin-bottom: 20px; /* Reducido un poco */
+}
+
+.sidebar-logo-link {
     text-decoration: none;
-    color: #495057; /* Color de texto para los enlaces */
+}
+
+.vendedor-sidebar .sidebar-header h3 {
+    text-align: left;
+    color: #ffffff; /* Blanco para el título principal del panel */
+    margin-top: 10px;
+    margin-bottom: 15px;
+    font-size: 1.4em; /* Ajustado */
+    font-weight: 600;
+    border-bottom: 1px solid #495057; /* Separador en tono gris oscuro */
+    padding-bottom: 15px;
+}
+
+.sidebar-nav ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    flex-grow: 1; /* Para empujar el footer del sidebar hacia abajo */
+}
+
+.sidebar-nav li {
+    margin: 0 15px 6px 15px; /* Margen reducido entre items */
+}
+
+.sidebar-nav .nav-link {
+    display: flex;
+    align-items: center;
+    padding: 11px 15px; /* Padding ajustado */
+    color: #ced4da; /* Gris claro para los enlaces inactivos */
+    text-decoration: none;
+    border-radius: 5px; /* Bordes un poco menos redondeados */
+    font-size: 0.95em;
     font-weight: 500;
-    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
-    border-left: 3px solid transparent; /* Para el indicador de activo */
+    transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-.vendedor-nav .nav-link:hover {
-    background-color: #e9ecef; /* Color de fondo al pasar el mouse */
-    color: #007bff;
+/* Iconos (si los usas) */
+.sidebar-nav .nav-link .icon {
+    margin-right: 10px;
+    width: 18px; /* Ajustado */
+    text-align: center;
+    font-size: 1em; /* Ajustado */
+    color: #868e96; /* Color de icono gris medio */
+}
+.sidebar-nav .nav-link.active .icon {
+    color: #ffffff; /* Icono blanco en enlace activo */
 }
 
-.vendedor-nav .nav-link.active {
-    background-color: #e6f7ff; /* Un azul claro para el enlace activo */
-    color: #0056b3; /* Un azul más oscuro para el texto del enlace activo */
-    border-left-color: #007bff; /* Indicador visual a la izquierda */
+
+.sidebar-nav .nav-link:hover {
+    background-color: #495057; /* Gris un poco más claro al hacer hover */
+    color: #ffffff;
+}
+.sidebar-nav .nav-link:hover .icon {
+    color: #ffffff; /* Icono blanco en hover */
+}
+
+.sidebar-nav .nav-link.active {
+    background-color: #007bff; /* Azul primario para el activo (puedes cambiarlo a un gris más claro si prefieres monocromático) */
+    /* Ejemplo monocromático para activo: background-color: #5a6268; */
+    color: #ffffff; /* Texto blanco para el activo */
     font-weight: 600;
 }
 
-/* Contenido principal de la página */
-.vendedor-page-content {
-    flex-grow: 1; /* Ocupa el espacio restante al lado de la sidebar */
-    padding: 2rem;
-    overflow-y: auto; /* Permite scroll si el contenido es muy largo */
+/* Para el separador opcional */
+.menu-separator-container {
+    padding: 5px 15px;
+}
+.menu-separator {
+    border: none;
+    height: 1px;
+    background-color: #495057; /* Separador del mismo tono que el hover */
 }
 
-/* Footer del Vendedor */
-.vendedor-footer {
-    background-color: #343a40; /* Mismo color que el header */
-    color: #adb5bd; /* Un gris claro para el texto del footer */
+.sidebar-footer {
+    padding: 15px 20px;
+    margin-top: auto; /* Empuja el footer hacia abajo */
     text-align: center;
-    padding: 1rem;
-    font-size: 0.9rem;
+    font-size: 0.8em;
+    color: #868e96; /* Color de texto del footer */
     border-top: 1px solid #495057;
 }
 
-/* Estilos para el contenido dentro de las páginas (ej. VendedorDashboard, VendedorAltaLocalidadPage) */
-/* Puedes mover estos a un CSS global o a los CSS de cada página si prefieres */
-.vendedor-page-content h2 {
-    color: #343a40;
+
+.vendedor-content {
+    flex-grow: 1;
+    padding: 20px 25px; /* Padding ajustado */
+    overflow-y: auto;
+    background-color: #f8f9fa; /* Un gris muy, muy claro para el área de contenido */
+    /* Si quieres el efecto de "tarjeta" para el contenido como en AdminLayout: */
+    /* margin: 15px;
+    border-radius: 8px;
+    background-color: #ffffff;
+    box-shadow: 0 0 15px rgba(0,0,0,0.05); */
+}
+
+/* Estilos base para el contenido de las páginas (h2) */
+.vendedor-content h2 { /* Heredado de VendedorLayout.css anterior, puede que ya lo tengas en el CSS de cada página */
+    font-size: 1.75em;
+    color: #343a40; /* Gris oscuro para los títulos de página */
     margin-top: 0;
-    margin-bottom: 1.5rem;
-    border-bottom: 2px solid #007bff;
-    padding-bottom: 0.5rem;
-    display: inline-block; /* Para que el borde solo ocupe el ancho del texto */
-}
-
-/* Estilos básicos para formularios dentro del layout (puedes expandirlos) */
-.vendedor-page-content form div {
-    margin-bottom: 1rem;
-}
-
-.vendedor-page-content form label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 600;
-    color: #495057;
-}
-
-.vendedor-page-content form input[type="text"],
-.vendedor-page-content form input[type="email"],
-.vendedor-page-content form input[type="password"],
-.vendedor-page-content form select,
-.vendedor-page-content form textarea {
-    width: 100%;
-    padding: 0.75rem;
-    border: 1px solid #ced4da;
-    border-radius: 0.25rem;
-    box-sizing: border-box; /* Importante para que padding no aumente el ancho total */
-    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-}
-
-.vendedor-page-content form input:focus {
-    border-color: #80bdff;
-    outline: 0;
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-}
-
-.vendedor-page-content form button[type="submit"] {
-    background-color: #007bff;
-    color: white;
-    padding: 0.75rem 1.5rem;
-    border: none;
-    border-radius: 0.25rem;
-    cursor: pointer;
-    font-size: 1rem;
+    margin-bottom: 25px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #dee2e6; /* Separador gris claro */
     font-weight: 500;
-    transition: background-color 0.15s ease-in-out;
 }
 
-.vendedor-page-content form button[type="submit"]:hover {
-    background-color: #0056b3;
-}
-
-.vendedor-page-content form button[type="submit"]:disabled {
-    background-color: #6c757d;
-    cursor: not-allowed;
-}
-
-/* Mensajes de error y éxito (puedes personalizarlos más) */
-.error-message {
-    background-color: #f8d7da;
-    color: #721c24;
-    padding: 0.75rem 1.25rem;
-    margin-bottom: 1rem;
-    border: 1px solid #f5c6cb;
-    border-radius: 0.25rem;
-}
-
-.success-message {
-    background-color: #d4edda;
-    color: #155724;
-    padding: 0.75rem 1.25rem;
-    margin-bottom: 1rem;
-    border: 1px solid #c3e6cb;
-    border-radius: 0.25rem;
+/* Focus visible para accesibilidad */
+.sidebar-nav .nav-link:focus-visible {
+    outline: 2px solid #007bff; /* O el color de tu tema */
+    outline-offset: 1px;
 }
