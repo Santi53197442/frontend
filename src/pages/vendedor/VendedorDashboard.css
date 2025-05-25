@@ -1,0 +1,125 @@
+/* src/pages/vendedor/VendedorDashboard.css */
+
+.vendedor-dashboard-container {
+    padding: 20px; /* Mantenido del AdminLayout para consistencia si se desea */
+    background-color: #f9fafb;
+    min-height: 100%;
+}
+
+.vendedor-dashboard-header {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e7e7e7;
+}
+
+.vendedor-dashboard-header h1 {
+    font-size: 2em;
+    color: #2c3e50;
+    margin-top: 0;
+    margin-bottom: 5px;
+}
+
+.vendedor-dashboard-header p {
+    font-size: 1.1em;
+    color: #555;
+}
+
+/* Estilos para la cuadrícula de acciones del vendedor */
+.vendedor-actions-grid h2 {
+    font-size: 1.5em;
+    color: #2c3e50;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e7e7e7; /* Puedes quitarlo si prefieres menos líneas */
+}
+
+/* Wrapper y tarjetas de acción (reutilizando la lógica de AdminDashboard.css) */
+.actions-wrapper {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
+}
+
+.action-card-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.action-card {
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 25px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Sombra un poco más sutil */
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    border-left: 5px solid var(--action-color, #3498db);
+    display: flex; /* Para alinear contenido si añades iconos después */
+    flex-direction: column; /* Asegura que el contenido fluya verticalmente */
+    justify-content: space-between; /* Para empujar la descripción hacia abajo si la altura varía */
+    min-height: 150px; /* Altura mínima para consistencia visual */
+}
+
+.action-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+.action-card-content h3 {
+    margin-top: 0;
+    margin-bottom: 10px; /* Un poco más de espacio */
+    font-size: 1.25em;
+    color: var(--action-color, #2c3e50); /* Color del título usa la variable */
+}
+
+.action-card-content p {
+    margin-bottom: 0;
+    font-size: 0.95em; /* Ligeramente más grande */
+    color: #555;
+    line-height: 1.6; /* Mejor legibilidad */
+    flex-grow: 1; /* Permite que la descripción ocupe espacio */
+}
+
+/* Sección opcional de estadísticas rápidas */
+.vendedor-quick-stats {
+    margin-top: 40px;
+}
+
+.vendedor-quick-stats h2 {
+    font-size: 1.5em;
+    color: #2c3e50;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e7e7e7;
+}
+
+.stats-overview {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+.stat-card {
+    flex: 1;
+    min-width: 200px;
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.07);
+    text-align: center;
+    border-top: 4px solid #007bff; /* Un toque de color diferente para estas tarjetas */
+}
+
+.stat-card h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #34495e;
+    font-size: 1em;
+    font-weight: 500;
+}
+
+.stat-card p {
+    font-size: 2em; /* Números más grandes */
+    font-weight: 700; /* Más énfasis */
+    color: #2c3e50;
+    margin: 0;
+}
