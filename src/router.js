@@ -20,6 +20,7 @@ import AdminCreateUserPage from './pages/admin/AdminCreateUserPage'; // Verifica
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminUserBatchUploadPage from './pages/admin/AdminUserBatchUploadPage';
 import AdminUserListPage from "./pages/admin/AdminUserListPage";
+import AdminUserListDeletePage from './pages/AdminUserListDeletePage';
 
 // --- PÁGINAS DE OTROS ROLES (Ejemplos, descomenta e importa si los creas) ---
 // import VendedorPanel from './pages/vendedor/VendedorPanel';
@@ -54,6 +55,7 @@ const AppRouter = () => {
                     <Route path="crear-usuario" element={<AdminCreateUserPage />} />
                     <Route path="carga-masiva-usuarios" element={<AdminUserBatchUploadPage />} />
                     <Route path="listar-usuarios" element={<AdminUserListPage />} />
+                    <Route path="eliminar-usuarios" element={<AdminUserListDeletePage />} />
                     {/* <Route path="gestion-productos" element={<AdminGestionProductos />} /> */}
                 </Route>
             </Route>

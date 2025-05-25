@@ -29,11 +29,13 @@ const AdminLayout = () => {
                             </NavLink>
                         </li>
                         <li>
-                            <NavLink
-                                to="/admin/listar-usuarios"  // <--- ENLACE AÑADIDO
-                                className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
-                            >
+                            <NavLink to="/admin/listar-usuarios" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
                                 Listar Usuarios
+                            </NavLink>
+                        </li>
+                        <li>
+                            <NavLink to="/admin/eliminar-usuarios" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
+                                Eliminar Usuarios
                             </NavLink>
                         </li>
                         {/* ========================================== */}
