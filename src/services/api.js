@@ -119,7 +119,7 @@ export const obtenerTodasLasLocalidades = async () => {
  */
 export const obtenerTodosLosOmnibus = async () => {
     try {
-        const response = await apiClient.get('/vendedor/omnibus');
+        const response = await apiClient.get('/vendedor/listarOmnibus');
         return response;
     } catch (error) {
         console.error("Error al obtener todos los ómnibus:", error.response || error);
