@@ -1,6 +1,6 @@
 // src/pages/vendedor/VendedorDashboard.js
 import React from 'react';
-import './VendedorDashboard.css';
+//import './VendedorDashboard.css';
 
 const VendedorDashboard = () => {
     return (
