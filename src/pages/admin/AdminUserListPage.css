@@ -1,86 +1,138 @@
+/* --- Contenedor Principal y Título --- */
 .user-list-container {
-    padding: 20px;
-    max-width: 1200px; /* Limita el ancho máximo para mejor legibilidad en pantallas grandes */
-    margin: 20px auto; /* Centra el contenedor */
-    background-color: #f9f9f9; /* Un fondo suave */
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Sombra sutil */
+    padding: 25px; /* Un poco más de padding general */
+    max-width: 95%; /* Que ocupe más del ancho disponible, pero con márgenes */
+    margin: 30px auto;
+    background-color: #ffffff; /* Fondo blanco limpio */
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Sombra un poco más definida */
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; /* Fuente de sistema moderna */
+}
+
+.user-list-title-wrapper {
+    text-align: center;
+    margin-bottom: 30px;
 }
 
 .user-list-container h2 {
-    color: #333;
-    margin-bottom: 25px;
-    text-align: center;
-    font-size: 2rem; /* Tamaño de fuente más grande para el título */
-    border-bottom: 2px solid #007bff; /* Línea azul debajo del título */
-    padding-bottom: 10px;
-    display: inline-block; /* Para que el borde solo ocupe el ancho del texto */
+    color: #2c3e50; /* Un azul oscuro/gris para el título */
+    font-size: 1.8rem; /* Ajuste de tamaño */
+    font-weight: 600;
+    border-bottom: 3px solid #3498db; /* Un azul más vibrante para el borde */
+    padding-bottom: 12px;
+    display: inline-block;
 }
 
-.user-list-title-wrapper { /* Nuevo contenedor para centrar el título */
-    text-align: center;
-    margin-bottom: 25px;
-}
-
+/* --- Tabla --- */
 .user-list-table-responsive {
-    overflow-x: auto; /* Permite scroll horizontal en tablas grandes en pantallas pequeñas */
+    overflow-x: auto; /* Mantiene el scroll horizontal para pantallas pequeñas */
+    border: 1px solid #e0e0e0; /* Borde sutil alrededor de la tabla */
+    border-radius: 6px; /* Bordes redondeados para el contenedor de la tabla */
 }
 
 .user-list-table {
     width: 100%;
-    border-collapse: collapse; /* Elimina espacios entre bordes de celdas */
-    margin-top: 20px;
-    font-size: 0.95rem; /* Un poco más pequeño para que quepa más info */
+    border-collapse: collapse;
+    min-width: 800px; /* Ancho mínimo para evitar que se comprima demasiado */
 }
 
 .user-list-table th,
 .user-list-table td {
-    padding: 12px 15px; /* Más padding para mejor espaciado */
+    padding: 14px 18px; /* Más padding */
     text-align: left;
-    border-bottom: 1px solid #ddd; /* Líneas horizontales sutiles */
-    vertical-align: middle; /* Alinea verticalmente el contenido */
+    vertical-align: middle;
+    border-bottom: 1px solid #e0e0e0; /* Bordes de fila más sutiles */
+    white-space: nowrap; /* Evita que el contenido de las celdas se parta en varias líneas por defecto */
 }
+
+/* Para columnas específicas donde sí quieres permitir el salto de línea (ej. email si es muy largo) */
+.user-list-table td.allow-wrap,
+.user-list-table th.allow-wrap {
+    white-space: normal; /* Permite que el texto se ajuste */
+    /* word-break: break-all; */ /* Opcional: para forzar el corte de palabras largas sin espacios */
+}
+
 
 .user-list-table thead th {
-    background-color: #007bff; /* Azul primario para el encabezado */
-    color: white;
-    font-weight: 600; /* Un poco más de peso para el encabezado */
-    border-top: 1px solid #007bff; /* Borde superior para consistencia */
+    background-color: #f5f7fa; /* Un gris muy claro para el encabezado */
+    color: #34495e; /* Texto oscuro para el encabezado */
+    font-weight: 600;
+    text-transform: uppercase; /* Encabezados en mayúsculas */
+    font-size: 0.85rem; /* Tamaño un poco más pequeño para encabezados */
+    letter-spacing: 0.5px; /* Espaciado entre letras */
+    border-bottom-width: 2px; /* Borde inferior más grueso para el encabezado */
+    border-top: 1px solid #e0e0e0;
 }
 
-/* Estilo para la primera columna (ID) si quieres diferenciarla */
-.user-list-table td:first-child,
-.user-list-table th:first-child {
-    /* font-weight: bold; */ /* Ejemplo si quieres el ID en negrita */
+.user-list-table tbody tr {
+    transition: background-color 0.2s ease-in-out; /* Transición suave para el hover */
 }
 
 .user-list-table tbody tr:hover {
-    background-color: #f1f1f1; /* Resaltado al pasar el mouse */
-    cursor: default; /* O 'pointer' si las filas son clickeables */
+    background-color: #ecf0f1; /* Un gris un poco más oscuro para el hover */
 }
 
-/* Estilo para filas alternas (opcional, para mejor legibilidad en tablas largas) */
-.user-list-table tbody tr:nth-of-type(even) {
-    /* background-color: #f8f8f8; */ /* Descomenta para filas con colores alternos */
+.user-list-table tbody td {
+    color: #555; /* Color de texto para el cuerpo de la tabla */
+    font-size: 0.9rem;
 }
 
+/* Estilos para roles (puedes expandir esto) */
+.user-list-table td span.role-admin {
+    background-color: #3498db; /* Azul */
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.user-list-table td span.role-vendedor {
+    background-color: #2ecc71; /* Verde */
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.user-list-table td span.role-cliente {
+    background-color: #f39c12; /* Naranja */
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+.user-list-table td span.role-desconocido {
+    background-color: #95a5a6; /* Gris */
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+
+/* --- Mensajes --- */
 .loading-message,
 .error-message,
 .no-users-message {
     text-align: center;
-    padding: 20px;
-    font-size: 1.1rem;
-    margin-top: 30px;
+    padding: 25px;
+    font-size: 1.05rem;
+    margin-top: 20px;
+    border-radius: 6px;
 }
 
 .error-message {
-    color: #dc3545; /* Rojo para errores */
-    background-color: #f8d7da;
-    border: 1px solid #f5c6cb;
-    border-radius: 5px;
-    padding: 15px;
+    color: #c0392b; /* Rojo más oscuro */
+    background-color: #fdedec;
+    border: 1px solid #eebbc0;
 }
 
 .no-users-message {
-    color: #6c757d; /* Gris para mensajes informativos */
+    color: #7f8c8d; /* Gris más oscuro */
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
 }

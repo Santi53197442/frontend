@@ -1,7 +1,6 @@
-// src/pages/admin/AdminUserListPage.js
 import React, { useState, useEffect } from 'react';
-import apiClient from '../../services/api'; // Ajusta la ruta a tu api.js
-import './AdminUserListPage.css';
+import apiClient from '../../services/api'; // Ajusta la ruta si es diferente
+import './AdminUserListPage.css'; // Importa el archivo CSS
 
 function AdminUserListPage() {
     const [users, setUsers] = useState([]);
@@ -13,22 +12,18 @@ function AdminUserListPage() {
             setLoading(true);
             setError(null);
             try {
-                // Tu apiClient ya incluye el token y el BASE_URL con /api
-                // El endpoint es '/users' relativo a BASE_URL
+                // La URL correcta para el endpoint de listar usuarios del AdminController
                 const response = await apiClient.get('/admin/users');
-
-                setUsers(response.data); // response.data debería ser List<UserViewDTO>
-
+                setUsers(response.data);
             } catch (err) {
                 console.error("Error al cargar usuarios:", err);
                 if (err.response) {
                     if (err.response.status === 403) {
-                        setError('Acceso denegado. No tiene permisos para ver esta lista.');
+                        setError('Acceso denegado. No tiene permisos para ver esta lista o la ruta es incorrecta.');
                     } else if (err.response.status === 401) {
-                        // El interceptor de apiClient ya maneja el log y podría redirigir
                         setError('Sesión expirada o inválida.');
                     } else {
-                        setError(err.response.data?.message || err.message || 'Ocurrió un error al cargar los usuarios.');
+                        setError(err.response.data?.message || err.message || `Error ${err.response.status} al cargar los usuarios.`);
                     }
                 } else if (err.request) {
                     setError('No se pudo conectar con el servidor. Verifique su conexión.');
@@ -39,32 +34,34 @@ function AdminUserListPage() {
                 setLoading(false);
             }
         };
-
         fetchUsers();
-    }, []); // El interceptor se encarga del token, por lo que no es dependencia aquí
+    }, []);
 
     if (loading) {
-        return <div className="text-center p-4">Cargando usuarios...</div>;
+        return <div className="loading-message">Cargando usuarios...</div>;
     }
 
     if (error) {
-        return <div className="alert alert-danger" role="alert">Error: {error}</div>;
+        return <div className="error-message">Error: {error}</div>;
     }
 
     return (
-        <div className="container mt-4">
-            <h2>Lista de Usuarios del Sistema</h2>
+        <div className="user-list-container">
+            <div className="user-list-title-wrapper">
+                <h2>Lista de Usuarios del Sistema</h2>
+            </div>
+
             {users.length === 0 ? (
-                <p className="mt-3">No hay usuarios para mostrar.</p>
+                <p className="no-users-message">No hay usuarios para mostrar.</p>
             ) : (
-                <div className="table-responsive mt-3">
-                    <table className="table table-striped table-hover">
-                        <thead className="thead-dark">
+                <div className="user-list-table-responsive">
+                    <table className="user-list-table">
+                        <thead>
                         <tr>
                             <th>ID</th>
                             <th>Nombre</th>
                             <th>Apellido</th>
-                            <th>Email</th>
+                            <th className="allow-wrap">Email</th> {/* Clase para permitir salto de línea */}
                             <th>CI</th>
                             <th>Teléfono</th>
                             <th>Fecha Nac.</th>
@@ -77,18 +74,22 @@ function AdminUserListPage() {
                                 <td>{user.id}</td>
                                 <td>{user.nombre}</td>
                                 <td>{user.apellido}</td>
-                                <td>{user.email}</td>
+                                <td className="allow-wrap">{user.email}</td> {/* Clase para permitir salto de línea */}
                                 <td>{user.ci}</td>
                                 <td>{user.telefono}</td>
                                 <td>{new Date(user.fechaNac).toLocaleDateString()}</td>
-                                <td>{user.rol}</td>
+                                <td>
+                                    {/* Estilizando el rol con un span y clase dinámica */}
+                                    <span className={`role-${(user.rol || 'desconocido').toLowerCase()}`}>
+                                            {user.rol || 'DESCONOCIDO'}
+                                        </span>
+                                </td>
                             </tr>
                         ))}
                         </tbody>
                     </table>
                 </div>
             )}
-            {/* Futuro: Botones para acciones como crear, editar, etc. */}
         </div>
     );
 }
