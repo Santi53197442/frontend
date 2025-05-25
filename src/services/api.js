@@ -61,26 +61,84 @@ export const crearLocalidad = async (localidadData) => {
     }
 };
 
-// --- FUNCIÓN FALTANTE PARA CARGA MASIVA DE LOCALIDADES ---
-/**
- * Sube un archivo CSV para la creación masiva de localidades.
- * @param {File} file - El archivo CSV seleccionado por el usuario.
- * @returns {Promise<AxiosResponse<any>>} La respuesta de la API con el resumen del proceso.
- */
-export const crearLocalidadesBatch = async (file) => { // <--- ASEGÚRATE QUE ESTA FUNCIÓN ESTÉ AQUÍ Y EXPORTADA
+// Función para carga masiva de localidades
+export const crearLocalidadesBatch = async (file) => {
     const formData = new FormData();
-    formData.append('file', file); // El nombre 'file' debe coincidir con @RequestParam("file") en el backend
+    formData.append('file', file);
 
     try {
         const response = await apiClient.post('/vendedor/localidades-batch', formData, {
             headers: {
-                'Content-Type': 'multipart/form-data', // Importante para la subida de archivos
+                'Content-Type': 'multipart/form-data',
             },
         });
-        return response; // Devuelve la respuesta completa de Axios
+        return response;
     } catch (error) {
         console.error("Error al subir archivo CSV de localidades desde api.js:", error.response || error);
-        throw error; // Re-lanzar para que el componente lo maneje
+        throw error;
+    }
+};
+
+// --- FUNCIONES NECESARIAS PARA ÓMNIBUS Y FORMULARIO DE ALTA ÓMNIBUS ---
+/**
+ * Crea un nuevo ómnibus.
+ * @param {object} omnibusData - Datos del ómnibus (CreateOmnibusDTO).
+ * @returns {Promise<AxiosResponse<any>>} La respuesta de la API.
+ */
+export const crearOmnibus = async (omnibusData) => {
+    try {
+        const response = await apiClient.post('/vendedor/omnibus', omnibusData); // Endpoint del VendedorController
+        return response;
+    } catch (error) {
+        console.error("Error al crear ómnibus desde api.js:", error.response || error);
+        throw error;
+    }
+};
+
+/**
+ * Obtiene la lista de todas las localidades (necesaria para el dropdown en el alta de ómnibus).
+ * @returns {Promise<AxiosResponse<any>>} La respuesta de la API con la lista de localidades.
+ */
+export const obtenerTodasLasLocalidades = async () => {
+    try {
+        // **IMPORTANTE**: Ajusta este endpoint al que realmente devuelve la lista de localidades
+        // desde tu VendedorController (o el controlador correspondiente).
+        // Ejemplo: '/vendedor/localidades-disponibles'
+        const response = await apiClient.get('/vendedor/localidades-disponibles'); // <--- ¡¡VERIFICA Y AJUSTA ESTE ENDPOINT!!
+        return response;
+    } catch (error) {
+        console.error("Error al obtener todas las localidades:", error.response || error);
+        throw error;
+    }
+};
+
+// --- (OPCIONAL) Funciones adicionales para Ómnibus ---
+/**
+ * Obtiene la lista de todos los ómnibus.
+ * @returns {Promise<AxiosResponse<any>>} La respuesta de la API con la lista de ómnibus.
+ */
+export const obtenerTodosLosOmnibus = async () => {
+    try {
+        const response = await apiClient.get('/vendedor/omnibus');
+        return response;
+    } catch (error) {
+        console.error("Error al obtener todos los ómnibus:", error.response || error);
+        throw error;
+    }
+};
+
+/**
+ * Obtiene un ómnibus por su ID.
+ * @param {number | string} id - El ID del ómnibus.
+ * @returns {Promise<AxiosResponse<any>>} La respuesta de la API con el ómnibus.
+ */
+export const obtenerOmnibusPorId = async (id) => {
+    try {
+        const response = await apiClient.get(`/vendedor/omnibus/${id}`);
+        return response;
+    } catch (error) {
+        console.error(`Error al obtener ómnibus con ID ${id}:`, error.response || error);
+        throw error;
     }
 };
 // ------------------------------------------------------------

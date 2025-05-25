@@ -45,6 +45,14 @@ const VendedorLayout = () => {
                         </li>
                         <li>
                             <NavLink
+                                to="/vendedor/alta-omnibus"
+                                className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
+                            >
+                                <span>Alta de Ómnibus</span>
+                            </NavLink>
+                        </li>
+                        <li>
+                            <NavLink
                                 to="/vendedor/horarios" // Necesitarás crear esta ruta/página
                                 className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
                             >

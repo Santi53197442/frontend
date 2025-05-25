@@ -26,6 +26,7 @@ import AdminUserListDeletePage from './pages/admin/AdminUserListDeletePage';
 import VendedorDashboard from './pages/vendedor/VendedorDashboard';
 import VendedorAltaLocalidadPage from './pages/vendedor/VendedorAltaLocalidadPage';
 import VendedorLocalidadMasivo from './pages/vendedor/VendedorLocalidadMasivo';
+import VendedorAltaOmnibusPage from "./pages/vendedor/VendedorAltaOmnibusPage";
 
 // import VendedorMisLocalidadesPage from './pages/vendedor/VendedorMisLocalidadesPage'; // Si la creas
 
@@ -72,6 +73,7 @@ const AppRouter = () => {
                     <Route path="dashboard" element={<VendedorDashboard />} />
                     <Route path="alta-localidad" element={<VendedorAltaLocalidadPage />} />
                     <Route path="alta-masiva-localidades" element={<VendedorLocalidadMasivo />} />
+                    <Route path="alta-omnibus" element={<VendedorAltaOmnibusPage />} />
                     {/* <Route path="mis-localidades" element={<VendedorMisLocalidadesPage />} /> */}
                 </Route>
             </Route>
