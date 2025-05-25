@@ -86,3 +86,20 @@
     border-top-color: #fff; animation: spin 0.8s linear infinite;
 }
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+/* ... (tus otros estilos) ... */
+
+.alta-omnibus-form .form-group small.field-error-message {
+    display: block; /* Para que ocupe su propia línea */
+    color: #dc3545; /* Color rojo para errores */
+    font-size: 0.8rem; /* Un poco más pequeño */
+    margin-top: 0.25rem; /* Espacio desde el input */
+}
+
+/* Opcional: para el texto de ayuda de "cargando localidades" */
+.alta-omnibus-form .form-group small.text-muted {
+    display: block;
+    color: #6c757d;
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+}
