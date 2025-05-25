@@ -27,6 +27,7 @@ import VendedorDashboard from './pages/vendedor/VendedorDashboard';
 import VendedorAltaLocalidadPage from './pages/vendedor/VendedorAltaLocalidadPage';
 import VendedorLocalidadMasivo from './pages/vendedor/VendedorLocalidadMasivo';
 import VendedorAltaOmnibusPage from "./pages/vendedor/VendedorAltaOmnibusPage";
+import VendedorOmnibusMasivo from "./pages/vendedor/VendedorOmnibusMasivo";
 
 // import VendedorMisLocalidadesPage from './pages/vendedor/VendedorMisLocalidadesPage'; // Si la creas
 
