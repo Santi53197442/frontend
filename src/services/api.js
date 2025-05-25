@@ -2,21 +2,17 @@
 import axios from 'axios';
 
 // Define la URL raíz de tu backend.
-// Si REACT_APP_API_ROOT_URL está definido en tu .env, lo usará, sino el valor por defecto.
 const API_ROOT_URL = process.env.REACT_APP_API_ROOT_URL || "https://web-production-2443c.up.railway.app";
-
-// BASE_URL para las llamadas de Axios ahora incluye el prefijo /api
 const BASE_URL = `${API_ROOT_URL}/api`;
-// Ejemplo: "https://web-production-2443c.up.railway.app/api"
 
 const apiClient = axios.create({
     baseURL: BASE_URL,
 });
 
-// Interceptor para añadir el token de autenticación a las solicitudes
+// Interceptor para añadir el token
 apiClient.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem('authToken'); // Asegúrate que 'authToken' es la clave correcta
+        const token = localStorage.getItem('authToken');
         if (token) {
             config.headers['Authorization'] = `Bearer ${token}`;
         }
@@ -32,13 +28,8 @@ apiClient.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response && error.response.status === 401) {
-            console.warn("Interceptor API: Error 401 - No autorizado. El token puede ser inválido o haber expirado.");
-            // Considera desloguear al usuario o redirigirlo
-            // localStorage.removeItem('authToken');
-            // localStorage.removeItem('userData');
-            // if (window.location.pathname !== '/login') { // Evitar bucle si ya está en login
-            //     window.location.href = '/login';
-            // }
+            console.warn("Interceptor API: Error 401 - No autorizado.");
+            // Lógica para desloguear al usuario, etc.
         }
         return Promise.reject(error);
     }
@@ -59,23 +50,40 @@ export const getSomeProtectedData = async () => {
     return apiClient.get('/ruta-protegida');
 };
 
-// --- NUEVA FUNCIÓN PARA VENDEDOR ---
-/**
- * Crea una nueva localidad.
- * @param {object} localidadData - Datos de la localidad ({ nombre, departamento, direccion }).
- * @returns {Promise<AxiosResponse<any>>} La respuesta de la API.
- */
+// Función para crear una localidad individual
 export const crearLocalidad = async (localidadData) => {
-    // Llama a: https://web-production-2443c.up.railway.app/api/vendedor/localidades
     try {
         const response = await apiClient.post('/vendedor/localidades', localidadData);
-        return response; // Devuelve la respuesta completa para que el componente pueda acceder a response.data
+        return response;
     } catch (error) {
         console.error("Error al crear localidad desde api.js:", error.response || error);
-        throw error; // Re-lanzar para que el componente lo maneje
+        throw error;
     }
 };
 
+// --- FUNCIÓN FALTANTE PARA CARGA MASIVA DE LOCALIDADES ---
+/**
+ * Sube un archivo CSV para la creación masiva de localidades.
+ * @param {File} file - El archivo CSV seleccionado por el usuario.
+ * @returns {Promise<AxiosResponse<any>>} La respuesta de la API con el resumen del proceso.
+ */
+export const crearLocalidadesBatch = async (file) => { // <--- ASEGÚRATE QUE ESTA FUNCIÓN ESTÉ AQUÍ Y EXPORTADA
+    const formData = new FormData();
+    formData.append('file', file); // El nombre 'file' debe coincidir con @RequestParam("file") en el backend
+
+    try {
+        const response = await apiClient.post('/vendedor/localidades-batch', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data', // Importante para la subida de archivos
+            },
+        });
+        return response; // Devuelve la respuesta completa de Axios
+    } catch (error) {
+        console.error("Error al subir archivo CSV de localidades desde api.js:", error.response || error);
+        throw error; // Re-lanzar para que el componente lo maneje
+    }
+};
+// ------------------------------------------------------------
 
 // Exporta la instancia de apiClient para usarla directamente si se prefiere
 export default apiClient;
