@@ -72,7 +72,7 @@ const EditProfile = () => {
         };
 
         try {
-            const response = await apiClient.put('/api/user/profile', payload); // O '/auth/profile' si esa es tu ruta
+            const response = await apiClient.put('/user/profile', payload); // O '/auth/profile' si esa es tu ruta
 
             setSuccessMessage('¡Datos actualizados con éxito!');
 
