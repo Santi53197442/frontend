@@ -11,16 +11,12 @@ const BASE_URL = `${API_ROOT_URL}/api`;
 
 const apiClient = axios.create({
     baseURL: BASE_URL,
-    // No se establece 'Content-Type' por defecto aquí.
-    // Axios lo manejará automáticamente:
-    // - 'application/json' para objetos JS normales.
-    // - 'multipart/form-data' con boundary para instancias de FormData.
 });
 
 // Interceptor para añadir el token de autenticación a las solicitudes
 apiClient.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem('authToken'); // Asegúrate que 'authToken' es la clave correcta donde guardas el token.
+        const token = localStorage.getItem('authToken'); // Asegúrate que 'authToken' es la clave correcta
         if (token) {
             config.headers['Authorization'] = `Bearer ${token}`;
         }
@@ -31,42 +27,55 @@ apiClient.interceptors.request.use(
     }
 );
 
-// Interceptor para manejar respuestas, por ejemplo, errores 401
+// Interceptor para manejar respuestas
 apiClient.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response && error.response.status === 401) {
             console.warn("Interceptor API: Error 401 - No autorizado. El token puede ser inválido o haber expirado.");
-            // Opcional: Aquí puedes añadir lógica para desloguear al usuario globalmente.
-            // Ejemplo:
+            // Considera desloguear al usuario o redirigirlo
             // localStorage.removeItem('authToken');
-            // localStorage.removeItem('userData'); // O cualquier otra información de sesión
-            // window.location.href = '/login'; // Redirigir a la página de login
+            // localStorage.removeItem('userData');
+            // if (window.location.pathname !== '/login') { // Evitar bucle si ya está en login
+            //     window.location.href = '/login';
+            // }
         }
         return Promise.reject(error);
     }
 );
 
-// --- Funciones de ejemplo para interactuar con la API ---
-// Estas funciones ahora usan rutas relativas a BASE_URL (que ya incluye /api)
-
 // Función para el registro de usuarios
 export const registerUser = async (userData) => {
-    // Llama a: https://web-production-2443c.up.railway.app/api/auth/register
     return apiClient.post('/auth/register', userData);
 };
 
 // Función para el login de usuarios
 export const loginUser = async (credentials) => {
-    // Llama a: https://web-production-2443c.up.railway.app/api/auth/login
     return apiClient.post('/auth/login', credentials);
 };
 
 // (Opcional) Ejemplo para obtener datos protegidos
 export const getSomeProtectedData = async () => {
-    // Llama a: https://web-production-2443c.up.railway.app/api/ruta-protegida
     return apiClient.get('/ruta-protegida');
 };
+
+// --- NUEVA FUNCIÓN PARA VENDEDOR ---
+/**
+ * Crea una nueva localidad.
+ * @param {object} localidadData - Datos de la localidad ({ nombre, departamento, direccion }).
+ * @returns {Promise<AxiosResponse<any>>} La respuesta de la API.
+ */
+export const crearLocalidad = async (localidadData) => {
+    // Llama a: https://web-production-2443c.up.railway.app/api/vendedor/localidades
+    try {
+        const response = await apiClient.post('/vendedor/localidades', localidadData);
+        return response; // Devuelve la respuesta completa para que el componente pueda acceder a response.data
+    } catch (error) {
+        console.error("Error al crear localidad desde api.js:", error.response || error);
+        throw error; // Re-lanzar para que el componente lo maneje
+    }
+};
+
 
 // Exporta la instancia de apiClient para usarla directamente si se prefiere
 export default apiClient;

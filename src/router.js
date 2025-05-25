@@ -3,28 +3,29 @@ import React from 'react';
 import { Routes, Route, Navigate } from "react-router-dom";
 
 // --- IMPORTACIONES DE COMPONENTES Y PÁGINAS ---
-// Asegúrate de que las rutas sean correctas según tu estructura de carpetas
-import Home from "./pages/Home"; // Asumiendo que Home.js está en src/pages/
-import Login from "./components/Login"; // Asumiendo que Login.js está en src/components/
-import Register from "./components/Register"; // Asumiendo que Register.js está en src/components/
-import ForgotPasswordPage from './components/ForgotPassword'; // O la ruta correcta a este componente
-import ResetPasswordPage from './components/ResetPassword'; // O la ruta correcta
-import ProtectedRoute from "./components/ProtectedRoute"; // Asumiendo que está en src/components/
-import EditProfile from "./components/EditProfile"; // Asumiendo que está en src/components/
+import Home from "./pages/Home";
+import Login from "./components/Login";
+import Register from "./components/Register";
+import ForgotPasswordPage from './components/ForgotPassword';
+import ResetPasswordPage from './components/ResetPassword';
+import ProtectedRoute from "./components/ProtectedRoute";
+import EditProfile from "./components/EditProfile";
 
 // --- LAYOUTS ---
 import AdminLayout from './layouts/AdminLayout';
+import VendedorLayout from './layouts/VendedorLayout'; // <-- NUEVO: Importar VendedorLayout
 
 // --- PÁGINAS DE ADMIN ---
-import AdminCreateUserPage from './pages/admin/AdminCreateUserPage'; // Verifica esta ruta, podría ser src/pages/admin/
+import AdminCreateUserPage from './pages/admin/AdminCreateUserPage';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminUserBatchUploadPage from './pages/admin/AdminUserBatchUploadPage';
 import AdminUserListPage from "./pages/admin/AdminUserListPage";
 import AdminUserListDeletePage from './pages/admin/AdminUserListDeletePage';
 
-// --- PÁGINAS DE OTROS ROLES (Ejemplos, descomenta e importa si los creas) ---
-// import VendedorPanel from './pages/vendedor/VendedorPanel';
-// import ClienteMisReservas from './pages/cliente/ClienteMisReservas';
+// --- PÁGINAS DE VENDEDOR ---
+import VendedorDashboard from './pages/vendedor/VendedorDashboard';         // <-- NUEVO
+import VendedorAltaLocalidadPage from './pages/vendedor/VendedorAltaLocalidadPage'; // <-- NUEVO
+// import VendedorMisLocalidadesPage from './pages/vendedor/VendedorMisLocalidadesPage'; // Si la creas
 
 // --- PÁGINAS ADICIONALES (Ejemplos, descomenta e importa si los creas) ---
 // import UnauthorizedPage from './pages/UnauthorizedPage';
@@ -42,13 +43,15 @@ const AppRouter = () => {
             {/* <Route path="/unauthorized" element={<UnauthorizedPage />} /> */}
 
             {/* --- Rutas Protegidas (Autenticación General Requerida) --- */}
+            {/* Si ProtectedRoute sin allowedRoles solo verifica si está autenticado */}
             <Route element={<ProtectedRoute />}>
                 <Route path="/editar-perfil" element={<EditProfile />} />
                 {/* <Route path="/mis-reservas" element={<ClienteMisReservas />} /> */}
             </Route>
 
             {/* --- Rutas de Administración (Layout de Admin y Protección por Rol) --- */}
-            <Route element={<ProtectedRoute allowedRoles={['administrador']} />}>
+            {/* Asumo que tu backend devuelve 'administrador' como rol */}
+            <Route element={<ProtectedRoute allowedRoles={['ADMINISTRADOR', 'administrador']} />}>
                 <Route path="/admin" element={<AdminLayout />}>
                     <Route index element={<AdminDashboard />} />
                     <Route path="dashboard" element={<AdminDashboard />} />
@@ -56,19 +59,19 @@ const AppRouter = () => {
                     <Route path="carga-masiva-usuarios" element={<AdminUserBatchUploadPage />} />
                     <Route path="listar-usuarios" element={<AdminUserListPage />} />
                     <Route path="eliminar-usuarios" element={<AdminUserListDeletePage />} />
-                    {/* <Route path="gestion-productos" element={<AdminGestionProductos />} /> */}
                 </Route>
             </Route>
 
-            {/* --- Rutas de Vendedor (Ejemplo) --- */}
-            {/*
-            <Route element={<ProtectedRoute allowedRoles={['vendedor']} />}>
+            {/* --- Rutas de Vendedor --- */}
+            {/* Asumo que tu backend devuelve 'vendedor' como rol. Ajusta si es 'VENDEDOR' */}
+            <Route element={<ProtectedRoute allowedRoles={['VENDEDOR', 'vendedor']} />}>
                 <Route path="/vendedor" element={<VendedorLayout />}>
-                    <Route index element={<VendedorPanel />} />
-                    <Route path="panel" element={<VendedorPanel />} />
+                    <Route index element={<VendedorDashboard />} />
+                    <Route path="dashboard" element={<VendedorDashboard />} />
+                    <Route path="alta-localidad" element={<VendedorAltaLocalidadPage />} />
+                    {/* <Route path="mis-localidades" element={<VendedorMisLocalidadesPage />} /> */}
                 </Route>
             </Route>
-            */}
 
             {/* Ruta Catch-all */}
             {/* <Route path="*" element={<NotFoundPage />} /> */}
