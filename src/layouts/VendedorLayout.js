@@ -72,11 +72,10 @@ const VendedorLayout = () => {
                         {/* <li className="menu-separator-container"><hr className="menu-separator" /></li> */}
                         <li>
                             <NavLink
-                                to="/editar-perfil" // Ruta general de edición de perfil
+                                to="/vendedor/listar-omnibus"
                                 className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
                             >
-                                {/* <i className="icon fas fa-user-edit"></i> */}
-                                <span>Editar Perfil</span>
+                                <span> Listar Omnibus</span>
                             </NavLink>
                         </li>
                         <li>
@@ -85,14 +84,6 @@ const VendedorLayout = () => {
                                 className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
                             >
                                 <span>Omnibus Masivo (CSV)</span>
-                            </NavLink>
-                        </li>
-                        <li>
-                            <NavLink
-                                to="/vendedor/listar-omnibus"
-                                className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
-                            >
-                                <span> Listar Omnibus</span>
                             </NavLink>
                         </li>
                     </ul>
