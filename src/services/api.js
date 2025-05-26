@@ -114,7 +114,7 @@ export const crearOmnibusBatch = async (file) => {
 // Función ACTUALIZADA para listar todos los ómnibus
 export const obtenerTodosLosOmnibus = async () => {
     try {
-        const response = await apiClient.get('/vendedor/omnibus'); // Ruta actualizada
+        const response = await apiClient.get('/vendedor/omnibusListar'); // Ruta actualizada
         return response; // El componente accederá a response.data
     } catch (error) {
         console.error("Error en API al obtener todos los ómnibus:", error.response || error);

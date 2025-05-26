@@ -10,7 +10,7 @@ const VendedorLayout = () => {
                 <div className="sidebar-header">
                     {/* Podrías poner un logo o un título más genérico si es multimarca */}
                     <NavLink to="/vendedor/dashboard" className="sidebar-logo-link">
-                        <h3>Panel Vendedorrrrr</h3>
+                        <h3>Panel Vendedor</h3>
                     </NavLink>
                 </div>
                 <nav className="sidebar-nav">
