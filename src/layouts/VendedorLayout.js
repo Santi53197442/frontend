@@ -95,7 +95,6 @@ const VendedorLayout = () => {
                                 <span> Listar Omnibus</span>
                             </NavLink>
                         </li>
-
                     </ul>
                 </nav>
                 <div className="sidebar-footer">
