@@ -8,7 +8,7 @@ const AdminLayout = () => {
         <div className="admin-layout">
             <aside className="admin-sidebar">
                 <div className="sidebar-header">
-                    <h3>Panel de Admin</h3>
+                    <h3>Panel de Adminnnn</h3>
                 </div>
                 <nav className="sidebar-nav">
                     <ul>
