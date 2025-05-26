@@ -60,6 +60,14 @@ const VendedorLayout = () => {
                                 <span>Consultar Horarios</span>
                             </NavLink>
                         </li>
+                        <li>
+                            <NavLink
+                                to="/vendedor/alta-viaje"
+                                className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
+                            >
+                                <span>Alta Viaje</span>
+                            </NavLink>
+                        </li>
                         {/* Separador opcional si tienes muchas secciones */}
                         {/* <li className="menu-separator-container"><hr className="menu-separator" /></li> */}
                         <li>

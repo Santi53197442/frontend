@@ -30,27 +30,29 @@ apiClient.interceptors.response.use(
         if (error.response && error.response.status === 401) {
             console.warn("Interceptor API: Error 401 - No autorizado.");
             // Lógica para desloguear al usuario, etc.
+            // Ejemplo:
+            // localStorage.removeItem('authToken');
+            // window.location.href = '/login'; // O la ruta de tu login
         }
         return Promise.reject(error);
     }
 );
 
-// Función para el registro de usuarios
+// --- FUNCIONES DE AUTENTICACIÓN ---
 export const registerUser = async (userData) => {
     return apiClient.post('/auth/register', userData);
 };
 
-// Función para el login de usuarios
 export const loginUser = async (credentials) => {
     return apiClient.post('/auth/login', credentials);
 };
 
 // (Opcional) Ejemplo para obtener datos protegidos
 export const getSomeProtectedData = async () => {
-    return apiClient.get('/ruta-protegida');
+    return apiClient.get('/ruta-protegida'); // Asegúrate que esta ruta exista en tu backend
 };
 
-// Función para crear una localidad individual
+// --- FUNCIONES PARA LOCALIDAD ---
 export const crearLocalidad = async (localidadData) => {
     try {
         const response = await apiClient.post('/vendedor/localidades', localidadData);
@@ -61,7 +63,6 @@ export const crearLocalidad = async (localidadData) => {
     }
 };
 
-// Función para carga masiva de localidades
 export const crearLocalidadesBatch = async (file) => {
     const formData = new FormData();
     formData.append('file', file);
@@ -79,48 +80,6 @@ export const crearLocalidadesBatch = async (file) => {
     }
 };
 
-// --- FUNCIONES PARA ÓMNIBUS ---
-/**
- * Crea un nuevo ómnibus individualmente.
- * @param {object} omnibusData - Datos del ómnibus (CreateOmnibusDTO).
- * @returns {Promise<AxiosResponse<any>>} La respuesta de la API.
- */
-export const crearOmnibus = async (omnibusData) => {
-    try {
-        const response = await apiClient.post('/vendedor/omnibus', omnibusData);
-        return response;
-    } catch (error) {
-        console.error("Error al crear ómnibus desde api.js:", error.response || error);
-        throw error;
-    }
-};
-
-/**
- * Sube un archivo CSV para la creación masiva de ómnibus.
- * @param {File} file - El archivo CSV seleccionado por el usuario.
- * @returns {Promise<AxiosResponse<any>>} La respuesta de la API con el resumen del proceso.
- */
-export const crearOmnibusBatch = async (file) => { // <--- ¡¡ESTA ES LA FUNCIÓN QUE FALTABA!!
-    const formData = new FormData();
-    formData.append('file', file); // El nombre 'file' debe coincidir con @RequestParam("file") en el backend
-
-    try {
-        const response = await apiClient.post('/vendedor/omnibus-batch', formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data', // Importante para la subida de archivos
-            },
-        });
-        return response; // Devuelve la respuesta completa de Axios
-    } catch (error) {
-        console.error("Error al subir archivo CSV de ómnibus desde api.js:", error.response || error);
-        throw error; // Re-lanzar para que el componente lo maneje
-    }
-};
-
-/**
- * Obtiene la lista de todas las localidades (necesaria para el dropdown en el alta de ómnibus).
- * @returns {Promise<AxiosResponse<any>>} La respuesta de la API con la lista de localidades.
- */
 export const obtenerTodasLasLocalidades = async () => {
     try {
         const response = await apiClient.get('/vendedor/localidades-disponibles');
@@ -131,14 +90,36 @@ export const obtenerTodasLasLocalidades = async () => {
     }
 };
 
-/**
- * Obtiene la lista de todos los ómnibus.
- * @returns {Promise<AxiosResponse<any>>} La respuesta de la API con la lista de ómnibus.
- */
+// --- FUNCIONES PARA ÓMNIBUS ---
+export const crearOmnibus = async (omnibusData) => {
+    try {
+        const response = await apiClient.post('/vendedor/omnibus', omnibusData);
+        return response;
+    } catch (error) {
+        console.error("Error al crear ómnibus desde api.js:", error.response || error);
+        throw error;
+    }
+};
+
+export const crearOmnibusBatch = async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+        const response = await apiClient.post('/vendedor/omnibus-batch', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+        return response;
+    } catch (error) {
+        console.error("Error al subir archivo CSV de ómnibus desde api.js:", error.response || error);
+        throw error;
+    }
+};
+
 export const obtenerTodosLosOmnibus = async () => {
     try {
-        // Asegúrate que el endpoint coincida con tu VendedorController
-        // Antes tenías "/vendedor/omnibus" aquí, pero tu controller tiene "/vendedor/listarOmnibus"
         const response = await apiClient.get('/vendedor/listarOmnibus');
         return response;
     } catch (error) {
@@ -147,11 +128,6 @@ export const obtenerTodosLosOmnibus = async () => {
     }
 };
 
-/**
- * Obtiene un ómnibus por su ID.
- * @param {number | string} id - El ID del ómnibus.
- * @returns {Promise<AxiosResponse<any>>} La respuesta de la API con el ómnibus.
- */
 export const obtenerOmnibusPorId = async (id) => {
     try {
         const response = await apiClient.get(`/vendedor/omnibus/${id}`);
@@ -159,6 +135,25 @@ export const obtenerOmnibusPorId = async (id) => {
     } catch (error) {
         console.error(`Error al obtener ómnibus con ID ${id}:`, error.response || error);
         throw error;
+    }
+};
+
+// --- FUNCIONES PARA VIAJE ---
+/**
+ * Crea un nuevo viaje.
+ * @param {object} viajeData - Datos del viaje (corresponde a ViajeRequestDTO en el backend).
+ * Incluye: fecha, horaSalida, horaLlegada, origenId (Long), destinoId (Long).
+ * @returns {Promise<AxiosResponse<any>>} La respuesta de la API con el viaje creado.
+ */
+export const crearViaje = async (viajeData) => {
+    try {
+        // Asegúrate que los IDs de localidad (origenId, destinoId) sean números (Long en backend)
+        // y las fechas/horas estén en el formato esperado por el backend (ISO String usualmente para LocalDate/LocalTime).
+        const response = await apiClient.post('/vendedor/viajes', viajeData);
+        return response;
+    } catch (error) {
+        console.error("Error al crear viaje desde api.js:", error.response || error);
+        throw error; // Re-lanzar para que el componente lo maneje
     }
 };
 // ------------------------------------------------------------

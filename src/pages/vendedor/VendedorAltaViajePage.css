@@ -1,0 +1,133 @@
+/* Contenedor principal de la página */
+.vendedor-alta-viaje-page {
+    padding: 20px;
+    max-width: 900px; /* Un poco más ancho para el contenido de la página */
+    margin: 20px auto;
+}
+
+.page-header {
+    margin-bottom: 30px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+}
+
+.page-header h2 {
+    color: #333;
+    font-size: 1.8rem; /* Ajusta según tu diseño */
+    margin-bottom: 0.5rem;
+}
+
+.page-header p {
+    color: #666;
+    font-size: 1rem; /* Ajusta según tu diseño */
+}
+
+/* Contenedor específico para la sección del formulario */
+.form-section-container {
+    background-color: #f9f9f9;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+.loading-message {
+    text-align: center;
+    padding: 20px;
+    font-size: 1.1rem;
+    color: #555;
+}
+
+/* Estilos para el formulario (similar a FormularioCrearViaje.css) */
+.formulario-crear-viaje-directo {
+    /* No necesita max-width si .form-section-container ya lo controla */
+}
+
+.form-group {
+    margin-bottom: 18px; /* Un poco más de espacio */
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    color: #444; /* Un poco más oscuro */
+    font-weight: 600; /* Un poco más bold */
+    font-size: 0.95rem;
+}
+
+.form-group input[type="date"],
+.form-group input[type="time"],
+.form-group select {
+    width: 100%;
+    padding: 12px; /* Un poco más de padding */
+    border: 1px solid #ccc;
+    border-radius: 5px; /* Bordes un poco más redondeados */
+    box-sizing: border-box;
+    font-size: 1rem;
+    color: #333;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.submit-button {
+    display: block;
+    width: 100%;
+    padding: 14px; /* Botón más grande */
+    background-color: #28a745; /* Color verde para 'crear' */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.15rem; /* Texto del botón más grande */
+    font-weight: bold;
+    transition: background-color 0.2s ease-in-out, transform 0.1s ease;
+}
+
+.submit-button:hover {
+    background-color: #218838; /* Verde más oscuro al pasar el mouse */
+    transform: translateY(-1px); /* Ligero efecto de levantamiento */
+}
+
+.submit-button:active {
+    transform: translateY(0px); /* Efecto de presionar */
+}
+
+
+.submit-button:disabled {
+    background-color: #A9A9A9; /* Gris más oscuro para deshabilitado */
+    cursor: not-allowed;
+    transform: none;
+}
+
+.mensaje-exito {
+    padding: 12px;
+    margin-bottom: 20px;
+    background-color: #d1e7dd; /* Verde más claro */
+    color: #0f5132; /* Verde oscuro para texto */
+    border: 1px solid #badbcc;
+    border-radius: 5px;
+    text-align: center;
+    font-size: 0.95rem;
+}
+
+.mensaje-error {
+    padding: 12px;
+    margin-bottom: 20px;
+    background-color: #f8d7da;
+    color: #721c24; /* Mantenido */
+    border: 1px solid #f5c6cb;
+    border-radius: 5px;
+    text-align: center;
+    font-size: 0.95rem;
+}
+
+.mensaje-advertencia {
+    font-size: 0.9em;
+    color: #856404;
+    margin-top: 5px;
+    padding-left: 5px; /* Pequeño indentado */
+}
