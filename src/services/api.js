@@ -2,6 +2,7 @@
 import axios from 'axios';
 
 // Define la URL raíz de tu backend.
+// Asegúrate que process.env.REACT_APP_API_ROOT_URL esté definida en tu .env
 const API_ROOT_URL = process.env.REACT_APP_API_ROOT_URL || "https://web-production-2443c.up.railway.app";
 const BASE_URL = `${API_ROOT_URL}/api`;
 
@@ -9,10 +10,10 @@ const apiClient = axios.create({
     baseURL: BASE_URL,
 });
 
-// Interceptor para añadir el token
+// Interceptor para añadir el token JWT a las cabeceras de las solicitudes
 apiClient.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem('authToken');
+        const token = localStorage.getItem('authToken'); // O como almacenes tu token
         if (token) {
             config.headers['Authorization'] = `Bearer ${token}`;
         }
@@ -23,17 +24,19 @@ apiClient.interceptors.request.use(
     }
 );
 
-// Interceptor para manejar respuestas
+// Interceptor para manejar respuestas globalmente (opcional, pero útil para errores 401)
 apiClient.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response && error.response.status === 401) {
-            console.warn("Interceptor API: Error 401 - No autorizado.");
-            // Lógica para desloguear al usuario, etc.
-            // Ejemplo:
+            console.warn("Interceptor API: Error 401 - No autorizado. Redirigiendo a login...");
+            // Aquí puedes implementar la lógica para desloguear al usuario y redirigirlo.
+            // Por ejemplo:
             // localStorage.removeItem('authToken');
-            // window.location.href = '/login'; // O la ruta de tu login
+            // localStorage.removeItem('userRole'); // Si almacenas el rol
+            // window.location.href = '/login'; // O usa el sistema de rutas de React Router
         }
+        // Es importante re-lanzar el error para que los componentes puedan manejarlo también si es necesario
         return Promise.reject(error);
     }
 );
@@ -44,38 +47,31 @@ export const registerUser = async (userData) => {
 };
 
 export const loginUser = async (credentials) => {
+    // Devuelve directamente la promesa de axios para que el componente maneje la respuesta completa
     return apiClient.post('/auth/login', credentials);
 };
 
-// (Opcional) Ejemplo para obtener datos protegidos
-export const getSomeProtectedData = async () => {
-    return apiClient.get('/ruta-protegida'); // Asegúrate que esta ruta exista en tu backend
-};
-
-// --- FUNCIONES PARA LOCALIDAD ---
+// --- FUNCIONES PARA LOCALIDAD (VENDEDOR) ---
 export const crearLocalidad = async (localidadData) => {
     try {
         const response = await apiClient.post('/vendedor/localidades', localidadData);
-        return response;
+        return response; // Devuelve la respuesta completa
     } catch (error) {
-        console.error("Error al crear localidad desde api.js:", error.response || error);
-        throw error;
+        console.error("Error en API al crear localidad:", error.response || error);
+        throw error; // Re-lanzar para que el componente lo maneje
     }
 };
 
 export const crearLocalidadesBatch = async (file) => {
     const formData = new FormData();
     formData.append('file', file);
-
     try {
         const response = await apiClient.post('/vendedor/localidades-batch', formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data',
-            },
+            headers: { 'Content-Type': 'multipart/form-data' },
         });
         return response;
     } catch (error) {
-        console.error("Error al subir archivo CSV de localidades desde api.js:", error.response || error);
+        console.error("Error en API al subir CSV de localidades:", error.response || error);
         throw error;
     }
 };
@@ -83,20 +79,20 @@ export const crearLocalidadesBatch = async (file) => {
 export const obtenerTodasLasLocalidades = async () => {
     try {
         const response = await apiClient.get('/vendedor/localidades-disponibles');
-        return response;
+        return response; // El componente accederá a response.data
     } catch (error) {
-        console.error("Error al obtener todas las localidades:", error.response || error);
+        console.error("Error en API al obtener todas las localidades:", error.response || error);
         throw error;
     }
 };
 
-// --- FUNCIONES PARA ÓMNIBUS ---
+// --- FUNCIONES PARA ÓMNIBUS (VENDEDOR) ---
 export const crearOmnibus = async (omnibusData) => {
     try {
         const response = await apiClient.post('/vendedor/omnibus', omnibusData);
         return response;
     } catch (error) {
-        console.error("Error al crear ómnibus desde api.js:", error.response || error);
+        console.error("Error en API al crear ómnibus:", error.response || error);
         throw error;
     }
 };
@@ -104,26 +100,24 @@ export const crearOmnibus = async (omnibusData) => {
 export const crearOmnibusBatch = async (file) => {
     const formData = new FormData();
     formData.append('file', file);
-
     try {
         const response = await apiClient.post('/vendedor/omnibus-batch', formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data',
-            },
+            headers: { 'Content-Type': 'multipart/form-data' },
         });
         return response;
     } catch (error) {
-        console.error("Error al subir archivo CSV de ómnibus desde api.js:", error.response || error);
+        console.error("Error en API al subir CSV de ómnibus:", error.response || error);
         throw error;
     }
 };
 
+// Función ACTUALIZADA para listar todos los ómnibus
 export const obtenerTodosLosOmnibus = async () => {
     try {
-        const response = await apiClient.get('/vendedor/listarOmnibus');
-        return response;
+        const response = await apiClient.get('/vendedor/omnibus'); // Ruta actualizada
+        return response; // El componente accederá a response.data
     } catch (error) {
-        console.error("Error al obtener todos los ómnibus:", error.response || error);
+        console.error("Error en API al obtener todos los ómnibus:", error.response || error);
         throw error;
     }
 };
@@ -133,30 +127,36 @@ export const obtenerOmnibusPorId = async (id) => {
         const response = await apiClient.get(`/vendedor/omnibus/${id}`);
         return response;
     } catch (error) {
-        console.error(`Error al obtener ómnibus con ID ${id}:`, error.response || error);
+        console.error(`Error en API al obtener ómnibus con ID ${id}:`, error.response || error);
         throw error;
     }
 };
 
-// --- FUNCIONES PARA VIAJE ---
-/**
- * Crea un nuevo viaje.
- * @param {object} viajeData - Datos del viaje (corresponde a ViajeRequestDTO en el backend).
- * Incluye: fecha, horaSalida, horaLlegada, origenId (Long), destinoId (Long).
- * @returns {Promise<AxiosResponse<any>>} La respuesta de la API con el viaje creado.
- */
+// --- FUNCIONES PARA VIAJE (VENDEDOR) ---
 export const crearViaje = async (viajeData) => {
     try {
-        // Asegúrate que los IDs de localidad (origenId, destinoId) sean números (Long en backend)
-        // y las fechas/horas estén en el formato esperado por el backend (ISO String usualmente para LocalDate/LocalTime).
         const response = await apiClient.post('/vendedor/viajes', viajeData);
         return response;
     } catch (error) {
-        console.error("Error al crear viaje desde api.js:", error.response || error);
-        throw error; // Re-lanzar para que el componente lo maneje
+        console.error("Error en API al crear viaje:", error.response || error);
+        throw error;
     }
 };
-// ------------------------------------------------------------
 
-// Exporta la instancia de apiClient para usarla directamente si se prefiere
+// Nueva función para finalizar un viaje
+export const finalizarViaje = async (viajeId) => {
+    try {
+        // El ID del viaje va en la URL como un path variable
+        const response = await apiClient.post(`/vendedor/viajes/${viajeId}/finalizar`);
+        return response;
+    } catch (error) {
+        console.error(`Error en API al finalizar el viaje con ID ${viajeId}:`, error.response || error);
+        throw error;
+    }
+};
+
+// Puedes añadir más funciones de API aquí a medida que las necesites...
+
+// Exporta la instancia de apiClient si necesitas usarla directamente en algún caso raro,
+// pero generalmente es mejor usar las funciones exportadas.
 export default apiClient;

@@ -1,0 +1,78 @@
+/* src/pages/vendedor/VendedorListarOmnibusPage.css */
+.vendedor-listar-omnibus-page {
+    padding: 20px;
+    max-width: 1000px;
+    margin: 20px auto;
+    font-family: Arial, sans-serif;
+}
+
+.page-header {
+    text-align: center;
+    margin-bottom: 30px;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 15px;
+}
+
+.page-header h2 {
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.loading-container,
+.error-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+    font-size: 1.2em;
+}
+
+.loading-message,
+.mensaje-informativo {
+    color: #555;
+    padding: 20px;
+    text-align: center;
+}
+
+.mensaje-error {
+    color: #d9534f; /* Rojo error */
+    background-color: #f2dede;
+    border: 1px solid #ebccd1;
+    padding: 15px;
+    border-radius: 4px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.tabla-omnibus-container {
+    overflow-x: auto; /* Para tablas anchas en móviles */
+}
+
+.tabla-omnibus {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.tabla-omnibus th,
+.tabla-omnibus td {
+    border: 1px solid #ddd;
+    padding: 10px 12px;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.tabla-omnibus th {
+    background-color: #f2f2f2; /* Gris claro para cabeceras */
+    color: #333;
+    font-weight: bold;
+}
+
+.tabla-omnibus tbody tr:nth-child(even) {
+    background-color: #f9f9f9; /* Filas alternas */
+}
+
+.tabla-omnibus tbody tr:hover {
+    background-color: #e9e9e9; /* Hover para filas */
+}
