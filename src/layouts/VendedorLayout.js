@@ -92,9 +92,10 @@ const VendedorLayout = () => {
                                 to="/vendedor/listar-omnibus"
                                 className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
                             >
-                                <span>Omnibus Masivo (CSV)</span>
+                                <span> Listar Omnibus</span>
                             </NavLink>
                         </li>
+
                     </ul>
                 </nav>
                 <div className="sidebar-footer">
