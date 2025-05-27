@@ -303,4 +303,25 @@ export const obtenerViajesPorEstado = async (estado) => {
     }
 };
 
+/**
+ * Busca y lista los viajes asignados a un ómnibus específico, con opciones de filtrado y ordenamiento.
+ * @param {number|string} omnibusId El ID del ómnibus.
+ * @param {object} params - Objeto con los parámetros de búsqueda y ordenamiento.
+ *   Ej: { fechaDesde: '2024-01-01', fechaHasta: '2024-01-31', estadoViaje: 'PROGRAMADO', ordenarPor: 'fecha', direccionOrden: 'DESC' }
+ *   Todos los parámetros son opcionales.
+ * @returns {Promise<axios.Response>} La respuesta de la API con la lista de ViajeResponseDTO.
+ */
+export const buscarViajesDeOmnibus = async (omnibusId, params = {}) => {
+    try {
+        const response = await apiClient.get(`/vendedor/omnibus/${omnibusId}/viajes`, { params });
+        return response;
+    } catch (error) {
+        console.error(
+            `Error en API al buscar viajes para el ómnibus ${omnibusId}:`,
+            error.response?.data || error.message
+        );
+        throw error;
+    }
+};
+
 export default apiClient;

@@ -1,7 +1,8 @@
 // src/layouts/VendedorLayout.js
 import React from 'react';
 import { Outlet, NavLink } from 'react-router-dom'; // NavLink para estilos activos
-import './VendedorLayout.css'; // Asegúrate de crear este archivo y que la ruta sea correcta
+import './VendedorLayout.css';
+import VendedorListarViajes from "../pages/vendedor/VendedorListarViajes"; // Asegúrate de crear este archivo y que la ruta sea correcta
 
 const VendedorLayout = () => {
     return (
@@ -110,8 +111,17 @@ const VendedorLayout = () => {
                                 <span>Reasignar Viaje</span>
                             </NavLink>
                         </li>
+                        <li>
+                            <NavLink
+                                to="/vendedor/listar-viajes"
+                                className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
+                            >
+                                <span>Listar Viajes</span>
+                            </NavLink>
+                        </li>
                     </ul>
                 </nav>
+
                 <div className="sidebar-footer">
                     {/* Podrías poner un enlace de "Cerrar Sesión" o info del usuario aquí */}
                     <p>© {new Date().getFullYear()} TuApp</p>

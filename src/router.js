@@ -34,7 +34,7 @@ import VendedorListarOmnibusPage from './pages/vendedor/VendedorListarOmnibusPag
 import VendedorCambiarEstadoOmnibus from './pages/vendedor/VendedorCambiarEstadoOmnibus';
 import VendedorCambiarOmnibusaOperativo from './pages/vendedor/VendedorCambiarOmnibusaOperativo';
 import VendedorReasignarViaje from './pages/vendedor/VendedorReasignarViaje';
-
+import VendedorListarViajes from './pages/vendedor/VendedorListarViajes';
 
 
 // import VendedorMisLocalidadesPage from './pages/vendedor/VendedorMisLocalidadesPage'; // Si la creas
@@ -90,6 +90,7 @@ const AppRouter = () => {
                     <Route path="cambiar-a-inactivo" element={<VendedorCambiarEstadoOmnibus />} />
                     <Route path="cambiar-a-activo" element={<VendedorCambiarOmnibusaOperativo />} />
                     <Route path="reasignar-viaje" element={<VendedorReasignarViaje />} />
+                    <Route path="listar-viajes" element={<VendedorListarViajes />} />
                     {/* <Route path="mis-localidades" element={<VendedorMisLocalidadesPage />} /> */}
                 </Route>
             </Route>
