@@ -1,7 +1,7 @@
 // src/components/CambiarContraseña.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { changePassword } from '../services/apiService'; // Asegúrate que la ruta sea correcta
+import { changePassword } from '../services/api'; // Asegúrate que la ruta sea correcta
 import './CambiarContraseña.css'; // Crearemos este archivo CSS
 
 const CambiarContraseña = () => {
