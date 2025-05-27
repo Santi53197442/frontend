@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 // Asegúrate que la ruta a tu api.js sea correcta
-import { obtenerOmnibusPorEstado, marcarOmnibusInactivo } from '../services/api';
+import { obtenerOmnibusPorEstado, marcarOmnibusInactivo } from '../../services/api';
 import './VendedorCambiarEstadoOmnibus.css'; // Asegúrate de que este archivo CSS exista y esté estilizado
 
 function VendedorCambiarEstadoOmnibus() {
