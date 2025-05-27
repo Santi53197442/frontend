@@ -1,12 +1,56 @@
-// src/components/Vendedor/VendedorCambiarOmnibusaOperativo.js (o donde lo ubiques)
+// src/components/Vendedor/VendedorCambiarOmnibusaOperativo.js (versión sin antd)
 import React, { useState, useEffect, useCallback } from 'react';
-import { obtenerOmnibusPorEstado, marcarOmnibusOperativo } from '../../services/api'; // Ajusta la ruta a tu archivo de API
-import { Table, Button, Alert, Spinner, Modal, Typography } from 'antd'; // Asumiendo que usas Ant Design
-// Si no usas Ant Design, reemplaza estos componentes con los equivalentes de tu librería UI o HTML estándar.
+import { obtenerOmnibusPorEstado, marcarOmnibusOperativo } from '../../services/api'; // Ajusta la ruta
 
-const { Title, Text } = Typography;
+// Estilos básicos en línea (considera moverlos a un archivo CSS)
+const styles = {
+    container: { padding: '20px', fontFamily: 'Arial, sans-serif' },
+    title: { fontSize: '24px', marginBottom: '10px' },
+    text: { marginBottom: '20px', display: 'block' },
+    alert: {
+        padding: '10px',
+        marginBottom: '20px',
+        border: '1px solid transparent',
+        borderRadius: '4px',
+    },
+    alertError: { color: '#a94442', backgroundColor: '#f2dede', borderColor: '#ebccd1' },
+    alertSuccess: { color: '#3c763d', backgroundColor: '#dff0d8', borderColor: '#d6e9c6' },
+    spinnerContainer: { textAlign: 'center', margin: '20px' },
+    table: { width: '100%', borderCollapse: 'collapse', marginTop: '20px' },
+    th: { border: '1px solid #ddd', padding: '8px', backgroundColor: '#f2f2f2', textAlign: 'left' },
+    td: { border: '1px solid #ddd', padding: '8px' },
+    button: {
+        padding: '8px 12px',
+        backgroundColor: '#007bff',
+        color: 'white',
+        border: 'none',
+        borderRadius: '4px',
+        cursor: 'pointer',
+    },
+    buttonDisabled: { backgroundColor: '#ccc', cursor: 'not-allowed' },
+    modalOverlay: {
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    modalContent: {
+        backgroundColor: 'white',
+        padding: '20px',
+        borderRadius: '5px',
+        boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+        minWidth: '300px',
+        textAlign: 'center',
+    },
+    modalActions: { marginTop: '20px' }
+};
 
-const ESTADO_BUSQUEDA = "INACTIVO"; // Estado que queremos listar
+const ESTADO_BUSQUEDA = "INACTIVO";
 
 const VendedorCambiarOmnibusaOperativo = () => {
     const [omnibusInactivos, setOmnibusInactivos] = useState([]);
@@ -22,7 +66,7 @@ const VendedorCambiarOmnibusaOperativo = () => {
         setSuccessMessage('');
         try {
             const response = await obtenerOmnibusPorEstado(ESTADO_BUSQUEDA);
-            if (response.status === 204) { // No Content
+            if (response.status === 204) {
                 setOmnibusInactivos([]);
             } else if (response.data) {
                 setOmnibusInactivos(response.data);
@@ -49,17 +93,15 @@ const VendedorCambiarOmnibusaOperativo = () => {
 
     const handleConfirmMarcarOperativo = async () => {
         if (!selectedOmnibus) return;
-
         setLoading(true);
         setError(null);
         setSuccessMessage('');
         setIsModalVisible(false);
-
         try {
-            const response = await marcarOmnibusOperativo(selectedOmnibus.id);
+            // const response = await marcarOmnibusOperativo(selectedOmnibus.id); // Quitamos la asignación
+            await marcarOmnibusOperativo(selectedOmnibus.id);
             setSuccessMessage(`El ómnibus con matrícula ${selectedOmnibus.matricula} (ID: ${selectedOmnibus.id}) ha sido marcado como OPERATIVO exitosamente.`);
             setSelectedOmnibus(null);
-            // Refrescar la lista para remover el ómnibus que ya no está inactivo
             fetchOmnibusInactivos();
         } catch (err) {
             console.error("Error al marcar ómnibus como operativo:", err);
@@ -74,78 +116,105 @@ const VendedorCambiarOmnibusaOperativo = () => {
         setSelectedOmnibus(null);
     };
 
-    const columns = [
-        { title: 'ID', dataIndex: 'id', key: 'id', sorter: (a, b) => a.id - b.id },
-        { title: 'Matrícula', dataIndex: 'matricula', key: 'matricula', sorter: (a, b) => a.matricula.localeCompare(b.matricula) },
-        { title: 'Marca', dataIndex: 'marca', key: 'marca' },
-        { title: 'Modelo', dataIndex: 'modelo', key: 'modelo' },
-        { title: 'Capacidad', dataIndex: 'capacidadAsientos', key: 'capacidadAsientos' },
-        {
-            title: 'Localidad Actual',
-            dataIndex: ['localidadActual', 'nombre'], // Acceder a la propiedad anidada
-            key: 'localidadActual',
-            render: (nombre, record) => `${nombre} (${record.localidadActual?.departamento || 'N/A'})`
-        },
-        {
-            title: 'Estado Actual',
-            dataIndex: 'estado',
-            key: 'estado',
-            render: (estado) => <Text type={estado === 'INACTIVO' ? 'danger' : 'secondary'}>{estado}</Text>
-        },
-        {
-            title: 'Acción',
-            key: 'accion',
-            render: (_, record) => (
-                <Button
-                    type="primary"
-                    onClick={() => handleMarcarOperativoClick(record)}
-                    disabled={loading}
-                >
-                    Marcar Operativo
-                </Button>
-            ),
-        },
-    ];
+    if (loading && !omnibusInactivos.length && !error && !successMessage) {
+        return <div style={styles.spinnerContainer}><p>Cargando ómnibus inactivos...</p></div>;
+    }
 
     return (
-        <div style={{ padding: '20px' }}>
-            <Title level={3}>Marcar Ómnibus Inactivo como Operativo</Title>
-            <Text style={{ marginBottom: '20px', display: 'block' }}>
+        <div style={styles.container}>
+            <h3 style={styles.title}>Marcar Ómnibus Inactivo como Operativo</h3>
+            <p style={styles.text}>
                 Aquí se listan los ómnibus que actualmente se encuentran en estado "{ESTADO_BUSQUEDA}".
                 Seleccione un ómnibus para cambiar su estado a "OPERATIVO".
-            </Text>
+            </p>
 
-            {error && <Alert message="Error" description={error} type="error" showIcon closable onClose={() => setError(null)} style={{ marginBottom: '20px' }} />}
-            {successMessage && <Alert message="Éxito" description={successMessage} type="success" showIcon closable onClose={() => setSuccessMessage('')} style={{ marginBottom: '20px' }} />}
+            {error && (
+                <div style={{ ...styles.alert, ...styles.alertError }}>
+                    <strong>Error:</strong> {error}
+                    <button onClick={() => setError(null)} style={{ float: 'right', background: 'none', border: 'none', cursor: 'pointer' }}>×</button>
+                </div>
+            )}
+            {successMessage && (
+                <div style={{ ...styles.alert, ...styles.alertSuccess }}>
+                    <strong>Éxito:</strong> {successMessage}
+                    <button onClick={() => setSuccessMessage('')} style={{ float: 'right', background: 'none', border: 'none', cursor: 'pointer' }}>×</button>
+                </div>
+            )}
 
-            {loading && !omnibusInactivos.length && <div style={{ textAlign: 'center', margin: '20px' }}><Spinner size="large" /> <p>Cargando ómnibus inactivos...</p></div>}
+            {loading && omnibusInactivos.length > 0 && <p>Actualizando lista...</p>}
 
-            <Table
-                columns={columns}
-                dataSource={omnibusInactivos}
-                rowKey="id"
-                loading={loading && omnibusInactivos.length > 0} // Mostrar spinner en tabla si ya hay datos y se está recargando
-                bordered
-                size="small"
-                pagination={{ pageSize: 10, showSizeChanger: true, pageSizeOptions: ['10', '20', '50'] }}
-                locale={{ emptyText: 'No hay ómnibus en estado INACTIVO.' }}
-            />
+            {omnibusInactivos.length === 0 && !loading && <p>No hay ómnibus en estado INACTIVO.</p>}
 
-            {selectedOmnibus && (
-                <Modal
-                    title="Confirmar Acción"
-                    visible={isModalVisible}
-                    onOk={handleConfirmMarcarOperativo}
-                    onCancel={handleCancelModal}
-                    confirmLoading={loading}
-                    okText="Confirmar"
-                    cancelText="Cancelar"
-                >
-                    <p>
-                        ¿Está seguro de que desea marcar el ómnibus con matrícula <strong>{selectedOmnibus.matricula}</strong> (ID: {selectedOmnibus.id}) como <strong>OPERATIVO</strong>?
-                    </p>
-                    <p>Estado actual: <Text type="danger">{selectedOmnibus.estado}</Text></p>
-                </Modal>
+            {omnibusInactivos.length > 0 && (
+                <table style={styles.table}>
+                    <thead>
+                    <tr>
+                        <th style={styles.th}>ID</th>
+                        <th style={styles.th}>Matrícula</th>
+                        <th style={styles.th}>Marca</th>
+                        <th style={styles.th}>Modelo</th>
+                        <th style={styles.th}>Capacidad</th>
+                        <th style={styles.th}>Localidad Actual</th>
+                        <th style={styles.th}>Estado Actual</th>
+                        <th style={styles.th}>Acción</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {omnibusInactivos.map((omnibus) => (
+                        <tr key={omnibus.id}>
+                            <td style={styles.td}>{omnibus.id}</td>
+                            <td style={styles.td}>{omnibus.matricula}</td>
+                            <td style={styles.td}>{omnibus.marca}</td>
+                            <td style={styles.td}>{omnibus.modelo}</td>
+                            <td style={styles.td}>{omnibus.capacidadAsientos}</td>
+                            <td style={styles.td}>
+                                {omnibus.localidadActual?.nombre || 'N/A'}
+                                {omnibus.localidadActual?.departamento ? ` (${omnibus.localidadActual.departamento})` : ''}
+                            </td>
+                            <td style={{ ...styles.td, color: omnibus.estado === 'INACTIVO' ? 'red' : 'inherit' }}>
+                                {omnibus.estado}
+                            </td>
+                            <td style={styles.td}>
+                                <button
+                                    style={loading ? { ...styles.button, ...styles.buttonDisabled } : styles.button}
+                                    onClick={() => handleMarcarOperativoClick(omnibus)}
+                                    disabled={loading}
+                                >
+                                    Marcar Operativo
+                                </button>
+                            </td>
+                        </tr>
+                    ))}
+                    </tbody>
+                </table>
+            )}
+
+            {isModalVisible && selectedOmnibus && (
+                <div style={styles.modalOverlay}>
+                    <div style={styles.modalContent}>
+                        <h4>Confirmar Acción</h4>
+                        <p>
+                            ¿Está seguro de que desea marcar el ómnibus con matrícula <strong>{selectedOmnibus.matricula}</strong> (ID: {selectedOmnibus.id}) como <strong>OPERATIVO</strong>?
+                        </p>
+                        <p>Estado actual: <span style={{ color: 'red' }}>{selectedOmnibus.estado}</span></p>
+                        <div style={styles.modalActions}>
+                            <button
+                                style={loading ? { ...styles.button, ...styles.buttonDisabled, marginRight: '10px' } : { ...styles.button, marginRight: '10px' }}
+                                onClick={handleConfirmMarcarOperativo}
+                                disabled={loading}
+                            >
+                                {loading ? 'Procesando...' : 'Confirmar'}
+                            </Button>
+                            <button
+                                style={{...styles.button, backgroundColor: '#6c757d'}}
+                                onClick={handleCancelModal}
+                                disabled={loading}
+                            >
+                                Cancelar
+                            </Button>
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     );
