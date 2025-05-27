@@ -1,104 +1,58 @@
-// src/components/viajes/ReasignarViajeRow.jsx
-import { useState } from 'react';
-import PropTypes from 'prop-types'; // Importar PropTypes
-import { reasignarViaje } from '../../services/api'; // ajusta tu alias/ruta
-import { toast } from 'react-toastify';
+// reasignarViaje.js
+import { reasignarViaje } from '../../services/api';
 
-export default function ReasignarViajeRow({
-                                              viaje,
-                                              omnibusDisponibles, // array de ómnibus operativos
-                                              onSuccess, // callback cuando la reasignación OK
-                                          }) {
-    // El valor de un select es string, mantenemos nuevoBusId como string.
-    // Se convertirá a Number antes de la llamada a la API.
-    const [nuevoBusId, setNuevoBusId] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('reasignarViajeForm');
+    const viajeIdInput = document.getElementById('viajeId');
+    const omnibusIdInput = document.getElementById('omnibusId');
+    const resultadoArea = document.getElementById('resultadoArea');
+    const mensajeResultado = document.getElementById('mensajeResultado');
+    const datosViajeActualizado = document.getElementById('datosViajeActualizado');
+    const submitButton = document.getElementById('submitButton');
 
-    const handleReasignar = async () => {
-        if (!nuevoBusId) { // Si es string vacío, no hacer nada
-            toast.warn('Por favor, selecciona un nuevo ómnibus.');
-            return;
-        }
-        setError('');
-        try {
-            setLoading(true);
-            // Convertir a Number justo antes de la llamada
-            const { data } = await reasignarViaje(viaje.id, Number(nuevoBusId));
-            toast.success('Viaje reasignado ✔️');
-            onSuccess?.(data); // notifica al padre si la función existe
-            setNuevoBusId(''); // Opcional: Resetear el select después de una reasignación exitosa
-        } catch (err) {
-            const msg = err.response?.data?.message || 'Error inesperado al reasignar';
-            setError(msg);
-            toast.error(msg);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    // Asegurarse de que omnibusDisponibles es un array para evitar errores con .filter
-    const busesFiltrados = (omnibusDisponibles || [])
-        .filter(o => o.id !== viaje.busAsignadoId); // evita mismo bus
-
-    return (
-        <tr>
-            <td>{viaje.id}</td>
-            <td>{viaje.origenNombre} → {viaje.destinoNombre}</td>
-            <td>{viaje.busMatriculaActual || viaje.busMatricula || 'N/A'}</td> {/* Usar una propiedad consistente para la matrícula actual */}
-            <td>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}> {/* Para mejor alineación */}
-                    <select
-                        value={nuevoBusId}
-                        onChange={e => setNuevoBusId(e.target.value)} // e.target.value es siempre string
-                        disabled={loading}
-                        aria-label={`Reasignar ómnibus para viaje ${viaje.id}`}
-                    >
-                        <option value="">-- elegir ómnibus --</option>
-                        {busesFiltrados.map(o => (
-                            <option key={o.id} value={String(o.id)}> {/* value siempre debe ser string */}
-                                {o.matricula} ({o.capacidadAsientos} asientos)
-                            </option>
-                        ))}
-                    </select>
-
-                    <button
-                        disabled={!nuevoBusId || loading}
-                        onClick={handleReasignar}
-                    >
-                        {loading ? 'Reasignando…' : 'Reasignar'}
-                    </button>
-                </div>
-                {error && <span style={{ color: 'red', display: 'block', marginTop: '4px' }}>{error}</span>} {/* Estilo básico para error */}
-            </td>
-        </tr>
-    );
-}
-
-// Definición de PropTypes
-ReasignarViajeRow.propTypes = {
-    viaje: PropTypes.shape({
-        id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-        origenNombre: PropTypes.string.isRequired,
-        destinoNombre: PropTypes.string.isRequired,
-        busMatricula: PropTypes.string, // Matrícula del bus actualmente asignado
-        busMatriculaActual: PropTypes.string, // O usa un nombre consistente
-        busAsignadoId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]), // ID del bus actualmente asignado
-    }).isRequired,
-    omnibusDisponibles: PropTypes.arrayOf(PropTypes.shape({
-        id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-        matricula: PropTypes.string.isRequired,
-        capacidadAsientos: PropTypes.number.isRequired,
-    })), // Puede ser null o undefined inicialmente, así que no es .isRequired
-    onSuccess: PropTypes.func,
-};
-
-// Valores por defecto para props opcionales
-ReasignarViajeRow.defaultProps = {
-    omnibusDisponibles: [], // Asegurar que sea un array vacío si no se provee
-    onSuccess: null,
-    viaje: { // Proporcionar defaults para las props de viaje que podrían no estar
-        busMatricula: 'N/A',
-        busAsignadoId: null,
+    if (!form) {
+        console.error("El formulario 'reasignarViajeForm' no se encontró en el DOM.");
+        return;
     }
-};
+
+    form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const viajeIdVal = viajeIdInput.value;
+        const omnibusIdVal = omnibusIdInput.value;
+
+        // Limpiar resultados anteriores y mostrar "cargando"
+        resultadoArea.style.display = 'none';
+        resultadoArea.className = 'resultado'; // Reset class
+        mensajeResultado.textContent = '';
+        datosViajeActualizado.textContent = '';
+        submitButton.disabled = true;
+        submitButton.textContent = 'Reasignando...';
+
+        try {
+            // Validar que los campos no estén vacíos (el 'required' del HTML ayuda)
+            if (!viajeIdVal.trim() || !omnibusIdVal.trim()) {
+                // Esto no debería ocurrir si 'required' está funcionando, pero es una doble verificación.
+                throw new Error("Por favor, completa ambos IDs.");
+            }
+
+            // La función reasignarViaje ya maneja la conversión a número y validación básica.
+            const viajeActualizado = await reasignarViaje(viajeIdVal, omnibusIdVal);
+
+            mensajeResultado.textContent = '¡Viaje reasignado con éxito!';
+            datosViajeActualizado.textContent = JSON.stringify(viajeActualizado, null, 2);
+            resultadoArea.className = 'resultado success';
+            resultadoArea.style.display = 'block';
+
+        } catch (error) {
+            mensajeResultado.textContent = `Error al reasignar: ${error.message}`;
+            datosViajeActualizado.textContent = '';
+            resultadoArea.className = 'resultado error';
+            resultadoArea.style.display = 'block';
+            console.error("Detalle del error en la UI:", error);
+        } finally {
+            submitButton.disabled = false;
+            submitButton.textContent = 'Reasignar Viaje';
+        }
+    });
+});
