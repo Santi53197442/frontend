@@ -111,11 +111,10 @@ export const crearOmnibusBatch = async (file) => {
     }
 };
 
-// Función ACTUALIZADA para listar todos los ómnibus
 export const obtenerTodosLosOmnibus = async () => {
     try {
-        const response = await apiClient.get('/vendedor/omnibusListar'); // Ruta actualizada
-        return response; // El componente accederá a response.data
+        const response = await apiClient.get('/vendedor/omnibusListar');
+        return response;
     } catch (error) {
         console.error("Error en API al obtener todos los ómnibus:", error.response || error);
         throw error;
@@ -132,6 +131,44 @@ export const obtenerOmnibusPorId = async (id) => {
     }
 };
 
+// --- NUEVAS FUNCIONES PARA GESTIONAR ESTADO DE ÓMNIBUS ---
+
+/**
+ * Marca un ómnibus como inactivo (EN_MANTENIMIENTO o FUERA_DE_SERVICIO) para un período.
+ * @param {number|string} omnibusId - El ID del ómnibus.
+ * @param {object} inactividadData - Datos de la inactividad.
+ * @param {string} inactividadData.inicioInactividad - Fecha y hora ISO (YYYY-MM-DDTHH:mm:ss).
+ * @param {string} inactividadData.finInactividad - Fecha y hora ISO (YYYY-MM-DDTHH:mm:ss).
+ * @param {string} inactividadData.nuevoEstado - 'EN_MANTENIMIENTO' o 'FUERA_DE_SERVICIO'.
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const marcarOmnibusInactivo = async (omnibusId, inactividadData) => {
+    try {
+        // inactividadData debe ser un objeto como:
+        // { inicioInactividad: "2023-12-01T10:00:00", finInactividad: "2023-12-05T18:00:00", nuevoEstado: "EN_MANTENIMIENTO" }
+        const response = await apiClient.put(`/vendedor/omnibus/${omnibusId}/marcar-inactivo`, inactividadData);
+        return response;
+    } catch (error) {
+        console.error(`Error en API al marcar ómnibus ${omnibusId} como inactivo:`, error.response || error);
+        throw error; // Re-lanzar para que el componente que llama pueda manejar el error (ej. mostrar mensajes al usuario)
+    }
+};
+
+/**
+ * Marca un ómnibus como OPERATIVO.
+ * @param {number|string} omnibusId - El ID del ómnibus.
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const marcarOmnibusOperativo = async (omnibusId) => {
+    try {
+        const response = await apiClient.put(`/vendedor/omnibus/${omnibusId}/marcar-operativo`);
+        return response;
+    } catch (error) {
+        console.error(`Error en API al marcar ómnibus ${omnibusId} como operativo:`, error.response || error);
+        throw error;
+    }
+};
+
 // --- FUNCIONES PARA VIAJE (VENDEDOR) ---
 export const crearViaje = async (viajeData) => {
     try {
@@ -143,10 +180,8 @@ export const crearViaje = async (viajeData) => {
     }
 };
 
-// Nueva función para finalizar un viaje
 export const finalizarViaje = async (viajeId) => {
     try {
-        // El ID del viaje va en la URL como un path variable
         const response = await apiClient.post(`/vendedor/viajes/${viajeId}/finalizar`);
         return response;
     } catch (error) {
@@ -154,8 +189,6 @@ export const finalizarViaje = async (viajeId) => {
         throw error;
     }
 };
-
-// Puedes añadir más funciones de API aquí a medida que las necesites...
 
 // Exporta la instancia de apiClient si necesitas usarla directamente en algún caso raro,
 // pero generalmente es mejor usar las funciones exportadas.
