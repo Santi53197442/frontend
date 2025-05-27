@@ -267,4 +267,35 @@ export const finalizarViaje = async (viajeId) => {
     }
 };
 
+// --- FUNCIÓN PARA REASIGNAR UN VIAJE A OTRO ÓMNIBUS --------------------------
+/**
+ * Reasigna un viaje existente a un nuevo ómnibus.
+ *
+ * @param {number|string} viajeId   – ID del viaje que quieres mover
+ * @param {number|string} omnibusId – ID del ómnibus candidato
+ * @returns {Promise<axios.Response>} ViajeResponseDTO actualizado
+ *
+ * Ejemplo de uso:
+ *    await reasignarViaje(42, 7);
+ */
+export const reasignarViaje = async (viajeId, omnibusId) => {
+    try {
+        const response = await apiClient.put(
+            `/vendedor/viajes/${viajeId}/reasignar`,   // ← endpoint
+            null,                                     // ← sin body
+            { params: { omnibusId } }                 // ← ?omnibusId=…
+        );
+        return response;
+    } catch (error) {
+        // mensaje unificado de error
+        console.error(
+            `Error en API al reasignar viaje ${viajeId} al ómnibus ${omnibusId}:`,
+            error.response?.data || error.message
+        );
+        throw error;
+    }
+};
+
+
+
 export default apiClient;

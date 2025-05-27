@@ -33,6 +33,7 @@ import VendedorAltaViajePage from './pages/vendedor/VendedorAltaViajePage';
 import VendedorListarOmnibusPage from './pages/vendedor/VendedorListarOmnibusPage';
 import VendedorCambiarEstadoOmnibus from './pages/vendedor/VendedorCambiarEstadoOmnibus';
 import VendedorCambiarOmnibusaOperativo from './pages/vendedor/VendedorCambiarOmnibusaOperativo';
+import ReasignarViajeRow from './pages/vendedor/ReasignarViajeRow';
 
 
 
@@ -88,6 +89,7 @@ const AppRouter = () => {
                     <Route path="listar-omnibus" element={<VendedorListarOmnibusPage />} />
                     <Route path="cambiar-a-inactivo" element={<VendedorCambiarEstadoOmnibus />} />
                     <Route path="cambiar-a-activo" element={<VendedorCambiarOmnibusaOperativo />} />
+                    <Route path="reasignar-viaje" element={<ReasignarViajeRow />} />
                     {/* <Route path="mis-localidades" element={<VendedorMisLocalidadesPage />} /> */}
                 </Route>
             </Route>
