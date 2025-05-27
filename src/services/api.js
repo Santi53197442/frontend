@@ -188,6 +188,7 @@ export const obtenerTodosLosOmnibus = async () => {
 export const obtenerOmnibusPorId = async (id) => {
     try {
         // Asegúrate que este endpoint GET /vendedor/omnibus/{id} exista en tu backend.
+        // Si no existe, deberás crearlo o ajustar esta llamada.
         const response = await apiClient.get(`/vendedor/omnibus/${id}`);
         return response;
     } catch (error) {
@@ -212,8 +213,8 @@ export const obtenerOmnibusPorEstado = async (estado) => {
  * Marca un ómnibus específico como inactivo (o cualquier estado de inactividad como EN_MANTENIMIENTO, FUERA_DE_SERVICIO),
  * especificando el nuevo estado y opcionalmente un rango de fechas.
  * @param {number|string} omnibusId - El ID del ómnibus.
- * @param {object} data - Objeto con { nuevoEstado: string, inicioInactividad: string (YYYY-MM-DD), finInactividad: string (YYYY-MM-DD) | null }
- *                        Donde nuevoEstado puede ser 'EN_MANTENIMIENTO', 'FUERA_DE_SERVICIO', 'INACTIVO', etc.
+ * @param {object} data - Objeto con { nuevoEstado: string, inicioInactividad: string (ISO DateTime), finInactividad: string (ISO DateTime) }
+ *                        Donde nuevoEstado puede ser 'EN_MANTENIMIENTO', 'FUERA_DE_SERVICIO'.
  * @returns {Promise<axios.Response>} La respuesta de la API con el ómnibus actualizado.
  */
 export const marcarOmnibusInactivo = async (omnibusId, data) => {
@@ -241,9 +242,6 @@ export const marcarOmnibusOperativo = async (omnibusId) => {
     }
 };
 
-// Las funciones programarDesafectacionOmnibus y ponerOmnibusEnMantenimiento
-// han sido eliminadas ya que su lógica puede ser cubierta por marcarOmnibusInactivo.
-// Si se requiere una lógica de API muy diferente para esos casos, se podrían reintroducir.
 
 // --- FUNCIONES PARA VIAJE (VENDEDOR) ---
 export const crearViaje = async (viajeData) => {
@@ -267,35 +265,42 @@ export const finalizarViaje = async (viajeId) => {
     }
 };
 
-// --- FUNCIÓN PARA REASIGNAR UN VIAJE A OTRO ÓMNIBUS --------------------------
+// --- FUNCIÓN PARA REASIGNAR UN VIAJE A OTRO ÓMNIBUS (CORREGIDA) -------------
 /**
  * Reasigna un viaje existente a un nuevo ómnibus.
  *
- * @param {number|string} viajeId   – ID del viaje que quieres mover
- * @param {number|string} omnibusId – ID del ómnibus candidato
- * @returns {Promise<axios.Response>} ViajeResponseDTO actualizado
- *
- * Ejemplo de uso:
- *    await reasignarViaje(42, 7);
+ * @param {number|string} viajeId        El ID del viaje a reasignar.
+ * @param {number|string} nuevoOmnibusId El ID del nuevo ómnibus al que se asignará el viaje.
+ * @returns {Promise<axios.Response>} La respuesta de la API con el ViajeResponseDTO actualizado.
  */
-export const reasignarViaje = async (viajeId, omnibusId) => {
+export const reasignarViaje = async (viajeId, nuevoOmnibusId) => {
     try {
+        // El backend espera un objeto ReasignarViajeRequestDTO en el body
+        const requestBody = {
+            nuevoOmnibusId: nuevoOmnibusId // Nombre de la propiedad debe coincidir con el DTO del backend
+        };
         const response = await apiClient.put(
-            `/vendedor/viajes/${viajeId}/reasignar`,   // ← endpoint
-            null,                                     // ← sin body
-            { params: { omnibusId } }                 // ← ?omnibusId=…
+            `/vendedor/viajes/${viajeId}/reasignar`,
+            requestBody // Enviamos el nuevoOmnibusId en el cuerpo de la solicitud
         );
         return response;
     } catch (error) {
-        // mensaje unificado de error
         console.error(
-            `Error en API al reasignar viaje ${viajeId} al ómnibus ${omnibusId}:`,
+            `Error en API al reasignar viaje ${viajeId} al ómnibus ${nuevoOmnibusId}:`,
             error.response?.data || error.message
         );
         throw error;
     }
 };
 
-
+export const obtenerViajesPorEstado = async (estado) => {
+    try {
+        const response = await apiClient.get('/vendedor/viajes/estado', { params: { estado } });
+        return response;
+    } catch (error) {
+        console.error(`Error en API al obtener viajes por estado ${estado}:`, error.response?.data || error.message);
+        throw error;
+    }
+};
 
 export default apiClient;
