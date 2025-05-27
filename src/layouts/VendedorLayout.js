@@ -94,6 +94,14 @@ const VendedorLayout = () => {
                                 <span>Cambiar omnibus a inactivo</span>
                             </NavLink>
                         </li>
+                        <li>
+                            <NavLink
+                                to="/vendedor/Cambiar-A-Activo"
+                                className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
+                            >
+                                <span>Cambiar omnibus a Activo</span>
+                            </NavLink>
+                        </li>
                     </ul>
                 </nav>
                 <div className="sidebar-footer">

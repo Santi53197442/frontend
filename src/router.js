@@ -31,6 +31,7 @@ import VendedorOmnibusMasivo from "./pages/vendedor/VendedorOmnibusMasivo";
 import VendedorAltaViajePage from './pages/vendedor/VendedorAltaViajePage';
 import VendedorListarOmnibusPage from './pages/vendedor/VendedorListarOmnibusPage';
 import VendedorCambiarEstadoOmnibus from './pages/vendedor/VendedorCambiarEstadoOmnibus';
+import VendedorCambiarOmnibusaOperativo from './pages/vendedor/VendedorCambiarOmnibusaOperativo';
 
 
 
@@ -84,6 +85,7 @@ const AppRouter = () => {
                     <Route path="alta-viaje" element={<VendedorAltaViajePage />} />
                     <Route path="listar-omnibus" element={<VendedorListarOmnibusPage />} />
                     <Route path="Cambiar-A-Inactivo" element={<VendedorCambiarEstadoOmnibus />} />
+                    <Route path="Cambiar-A-Activo" element={<VendedorCambiarOmnibusaOperativo />} />
                     {/* <Route path="mis-localidades" element={<VendedorMisLocalidadesPage />} /> */}
                 </Route>
             </Route>
