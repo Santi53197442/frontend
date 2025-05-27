@@ -1,4 +1,4 @@
-// src/services/apiService.js (o la ruta y nombre que uses para tu archivo de API)
+// src/services/apiService.js
 import axios from 'axios';
 
 // Define la URL raíz de tu backend.
@@ -7,14 +7,13 @@ const BASE_URL = `${API_ROOT_URL}/api`;
 
 const apiClient = axios.create({
     baseURL: BASE_URL,
-    // Podrías añadir un timeout por defecto si lo deseas
     // timeout: 10000, // 10 segundos
 });
 
 // Interceptor para añadir el token JWT a las cabeceras de las solicitudes
 apiClient.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem('authToken'); // O como almacenes tu token
+        const token = localStorage.getItem('authToken');
         if (token) {
             config.headers['Authorization'] = `Bearer ${token}`;
         }
@@ -26,32 +25,25 @@ apiClient.interceptors.request.use(
     }
 );
 
-// Interceptor para manejar respuestas globalmente (opcional, pero útil para errores 401)
+// Interceptor para manejar respuestas globalmente
 apiClient.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response) {
-            // El servidor respondió con un estado fuera del rango 2xx
             console.error("API Response Error Status:", error.response.status);
             console.error("API Response Error Data:", error.response.data);
-
             if (error.response.status === 401) {
                 console.warn("Interceptor API: Error 401 - No autorizado.");
-                // Aquí podrías implementar la lógica para desloguear al usuario y redirigir a login.
-                // Ejemplo:
+                // Lógica de deslogueo y redirección
                 // localStorage.removeItem('authToken');
                 // localStorage.removeItem('userRole');
                 // if (window.location.pathname !== '/login' && window.location.pathname !== '/register') {
                 //    window.location.href = '/login';
                 // }
             }
-            // Podrías manejar otros errores comunes aquí (403, 404, 500) de forma genérica si lo deseas.
-
         } else if (error.request) {
-            // La solicitud se hizo pero no se recibió respuesta (ej. problema de red)
             console.error("API No Response Error:", error.request);
         } else {
-            // Algo más causó el error al configurar la solicitud
             console.error("API Request Setup Error:", error.message);
         }
         return Promise.reject(error);
@@ -151,8 +143,7 @@ export const obtenerTodosLosOmnibus = async () => {
 
 export const obtenerOmnibusPorId = async (id) => {
     try {
-        // Asumiendo que este endpoint existe en tu backend (no estaba en el VendedorController original que me pasaste para esta acción)
-        // Si no existe, necesitarías añadirlo al backend.
+        // Asegúrate que este endpoint GET /vendedor/omnibus/{id} exista en tu backend.
         const response = await apiClient.get(`/vendedor/omnibus/${id}`);
         return response;
     } catch (error) {
@@ -161,11 +152,6 @@ export const obtenerOmnibusPorId = async (id) => {
     }
 };
 
-/**
- * Obtiene una lista de ómnibus filtrados por su estado.
- * @param {string} estado - El estado del ómnibus a buscar (ej. "INACTIVO", "OPERATIVO").
- * @returns {Promise<axios.Response>} La respuesta de la API con la lista de ómnibus.
- */
 export const obtenerOmnibusPorEstado = async (estado) => {
     try {
         const response = await apiClient.get(`/vendedor/omnibus/por-estado`, { params: { estado } });
@@ -176,13 +162,14 @@ export const obtenerOmnibusPorEstado = async (estado) => {
     }
 };
 
-
 // --- FUNCIONES PARA GESTIONAR ESTADO DE ÓMNIBUS (VENDEDOR) ---
 
 /**
- * Marca un ómnibus específico como inactivo, especificando el nuevo estado de inactividad y opcionalmente un rango de fechas.
+ * Marca un ómnibus específico como inactivo (o cualquier estado de inactividad como EN_MANTENIMIENTO, FUERA_DE_SERVICIO),
+ * especificando el nuevo estado y opcionalmente un rango de fechas.
  * @param {number|string} omnibusId - El ID del ómnibus.
- * @param {object} data - Objeto con { nuevoEstado, inicioInactividad, finInactividad }
+ * @param {object} data - Objeto con { nuevoEstado: string, inicioInactividad: string (YYYY-MM-DD), finInactividad: string (YYYY-MM-DD) | null }
+ *                        Donde nuevoEstado puede ser 'EN_MANTENIMIENTO', 'FUERA_DE_SERVICIO', 'INACTIVO', etc.
  * @returns {Promise<axios.Response>} La respuesta de la API con el ómnibus actualizado.
  */
 export const marcarOmnibusInactivo = async (omnibusId, data) => {
@@ -190,15 +177,13 @@ export const marcarOmnibusInactivo = async (omnibusId, data) => {
         const response = await apiClient.put(`/vendedor/omnibus/${omnibusId}/marcar-inactivo`, data);
         return response;
     } catch (error) {
-        console.error(`Error en API al marcar ómnibus ${omnibusId} como inactivo:`, error.response?.data || error.message);
+        console.error(`Error en API al marcar ómnibus ${omnibusId} como inactivo (estado: ${data?.nuevoEstado}):`, error.response?.data || error.message);
         throw error;
     }
 };
 
-
 /**
  * Marca un ómnibus específico como OPERATIVO.
- * Esta función se usará para cambiar un ómnibus de INACTIVO (o EN_MANTENIMIENTO, etc.) a OPERATIVO.
  * @param {number|string} omnibusId - El ID del ómnibus a marcar como operativo.
  * @returns {Promise<axios.Response>} La respuesta de la API con el ómnibus actualizado.
  */
@@ -212,61 +197,9 @@ export const marcarOmnibusOperativo = async (omnibusId) => {
     }
 };
 
-
-// Las siguientes funciones (`programarDesafectacionOmnibus`, `ponerOmnibusEnMantenimiento`)
-// podrían ser casos específicos de `marcarOmnibusInactivo` o `marcarOmnibusOperativo` si los estados
-// (`PENDIENTE_DESAFECTACION`, `EN_MANTENIMIENTO`) son manejados por esos endpoints más generales en el backend.
-// Si tienes endpoints dedicados en el backend para estas acciones, mantenlas.
-// Por ahora, las comento para evitar redundancia si los endpoints generales ya cubren estos casos.
-// Si los necesitas, asegúrate que los endpoints en el backend (`/programar-desafectacion`, `/poner-en-mantenimiento`)
-// realmente existan y funcionen como esperas.
-
-/*
-export const programarDesafectacionOmnibus = async (omnibusId, fechaHoraDesafectacion) => {
-    try {
-        // Asume que el backend espera un PUT a /vendedor/omnibus/{id}/marcar-inactivo
-        // con un cuerpo que incluya el estado PENDIENTE_DESAFECTACION y la fecha.
-        // O si tienes un endpoint específico: /vendedor/omnibus/${omnibusId}/programar-desafectacion
-        // Ajusta según tu backend.
-        const payload = {
-            nuevoEstado: 'PENDIENTE_DESAFECTACION', // Asegúrate que este EstadoBus exista
-            // El backend /marcar-inactivo también espera inicioInactividad y finInactividad.
-            // Si este es un estado permanente, podrías necesitar ajustar el backend o enviar fechas simbólicas.
-            // inicioInactividad: fechaHoraDesafectacion,
-            // finInactividad: fechaHoraDesafectacion, // O alguna fecha muy lejana
-        };
-        // Esta llamada es un ejemplo, verifica el endpoint y payload correctos con tu backend
-        // const response = await apiClient.put(`/vendedor/omnibus/${omnibusId}/marcar-inactivo`, payload);
-        // O si es un endpoint diferente:
-        const response = await apiClient.put(`/vendedor/omnibus/${omnibusId}/programar-desafectacion`, null, { params: { fechaHoraDesafectacion } });
-        return response;
-    } catch (error) {
-        console.error(`Error en API al programar desafectación para ómnibus ${omnibusId}:`, error.response?.data || error.message);
-        throw error;
-    }
-};
-
-export const ponerOmnibusEnMantenimiento = async (omnibusId, fechaHoraReactivacionEstimada) => {
-    try {
-        // Asume que el backend espera un PUT a /vendedor/omnibus/{id}/marcar-inactivo
-        // con un cuerpo que incluya el estado EN_MANTENIMIENTO y las fechas.
-        // Ajusta según tu backend.
-        const payload = {
-            nuevoEstado: 'EN_MANTENIMIENTO',
-            inicioInactividad: new Date().toISOString().split('T')[0], // Hoy como inicio por defecto
-            finInactividad: fechaHoraReactivacionEstimada ? fechaHoraReactivacionEstimada.split('T')[0] : null,
-        };
-        // Esta llamada es un ejemplo, verifica el endpoint y payload correctos con tu backend
-        // const response = await apiClient.put(`/vendedor/omnibus/${omnibusId}/marcar-inactivo`, payload);
-        // O si es un endpoint diferente:
-        const response = await apiClient.put(`/vendedor/omnibus/${omnibusId}/poner-en-mantenimiento`, null, { params: { fechaHoraReactivacionEstimada } });
-        return response;
-    } catch (error) {
-        console.error(`Error en API al poner ómnibus ${omnibusId} en mantenimiento:`, error.response?.data || error.message);
-        throw error;
-    }
-};
-*/
+// Las funciones programarDesafectacionOmnibus y ponerOmnibusEnMantenimiento
+// han sido eliminadas ya que su lógica puede ser cubierta por marcarOmnibusInactivo.
+// Si se requiere una lógica de API muy diferente para esos casos, se podrían reintroducir.
 
 // --- FUNCIONES PARA VIAJE (VENDEDOR) ---
 export const crearViaje = async (viajeData) => {
@@ -289,7 +222,4 @@ export const finalizarViaje = async (viajeId) => {
     }
 };
 
-// Si tienes otras funciones de API, agrégalas aquí.
-
-export default apiClient; // Exportar la instancia configurada para uso directo si es necesario.
-// Generalmente, es mejor exportar las funciones individuales como se ha hecho arriba.
+export default apiClient;
