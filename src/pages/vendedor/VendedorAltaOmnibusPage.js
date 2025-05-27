@@ -10,6 +10,7 @@ const ESTADOS_BUS = [
     { value: 'EN_MANTENIMIENTO', label: 'En Mantenimiento' },
     { value: 'FUERA_DE_SERVICIO', label: 'Fuera de Servicio' },
     { value: 'ASIGNADO_A_VIAJE', label: 'Asignado a Viaje' },
+    { value: 'INACTIVO', label: 'Inactivo' },
 ];
 
 // Constantes de validación

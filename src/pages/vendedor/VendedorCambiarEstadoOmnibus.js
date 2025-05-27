@@ -10,19 +10,19 @@ function VendedorCambiarEstadoOmnibus() {
     const [finInactividad, setFinInactividad] = useState('');
     const [nuevoEstado, setNuevoEstado] = useState('EN_MANTENIMIENTO'); // Estado por defecto
     const [isLoading, setIsLoading] = useState(false);
-    const [message, setMessage] = useState({ text: '', type: '' }); // type: 'success', 'error', o 'info'
+    const [message, setMessage] = useState({text: '', type: ''}); // type: 'success', 'error', o 'info'
     const [viajesConflictivos, setViajesConflictivos] = useState([]);
 
-    // Cargar ómnibus operativos al montar el componente
+// Cargar ómnibus operativos al montar el componente
     const cargarOmnibusOperativos = useCallback(async () => { // envuelto en useCallback por si se usa como dependencia
         setIsLoading(true);
-        setMessage({ text: '', type: '' });
+        setMessage({text: '', type: ''});
         setViajesConflictivos([]); // Limpiar viajes previos al recargar
         try {
             const response = await obtenerOmnibusPorEstado('OPERATIVO');
             setOmnibusDisponibles(response.data || []);
             if (response.status === 204 || (response.data && response.data.length === 0)) {
-                setMessage({ text: 'No hay ómnibus en estado OPERATIVO disponibles para modificar.', type: 'info' });
+                setMessage({text: 'No hay ómnibus en estado OPERATIVO disponibles para modificar.', type: 'info'});
                 setOmnibusDisponibles([]); // Asegurar que sea un array vacío
             }
         } catch (error) {
@@ -33,7 +33,7 @@ function VendedorCambiarEstadoOmnibus() {
             } else if (error.response && error.response.data && error.response.data.message) {
                 errMsg = error.response.data.message;
             }
-            setMessage({ text: errMsg, type: 'error' });
+            setMessage({text: errMsg, type: 'error'});
             setOmnibusDisponibles([]);
         } finally {
             setIsLoading(false);
@@ -46,23 +46,23 @@ function VendedorCambiarEstadoOmnibus() {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-        setMessage({ text: '', type: '' });
+        setMessage({text: '', type: ''});
         setViajesConflictivos([]);
 
         if (!selectedOmnibusId) {
-            setMessage({ text: 'Por favor, seleccione un ómnibus.', type: 'error' });
+            setMessage({text: 'Por favor, seleccione un ómnibus.', type: 'error'});
             return;
         }
         if (!inicioInactividad) {
-            setMessage({ text: 'Por favor, ingrese la fecha y hora de inicio de inactividad.', type: 'error' });
+            setMessage({text: 'Por favor, ingrese la fecha y hora de inicio de inactividad.', type: 'error'});
             return;
         }
         if (!finInactividad) {
-            setMessage({ text: 'Por favor, ingrese la fecha y hora de fin de inactividad.', type: 'error' });
+            setMessage({text: 'Por favor, ingrese la fecha y hora de fin de inactividad.', type: 'error'});
             return;
         }
         if (new Date(inicioInactividad) >= new Date(finInactividad)) {
-            setMessage({ text: 'La fecha de fin debe ser posterior a la fecha de inicio.', type: 'error' });
+            setMessage({text: 'La fecha de fin debe ser posterior a la fecha de inicio.', type: 'error'});
             return;
         }
 
@@ -97,7 +97,7 @@ function VendedorCambiarEstadoOmnibus() {
                     setViajesConflictivos(error.response.data.viajesConflictivos);
                 }
             }
-            setMessage({ text: errorMessage, type: 'error' });
+            setMessage({text: errorMessage, type: 'error'});
         } finally {
             setIsLoading(false);
         }
@@ -111,7 +111,8 @@ function VendedorCambiarEstadoOmnibus() {
     };
 
     return (
-        <div className="vces-container"> {/* Cambié el prefijo de clase para este componente vces: VendedorCambiarEstadoOmnibus */}
+        <div
+            className="vces-container"> {/* Cambié el prefijo de clase para este componente vces: VendedorCambiarEstadoOmnibus */}
             <h2 className="vces-title">Marcar Ómnibus como Inactivo Temporalmente</h2>
             <form onSubmit={handleSubmit} className="vces-form">
                 <div className="vces-form-group">
@@ -179,7 +180,8 @@ function VendedorCambiarEstadoOmnibus() {
                     >
                         <option value="EN_MANTENIMIENTO">En Mantenimiento</option>
                         <option value="FUERA_DE_SERVICIO">Fuera de Servicio</option>
-                        <option value="INACTIVO">Inactivo (General)</option> {/* <-- AÑADIDO AQUÍ */}
+                        <option value="INACTIVO">Inactivo (General)</option>
+                        {/* <-- AÑADIDO AQUÍ */}
                     </select>
                 </div>
 
@@ -208,11 +210,10 @@ function VendedorCambiarEstadoOmnibus() {
                             </li>
                         ))}
                     </ul>
-                    <p>Por favor, cancele o reprograme estos viajes antes de marcar el ómnibus como inactivo en este período.</p>
+                    <p>Por favor, cancele o reprograme estos viajes antes de marcar el ómnibus como inactivo en este
+                        período.</p>
                 </div>
             )}
         </div>
     );
 }
-
-export default VendedorCambiarEstadoOmnibus;
