@@ -3,16 +3,17 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@testing-library/dom": "^10.4.0",
-    "@testing-library/jest-dom": "^6.6.3",
-    "@testing-library/react": "^16.3.0",
-    "@testing-library/user-event": "^13.5.0",
+    "@testing-library/dom": "^10.4.0", // Mantener si es compatible con React 18
+    "@testing-library/jest-dom": "^6.6.3", // Mantener si es compatible con React 18
+    "@testing-library/react": "^15.0.7", // Versión estable para React 18 (verifica la actual)
+    "@testing-library/user-event": "^14.5.2", // Versión estable para React 18 (verifica la actual)
+    "antd": "^5.19.3", // Última versión estable de antd v5 (verifica la actual)
     "axios": "^1.7.2",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "react-router-dom": "^7.6.0",
+    "react": "^18.3.1", // Última versión estable de React 18 (verifica la actual)
+    "react-dom": "^18.3.1", // Última versión estable de React DOM 18 (verifica la actual)
+    "react-router-dom": "^6.25.1", // Última versión estable de react-router-dom v6 (verifica la actual)
     "react-scripts": "5.0.1",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^3.5.2" // Versión actualizada compatible con CRA 5 y React 18
   },
   "scripts": {
     "start": "react-scripts start",
