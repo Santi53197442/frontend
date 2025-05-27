@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import {
     obtenerTodosLosOmnibus, // Para el selector de ómnibus
     buscarViajesDeOmnibus   // La nueva función que creamos
-} from '../../services/apiService'; // Ajusta la ruta a tu apiService
+} from '../../services/api';
 
 // Opciones para los selectores (podrías obtenerlas de una constante o API si cambian mucho)
 const ESTADOS_VIAJE_OPTIONS = [
