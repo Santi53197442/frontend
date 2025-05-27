@@ -189,6 +189,18 @@ export const finalizarViaje = async (viajeId) => {
         throw error;
     }
 };
+// NUEVA FUNCIÓN para obtener ómnibus por estado
+export const obtenerOmnibusPorEstado = async (estado) => {
+    try {
+        // Asumiendo que el nuevo endpoint está en VendedorController y es /api/vendedor/omnibus/por-estado
+        // O si está en OmnibusController, sería /omnibus/por-estado (ajusta la ruta base)
+        const response = await apiClient.get(`/vendedor/omnibus/por-estado`, { params: { estado } });
+        return response; // El componente accederá a response.data
+    } catch (error) {
+        console.error(`Error en API al obtener ómnibus por estado ${estado}:`, error.response || error);
+        throw error;
+    }
+};
 
 // Exporta la instancia de apiClient si necesitas usarla directamente en algún caso raro,
 // pero generalmente es mejor usar las funciones exportadas.
