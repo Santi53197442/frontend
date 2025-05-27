@@ -1,58 +1,58 @@
-// reasignarViaje.js
-import { reasignarViaje } from '../../services/api';
+// ./pages/vendedor/ReasignarViajeRow.jsx
 
-document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('reasignarViajeForm');
-    const viajeIdInput = document.getElementById('viajeId');
-    const omnibusIdInput = document.getElementById('omnibusId');
-    const resultadoArea = document.getElementById('resultadoArea');
-    const mensajeResultado = document.getElementById('mensajeResultado');
-    const datosViajeActualizado = document.getElementById('datosViajeActualizado');
-    const submitButton = document.getElementById('submitButton');
+import React, { useState } from 'react';
+import { reasignarViaje } from '../../services/api'; // Ajusta la ruta a tu apiService
 
-    if (!form) {
-        console.error("El formulario 'reasignarViajeForm' no se encontró en el DOM.");
-        return;
-    }
+// Asumiendo que esta fila recibe un 'viaje' como prop
+const VendedorReasignarViaje = ({ viaje, onReasignacionExitosa, onReasignacionError }) => {
+    const [nuevoOmnibusId, setNuevoOmnibusId] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const [successMessage, setSuccessMessage] = useState('');
 
-    form.addEventListener('submit', async (event) => {
-        event.preventDefault();
-
-        const viajeIdVal = viajeIdInput.value;
-        const omnibusIdVal = omnibusIdInput.value;
-
-        // Limpiar resultados anteriores y mostrar "cargando"
-        resultadoArea.style.display = 'none';
-        resultadoArea.className = 'resultado'; // Reset class
-        mensajeResultado.textContent = '';
-        datosViajeActualizado.textContent = '';
-        submitButton.disabled = true;
-        submitButton.textContent = 'Reasignando...';
-
-        try {
-            // Validar que los campos no estén vacíos (el 'required' del HTML ayuda)
-            if (!viajeIdVal.trim() || !omnibusIdVal.trim()) {
-                // Esto no debería ocurrir si 'required' está funcionando, pero es una doble verificación.
-                throw new Error("Por favor, completa ambos IDs.");
-            }
-
-            // La función reasignarViaje ya maneja la conversión a número y validación básica.
-            const viajeActualizado = await reasignarViaje(viajeIdVal, omnibusIdVal);
-
-            mensajeResultado.textContent = '¡Viaje reasignado con éxito!';
-            datosViajeActualizado.textContent = JSON.stringify(viajeActualizado, null, 2);
-            resultadoArea.className = 'resultado success';
-            resultadoArea.style.display = 'block';
-
-        } catch (error) {
-            mensajeResultado.textContent = `Error al reasignar: ${error.message}`;
-            datosViajeActualizado.textContent = '';
-            resultadoArea.className = 'resultado error';
-            resultadoArea.style.display = 'block';
-            console.error("Detalle del error en la UI:", error);
-        } finally {
-            submitButton.disabled = false;
-            submitButton.textContent = 'Reasignar Viaje';
+    const handleReasignar = async () => {
+        if (!nuevoOmnibusId) {
+            setError("Por favor, ingrese el ID del nuevo ómnibus.");
+            return;
         }
-    });
-});
+        setIsLoading(true);
+        setError(null);
+        setSuccessMessage('');
+        try {
+            const viajeActualizado = await reasignarViaje(viaje.id, nuevoOmnibusId);
+            setSuccessMessage(`Viaje ${viaje.id} reasignado al ómnibus ${nuevoOmnibusId} con éxito.`);
+            if (onReasignacionExitosa) {
+                onReasignacionExitosa(viajeActualizado);
+            }
+        } catch (err) {
+            setError(err.message || "Error al reasignar el viaje.");
+            if (onReasignacionError) {
+                onReasignacionError(err);
+            }
+        } finally {
+            setIsLoading(false);
+            setNuevoOmnibusId(''); // Limpiar input
+        }
+    };
+
+    return (
+        <div className="reasignar-viaje">
+            {/* Muestra info del viaje si es necesario */}
+            <p>Reasignar Viaje ID: {viaje.id} (Origen: {viaje.origen}, Destino: {viaje.destino})</p>
+            <input
+                type="number"
+                value={nuevoOmnibusId}
+                onChange={(e) => setNuevoOmnibusId(e.target.value)}
+                placeholder="ID Nuevo Ómnibus"
+                disabled={isLoading}
+            />
+            <button onClick={handleReasignar} disabled={isLoading}>
+                {isLoading ? 'Reasignando...' : 'Reasignar'}
+            </button>
+            {error && <p style={{ color: 'red' }}>Error: {error}</p>}
+            {successMessage && <p style={{ color: 'green' }}>{successMessage}</p>}
+        </div>
+    );
+};
+
+export default VendedorReasignarViaje; // <- Exportación por defecto
