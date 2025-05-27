@@ -1,0 +1,96 @@
+/* src/components/CambiarContraseña.css */
+.cambiar-contraseña-container {
+    max-width: 500px;
+    margin: 40px auto;
+    padding: 30px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.cambiar-contraseña-container h2 {
+    color: #333;
+    margin-bottom: 25px;
+    font-size: 1.8em;
+}
+
+.cambiar-contraseña-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Espacio entre los grupos de formulario */
+}
+
+.form-group {
+    text-align: left; /* Alinea las etiquetas a la izquierda */
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #555;
+    font-weight: bold;
+    font-size: 0.95em;
+}
+
+.form-group input[type="password"] {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-sizing: border-box;
+    font-size: 1em;
+    transition: border-color 0.3s ease;
+}
+
+.form-group input[type="password"]:focus {
+    border-color: #007bff; /* O el color primario de tu tema */
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); /* Opcional: un brillo al enfocar */
+}
+
+.submit-button {
+    background-color: #007bff; /* Color primario de Bootstrap, ajusta a tu tema */
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+    margin-top: 10px; /* Espacio extra antes del botón */
+}
+
+.submit-button:hover {
+    background-color: #0056b3; /* Un tono más oscuro para el hover */
+}
+
+.submit-button:active {
+    transform: scale(0.98); /* Efecto de clic */
+}
+
+.submit-button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+.error-message {
+    color: #dc3545; /* Rojo para errores */
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    font-size: 0.9em;
+}
+
+.success-message {
+    color: #155724; /* Verde para éxito */
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    font-size: 0.9em;
+}

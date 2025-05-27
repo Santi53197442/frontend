@@ -71,6 +71,50 @@ export const loginUser = async (credentials) => {
     }
 };
 
+// --- FUNCIONES DE USUARIO ---
+/**
+ * Obtiene el perfil del usuario actualmente autenticado.
+ */
+export const getCurrentUserProfile = async () => {
+    try {
+        const response = await apiClient.get('/user/profile');
+        return response;
+    } catch (error) {
+        console.error("Error en API al obtener perfil de usuario:", error.response?.data || error.message);
+        throw error;
+    }
+};
+
+/**
+ * Actualiza el perfil del usuario actualmente autenticado.
+ * @param {object} updateUserDTO - Objeto con los datos a actualizar.
+ */
+export const updateUserProfile = async (updateUserDTO) => {
+    try {
+        const response = await apiClient.put('/user/profile', updateUserDTO);
+        return response;
+    } catch (error) {
+        console.error("Error en API al actualizar perfil de usuario:", error.response?.data || error.message);
+        throw error;
+    }
+};
+
+/**
+ * Cambia la contraseña del usuario actualmente autenticado.
+ * @param {object} changePasswordDTO - Objeto con { currentPassword, newPassword }.
+ */
+export const changePassword = async (changePasswordDTO) => {
+    try {
+        // El endpoint es PUT /api/user/password según tu controlador de backend
+        const response = await apiClient.put('/user/password', changePasswordDTO);
+        return response;
+    } catch (error) {
+        console.error("Error en API al cambiar la contraseña:", error.response?.data || error.message);
+        throw error;
+    }
+};
+
+
 // --- FUNCIONES PARA LOCALIDAD (VENDEDOR) ---
 export const crearLocalidad = async (localidadData) => {
     try {
@@ -216,7 +260,8 @@ export const finalizarViaje = async (viajeId) => {
     try {
         const response = await apiClient.post(`/vendedor/viajes/${viajeId}/finalizar`);
         return response;
-    } catch (error) {
+    } catch (error)
+    {
         console.error(`Error en API al finalizar el viaje con ID ${viajeId}:`, error.response?.data || error.message);
         throw error;
     }

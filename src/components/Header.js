@@ -58,6 +58,7 @@ const Header = () => {
     return (
         <header className="app-header">
             <div className="header-left">
+                {/* Mantengo el comportamiento original del logo que tenías */}
                 <Link to={isAuthenticated ? (user?.rol === 'admin' ? "/menu" : "/") : "/"} className="logo-link">
                     <img src={logoUrl} alt="Logo Sistema" className="logo-image" />
                     <h1>Sistema de Ómnibus</h1>
@@ -73,7 +74,9 @@ const Header = () => {
                         </button>
                         {userMenuOpen && (
                             <div className="dropdown-menu user-dropdown">
-                                <Link to="/editar-perfil" onClick={() => setUserMenuOpen(false)}>Editar Mis Datos</Link> {/* <-- ENLACE AÑADIDO/ACTUALIZADO */}
+                                <Link to="/editar-perfil" onClick={() => setUserMenuOpen(false)}>Editar Mis Datos</Link>
+                                {/* --- ENLACE A CAMBIAR CONTRASEÑA AÑADIDO AQUÍ --- */}
+                                <Link to="/cambiar-contraseña" onClick={() => setUserMenuOpen(false)}>Cambiar Contraseña</Link>
                                 <button onClick={handleLogout} className="logout-button">Cerrar Sesión</button>
                             </div>
                         )}
@@ -85,7 +88,7 @@ const Header = () => {
                     </div>
                 )}
 
-                {/* Menú principal (ej. para admin) */}
+                {/* Menú principal (ej. para admin) - Mantenido como lo tenías */}
                 {isAuthenticated && user && user.rol === 'admin' && (
                     <div className="main-menu-button-container" ref={mainMenuRef}>
                         <button onClick={toggleMainMenu} className="main-menu-button">

@@ -10,6 +10,7 @@ import ForgotPasswordPage from './components/ForgotPassword';
 import ResetPasswordPage from './components/ResetPassword';
 import ProtectedRoute from "./components/ProtectedRoute";
 import EditProfile from "./components/EditProfile";
+import CambiarContraseña from "./components/CambiarContraseña";
 
 // --- LAYOUTS ---
 import AdminLayout from './layouts/AdminLayout';
@@ -56,6 +57,7 @@ const AppRouter = () => {
             {/* Si ProtectedRoute sin allowedRoles solo verifica si está autenticado */}
             <Route element={<ProtectedRoute />}>
                 <Route path="/editar-perfil" element={<EditProfile />} />
+                <Route path="/cambiar-contraseña" element={<CambiarContraseña />} />
                 {/* <Route path="/mis-reservas" element={<ClienteMisReservas />} /> */}
             </Route>
 
