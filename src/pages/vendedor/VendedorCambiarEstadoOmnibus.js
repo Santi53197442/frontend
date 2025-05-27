@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { obtenerOmnibusPorEstado, ponerOmnibusEnMantenimiento } from '../../services/api'; // API actualizada
+import { obtenerOmnibusPorEstado } from '../../services/api'; // API actualizada
 import './VendedorCambiarEstadoOmnibus.css'; // Asegúrate que este archivo CSS exista
 
 function VendedorCambiarEstadoOmnibus() {
