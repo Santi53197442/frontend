@@ -28,9 +28,12 @@ apiClient.interceptors.response.use(
     (error) => {
         if (error.response && error.response.status === 401) {
             console.warn("Interceptor API: Error 401 - No autorizado. Redirigiendo a login...");
+            // Ejemplo de cómo podrías manejarlo:
             // localStorage.removeItem('authToken');
-            // localStorage.removeItem('userRole');
-            // window.location.href = '/login';
+            // localStorage.removeItem('userRole'); // Si almacenas el rol
+            // if (window.location.pathname !== '/login') { // Evitar bucles si ya está en login
+            //    window.location.href = '/login'; // O usa el sistema de rutas de React Router
+            // }
         }
         return Promise.reject(error);
     }
@@ -117,7 +120,7 @@ export const obtenerTodosLosOmnibus = async () => {
 
 export const obtenerOmnibusPorId = async (id) => {
     try {
-        const response = await apiClient.get(`/vendedor/omnibus/${id}`); // Asumiendo que tienes este endpoint
+        const response = await apiClient.get(`/vendedor/omnibus/${id}`);
         return response;
     } catch (error) {
         console.error(`Error en API al obtener ómnibus con ID ${id}:`, error.response || error);
@@ -136,20 +139,21 @@ export const obtenerOmnibusPorEstado = async (estado) => {
 };
 
 
-// --- NUEVAS/MODIFICADAS FUNCIONES PARA GESTIONAR ESTADO DE ÓMNIBUS ---
+// --- FUNCIONES PARA GESTIONAR ESTADO DE ÓMNIBUS ---
 
 /**
- * Programa la desafectación permanente de un ómnibus para una fecha futura.
- * El ómnibus pasará a PENDIENTE_DESAFECTACION y luego a FUERA_DE_SERVICIO.
+ * Programa la desafectación permanente (baja) de un ómnibus para una fecha futura.
+ * El ómnibus pasará a PENDIENTE_DESAFECTACION y luego una tarea programada lo cambiará a FUERA_DE_SERVICIO.
  * @param {number|string} omnibusId - El ID del ómnibus.
  * @param {string} fechaHoraDesafectacion - Fecha y hora ISO (YYYY-MM-DDTHH:mm:ss) para la desafectación.
  */
 export const programarDesafectacionOmnibus = async (omnibusId, fechaHoraDesafectacion) => {
     try {
+        // Los datos van como query parameters porque el backend espera @RequestParam
         const response = await apiClient.put(
             `/vendedor/omnibus/${omnibusId}/programar-desafectacion`,
-            null, // Sin cuerpo en la solicitud PUT para este endpoint específico
-            { params: { fechaHoraDesafectacion } } // Los datos van como query parameters
+            null, // Cuerpo de la solicitud es null para PUT si los datos van en la URL
+            { params: { fechaHoraDesafectacion } }
         );
         return response;
     } catch (error) {
@@ -162,7 +166,7 @@ export const programarDesafectacionOmnibus = async (omnibusId, fechaHoraDesafect
  * Pone un ómnibus en estado EN_MANTENIMIENTO.
  * Opcionalmente, se puede proveer una fecha estimada de reactivación.
  * @param {number|string} omnibusId - El ID del ómnibus.
- * @param {string|null} fechaHoraReactivacionEstimada - Fecha y hora ISO (YYYY-MM-DDTHH:mm:ss) para la reactivación, o null/undefined.
+ * @param {string|null} fechaHoraReactivacionEstimada - Fecha y hora ISO (YYYY-MM-DDTHH:mm:ss) para la reactivación, o null/undefined si no se especifica.
  */
 export const ponerOmnibusEnMantenimiento = async (omnibusId, fechaHoraReactivacionEstimada) => {
     try {
@@ -170,10 +174,11 @@ export const ponerOmnibusEnMantenimiento = async (omnibusId, fechaHoraReactivaci
         if (fechaHoraReactivacionEstimada) {
             params.fechaHoraReactivacionEstimada = fechaHoraReactivacionEstimada;
         }
+        // Los datos van como query parameters
         const response = await apiClient.put(
             `/vendedor/omnibus/${omnibusId}/poner-en-mantenimiento`,
-            null, // Sin cuerpo en la solicitud PUT
-            { params } // Los datos van como query parameters
+            null, // Cuerpo de la solicitud es null
+            { params }
         );
         return response;
     } catch (error) {
@@ -183,7 +188,7 @@ export const ponerOmnibusEnMantenimiento = async (omnibusId, fechaHoraReactivaci
 };
 
 /**
- * Marca un ómnibus como OPERATIVO manualmente (ej. después de mantenimiento sin fecha programada).
+ * Marca un ómnibus como OPERATIVO manualmente (ej. después de mantenimiento sin fecha programada o desde FUERA_DE_SERVICIO si es recuperable).
  * @param {number|string} omnibusId - El ID del ómnibus.
  */
 export const marcarOmnibusOperativoManualmente = async (omnibusId) => {
@@ -209,6 +214,7 @@ export const crearViaje = async (viajeData) => {
 
 export const finalizarViaje = async (viajeId) => {
     try {
+        // Este endpoint es POST según tu VendedorController
         const response = await apiClient.post(`/vendedor/viajes/${viajeId}/finalizar`);
         return response;
     } catch (error) {

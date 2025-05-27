@@ -1,25 +1,16 @@
-// VendedorCambiarEstadoOmnibus.js
 import React, { useState, useEffect } from 'react';
 import { obtenerOmnibusPorEstado, ponerOmnibusEnMantenimiento } from '../../services/api'; // API actualizada
-import './VendedorCambiarEstadoOmnibus.css';
+import './VendedorCambiarEstadoOmnibus.css'; // Asegúrate que este archivo CSS exista
 
 function VendedorCambiarEstadoOmnibus() {
     const [omnibusDisponibles, setOmnibusDisponibles] = useState([]);
     const [selectedOmnibusId, setSelectedOmnibusId] = useState('');
-    // 'inicioInactividad' no lo usa el endpoint de backend 'poner-en-mantenimiento' directamente.
-    // El backend asume que el mantenimiento comienza cuando se llama al endpoint.
-    // Lo mantenemos en el estado por si quieres darle algún uso en el UI o lógica futura.
-    const [inicioInactividad, setInicioInactividad] = useState('');
-    const [fechaReactivacion, setFechaReactivacion] = useState(''); // Antes 'finInactividad'
-    // El 'nuevoEstado' seleccionado por el usuario es más conceptual. El backend
-    // para '/poner-en-mantenimiento' siempre lo pone en EN_MANTENIMIENTO.
-    const [estadoSeleccionadoUsuario, setEstadoSeleccionadoUsuario] = useState('EN_MANTENIMIENTO');
+    const [inicioInactividad, setInicioInactividad] = useState(''); // Para UI, no se envía directamente si el mantenimiento empieza "ahora"
+    const [fechaReactivacion, setFechaReactivacion] = useState(''); // Se enviará como fechaHoraReactivacionEstimada
+    const [estadoSeleccionadoUsuario, setEstadoSeleccionadoUsuario] = useState('EN_MANTENIMIENTO'); // Intención del usuario
 
     const [isLoading, setIsLoading] = useState(false);
     const [message, setMessage] = useState({ text: '', type: '' });
-    // 'viajesConflictivos' no es manejado por el endpoint 'poner-en-mantenimiento' actual del backend.
-    // Si necesitas esa validación, deberás agregarla al OmnibusService.
-    // const [viajesConflictivos, setViajesConflictivos] = useState([]);
 
     useEffect(() => {
         const cargarOmnibusOperativos = async () => {
@@ -34,10 +25,12 @@ function VendedorCambiarEstadoOmnibus() {
             } catch (error) {
                 console.error("Error cargando ómnibus operativos:", error.response || error);
                 let errMsg = "Error al cargar la lista de ómnibus operativos.";
-                if (error.response && error.response.status === 403) {
-                    errMsg = "No tiene permisos para ver los ómnibus. Verifique su sesión.";
-                } else if (error.response && error.response.data && error.response.data.message) {
-                    errMsg = error.response.data.message;
+                if (error.response) {
+                    if (error.response.status === 403) {
+                        errMsg = "No tiene permisos para ver los ómnibus. Verifique su sesión.";
+                    } else if (error.response.data && error.response.data.message) {
+                        errMsg = error.response.data.message;
+                    }
                 }
                 setMessage({ text: errMsg, type: 'error' });
                 setOmnibusDisponibles([]);
@@ -51,19 +44,12 @@ function VendedorCambiarEstadoOmnibus() {
     const handleSubmit = async (event) => {
         event.preventDefault();
         setMessage({ text: '', type: '' });
-        // setViajesConflictivos([]);
 
         if (!selectedOmnibusId) {
             setMessage({ text: 'Por favor, seleccione un ómnibus.', type: 'error' });
             return;
         }
-        // La fecha de inicio de inactividad no es estrictamente necesaria para el backend
-        // si el mantenimiento se considera que empieza 'ahora'.
-        // if (!inicioInactividad) {
-        //     setMessage({ text: 'Por favor, ingrese la fecha y hora de inicio de inactividad.', type: 'error' });
-        //     return;
-        // }
-        // La fecha de reactivación es opcional para el backend.
+        // Validar que la fecha de reactivación sea posterior al inicio (si ambas están presentes)
         if (fechaReactivacion && inicioInactividad && new Date(inicioInactividad) >= new Date(fechaReactivacion)) {
             setMessage({ text: 'La fecha de reactivación debe ser posterior a la fecha de inicio.', type: 'error' });
             return;
@@ -72,10 +58,10 @@ function VendedorCambiarEstadoOmnibus() {
         setIsLoading(true);
 
         try {
-            // El estado seleccionado por el usuario (EN_MANTENIMIENTO o FUERA_DE_SERVICIO)
-            // no se pasa directamente al backend /poner-en-mantenimiento, ya que este
-            // endpoint siempre pone el bus en EN_MANTENIMIENTO.
-            // Si "FUERA_DE_SERVICIO temporal" es distinto, necesitaría otro endpoint/lógica.
+            // El 'estadoSeleccionadoUsuario' aquí es más para el UI. El endpoint de backend
+            // '/poner-en-mantenimiento' implícitamente pone el bus en EN_MANTENIMIENTO.
+            // Si 'FUERA_DE_SERVICIO_TEMPORAL' es un flujo de backend diferente, necesitarías
+            // una función de API distinta y lógica condicional aquí.
             const response = await ponerOmnibusEnMantenimiento(
                 selectedOmnibusId,
                 fechaReactivacion || null // Enviar null si no se especificó fecha de reactivación
@@ -85,9 +71,11 @@ function VendedorCambiarEstadoOmnibus() {
                 text: `Ómnibus ID ${response.data.id} (Matrícula: ${response.data.matricula}) ahora en estado ${response.data.estado}. Reactivación programada para: ${response.data.fechaHoraReactivacionProgramada || 'No definida'}.`,
                 type: 'success',
             });
+            // Resetear formulario y recargar lista
             setSelectedOmnibusId('');
             setInicioInactividad('');
             setFechaReactivacion('');
+            setEstadoSeleccionadoUsuario('EN_MANTENIMIENTO'); // Resetear al valor por defecto
             const updatedOmnibusList = await obtenerOmnibusPorEstado('OPERATIVO');
             setOmnibusDisponibles(updatedOmnibusList.data || []);
 
@@ -105,9 +93,9 @@ function VendedorCambiarEstadoOmnibus() {
 
     const getCurrentDateTimeLocal = () => {
         const now = new Date();
-        const offset = now.getTimezoneOffset();
+        const offset = now.getTimezoneOffset(); // Diferencia en minutos con UTC
         const localNow = new Date(now.getTime() - (offset * 60 * 1000));
-        return localNow.toISOString().slice(0, 16);
+        return localNow.toISOString().slice(0, 16); // Formato YYYY-MM-DDTHH:mm
     };
 
     return (
@@ -124,18 +112,18 @@ function VendedorCambiarEstadoOmnibus() {
                         required
                     >
                         <option value="" disabled>
-                            {omnibusDisponibles.length > 0 ? "-- Seleccione un ómnibus --" : "No hay ómnibus operativos"}
+                            {omnibusDisponibles.length > 0 ? "-- Seleccione un ómnibus --" : "Cargando o no hay ómnibus operativos..."}
                         </option>
                         {omnibusDisponibles.map((omnibus) => (
                             <option key={omnibus.id} value={omnibus.id}>
-                                {omnibus.matricula} - {omnibus.marca} {omnibus.modelo}
+                                {omnibus.matricula} - {omnibus.marca} {omnibus.modelo} (ID: {omnibus.id})
                             </option>
                         ))}
                     </select>
                 </div>
 
                 <div className="form-group">
-                    <label htmlFor="inicio-inactividad">Inicio de Inactividad (Opcional, informativo):</label>
+                    <label htmlFor="inicio-inactividad">Inicio (Informativo, mantenimiento empieza al aplicar):</label>
                     <input
                         type="datetime-local"
                         id="inicio-inactividad"
@@ -153,13 +141,13 @@ function VendedorCambiarEstadoOmnibus() {
                         id="fecha-reactivacion"
                         value={fechaReactivacion}
                         onChange={(e) => setFechaReactivacion(e.target.value)}
-                        min={inicioInactividad || getCurrentDateTimeLocal()}
+                        min={inicioInactividad || getCurrentDateTimeLocal()} // No puede ser antes que el inicio
                         disabled={isLoading}
                     />
                 </div>
 
                 <div className="form-group">
-                    <label htmlFor="tipo-inactividad">Tipo de Inactividad:</label>
+                    <label htmlFor="tipo-inactividad">Tipo de Inactividad (Conceptual):</label>
                     <select
                         id="tipo-inactividad"
                         value={estadoSeleccionadoUsuario}
@@ -167,29 +155,23 @@ function VendedorCambiarEstadoOmnibus() {
                         disabled={isLoading}
                         required
                     >
-                        {/* Este select es más para la intención del usuario, ya que el endpoint actual
-                            del backend para inactividad temporal es '/poner-en-mantenimiento' */}
                         <option value="EN_MANTENIMIENTO">En Mantenimiento</option>
+                        {/* Si tienes un flujo diferente para "FUERA_DE_SERVICIO_TEMPORAL" en el backend,
+                            necesitarías manejarlo. Por ahora, ambos usan 'ponerOmnibusEnMantenimiento'. */}
                         <option value="FUERA_DE_SERVICIO_TEMPORAL">Fuera de Servicio Temporal</option>
                     </select>
                 </div>
 
                 <button type="submit" disabled={isLoading || !selectedOmnibusId} className="submit-button">
-                    {isLoading ? 'Procesando...' : 'Aplicar Estado'}
+                    {isLoading ? 'Procesando...' : 'Aplicar Estado al Ómnibus'}
                 </button>
             </form>
 
             {message.text && (
-                <div className={`message ${message.type === 'info' ? 'info' : message.type}`}>
+                <div className={`message ${message.type === 'info' ? 'info-message' : message.type + '-message'}`}>
                     {message.text}
                 </div>
             )}
-
-            {/* La sección de viajesConflictivos se elimina por ahora ya que el endpoint de mantenimiento no la maneja
-            {viajesConflictivos.length > 0 && (
-                // ...
-            )}
-            */}
         </div>
     );
 }
