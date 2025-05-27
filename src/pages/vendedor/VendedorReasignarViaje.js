@@ -1,7 +1,7 @@
 // src/components/Vendedor/VendedorReasignarViaje.js
 import React, { useState, useEffect } from 'react';
 import {
-    obtenerTodosLosViajes, // Necesitarás una función para obtener viajes (idealmente filtrados por PROGRAMADO)
+    obtenerViajesPorEstado,
     obtenerOmnibusPorEstado,
     reasignarViaje
 } from '../../services/api'; // Ajusta la ruta a tu apiService
@@ -17,37 +17,25 @@ const VendedorReasignarViaje = () => {
     const [error, setError] = useState(null);
     const [successMessage, setSuccessMessage] = useState('');
 
-    // --- Simulación de obtenerTodosLosViajes (deberías implementarla en apiService.js) ---
-    // O mejor, una función como obtenerViajesPorEstado('PROGRAMADO')
+    // --- Función para obtener viajes programados usando obtenerViajesPorEstado ---
     const fetchViajesProgramados = async () => {
         setLoading(true);
+        setError(null); // Limpiar errores previos
         try {
-            // Idealmente, tu API debería tener un endpoint para obtener viajes por estado
-            // Por ahora, si obtenerTodosLosViajes devuelve todos, filtramos aquí.
-            // const response = await apiClient.get('/vendedor/viajes'); // Asume que existe este endpoint
-            // setViajesProgramados(response.data.filter(v => v.estado === 'PROGRAMADO'));
-
-            // ***** EJEMPLO SIMULADO *****
-            // Esto es solo un ejemplo, necesitas un endpoint real en tu backend y apiService.js
-            // Por ejemplo, si tu VendedorController tuviera un GET /api/vendedor/viajes/estado?estado=PROGRAMADO
-            // const response = await apiClient.get('/vendedor/viajes/estado', { params: { estado: 'PROGRAMADO' } });
-            // setViajesProgramados(response.data);
-
-            // Como no tenemos un endpoint GET para viajes en el VendedorController,
-            // esta parte es más compleja. Asumiremos que los viajes vienen de otro lado
-            // o que se añade un endpoint.
-            // Por ahora, lo dejaremos vacío para que se vea que falta algo.
-            console.warn("Funcionalidad para obtener viajes programados no implementada completamente en el ejemplo.");
-            // setViajesProgramados([]); // O carga datos de prueba
-            setViajesProgramados([
-                { id: 1, origenNombre: "Montevideo", destinoNombre: "Punta del Este", horaSalida: "10:00", fecha: "2024-06-01", busMatricula: "SAB1234", estado: "PROGRAMADO" },
-                { id: 2, origenNombre: "Colonia", destinoNombre: "Montevideo", horaSalida: "14:30", fecha: "2024-06-01", busMatricula: "SCD5678", estado: "PROGRAMADO" },
-            ]);
-
-
+            // Llama a la función del apiService para obtener viajes con estado 'PROGRAMADO'
+            const response = await obtenerViajesPorEstado('PROGRAMADO');
+            // Asume que la respuesta de la API es un objeto con una propiedad 'data' que contiene el array de viajes
+            // o que la respuesta es directamente el array de viajes.
+            // Si response.data es undefined pero response es el array, usa response.
+            setViajesProgramados(response.data || response || []);
+            if ((response.data && response.data.length === 0) || (Array.isArray(response) && response.length === 0)) {
+                console.info("No se encontraron viajes programados.");
+            }
         } catch (err) {
-            setError('Error al cargar viajes programados.');
-            console.error(err);
+            const errorMessage = err.response?.data?.message || err.message || 'Error al cargar viajes programados.';
+            setError(errorMessage);
+            setViajesProgramados([]); // Asegurar que no haya datos viejos en caso de error
+            console.error("Error en fetchViajesProgramados:", err);
         } finally {
             setLoading(false);
         }
@@ -55,12 +43,18 @@ const VendedorReasignarViaje = () => {
 
     const fetchOmnibusOperativos = async () => {
         setLoading(true);
+        setError(null); // Limpiar errores previos
         try {
             const response = await obtenerOmnibusPorEstado('OPERATIVO');
-            setOmnibusOperativos(response.data || []);
+            setOmnibusOperativos(response.data || response || []);
+            if ((response.data && response.data.length === 0) || (Array.isArray(response) && response.length === 0)) {
+                console.info("No se encontraron ómnibus operativos.");
+            }
         } catch (err) {
-            setError('Error al cargar ómnibus operativos.');
-            console.error(err);
+            const errorMessage = err.response?.data?.message || err.message || 'Error al cargar ómnibus operativos.';
+            setError(errorMessage);
+            setOmnibusOperativos([]); // Asegurar que no haya datos viejos en caso de error
+            console.error("Error en fetchOmnibusOperativos:", err);
         } finally {
             setLoading(false);
         }
@@ -88,8 +82,8 @@ const VendedorReasignarViaje = () => {
             // Opcional: Resetear selecciones o recargar datos
             setSelectedViajeId('');
             setSelectedOmnibusId('');
-            fetchViajesProgramados(); // Recargar viajes por si el estado cambió
-            fetchOmnibusOperativos(); // Recargar ómnibus por si el estado cambió
+            fetchViajesProgramados(); // Recargar viajes
+            fetchOmnibusOperativos(); // Recargar ómnibus (el estado de un ómnibus podría cambiar si se le asigna un viaje)
         } catch (err) {
             const errorMessage = err.response?.data?.message || err.message || 'Error al reasignar el viaje.';
             setError(errorMessage);
@@ -110,20 +104,23 @@ const VendedorReasignarViaje = () => {
 
             <form onSubmit={handleSubmit}>
                 <div style={{ marginBottom: '15px' }}>
-                    <label htmlFor="viaje" style={{ display: 'block', marginBottom: '5px' }}>Seleccionar Viaje a Reasignar:</label>
+                    <label htmlFor="viaje" style={{ display: 'block', marginBottom: '5px' }}>Seleccionar Viaje a Reasignar (PROGRAMADO):</label>
                     <select
                         id="viaje"
                         value={selectedViajeId}
                         onChange={(e) => {
                             setSelectedViajeId(e.target.value);
-                            setError(null); // Limpiar error al cambiar
-                            setSuccessMessage(''); // Limpiar mensaje de éxito
+                            setError(null);
+                            setSuccessMessage('');
                         }}
                         required
                         style={{ width: '100%', padding: '8px' }}
                         disabled={loading}
                     >
                         <option value="">-- Seleccione un Viaje --</option>
+                        {viajesProgramados.length === 0 && !loading && (
+                            <option value="" disabled>No hay viajes programados disponibles</option>
+                        )}
                         {viajesProgramados.map((viaje) => (
                             <option key={viaje.id} value={viaje.id}>
                                 ID: {viaje.id} - {viaje.origenNombre} a {viaje.destinoNombre} ({viaje.fecha} {viaje.horaSalida}) - Bus Actual: {viaje.busMatricula || 'N/A'}
@@ -139,6 +136,7 @@ const VendedorReasignarViaje = () => {
                         <p><strong>Ruta:</strong> {selectedViajeInfo.origenNombre} → {selectedViajeInfo.destinoNombre}</p>
                         <p><strong>Fecha y Hora Partida:</strong> {selectedViajeInfo.fecha} {selectedViajeInfo.horaSalida}</p>
                         <p><strong>Ómnibus Actual:</strong> {selectedViajeInfo.busMatricula || 'No asignado'}</p>
+                        <p><strong>Origen ID (para referencia):</strong> {selectedViajeInfo.origenId}</p> {/* Añadido para debug/info */}
                     </div>
                 )}
 
@@ -149,25 +147,33 @@ const VendedorReasignarViaje = () => {
                         value={selectedOmnibusId}
                         onChange={(e) => {
                             setSelectedOmnibusId(e.target.value);
-                            setError(null); // Limpiar error al cambiar
+                            setError(null);
                             setSuccessMessage('');
                         }}
                         required
                         style={{ width: '100%', padding: '8px' }}
-                        disabled={loading || !selectedViajeId} // Deshabilitar si no hay viaje seleccionado
+                        disabled={loading || !selectedViajeId}
                     >
                         <option value="">-- Seleccione un Nuevo Ómnibus --</option>
+                        {omnibusOperativos.length === 0 && !loading && (
+                            <option value="" disabled>No hay ómnibus operativos disponibles</option>
+                        )}
                         {omnibusOperativos.map((omnibus) => (
                             <option key={omnibus.id} value={omnibus.id}>
                                 Matrícula: {omnibus.matricula} - Capacidad: {omnibus.capacidadAsientos} - Localidad: {omnibus.localidadActual?.nombre || 'N/A'}
                             </option>
                         ))}
                     </select>
-                    {selectedViajeInfo && !omnibusOperativos.some(o => o.localidadActual?.id === selectedViajeInfo.origenId) && omnibusOperativos.length > 0 &&
-                        <p style={{color: 'orange', fontSize: '0.9em', marginTop: '5px'}}>
-                            Advertencia: Asegúrese de que el ómnibus seleccionado esté en la localidad de origen del viaje ({selectedViajeInfo.origenNombre}). El backend validará esto.
-                        </p>
-                    }
+                    {selectedViajeInfo && omnibusOperativos.length > 0 &&
+                        !omnibusOperativos.some(o => o.localidadActual?.id === selectedViajeInfo.origenId) &&
+                        selectedOmnibusId && // Mostrar advertencia solo si un ómnibus está seleccionado
+                        omnibusOperativos.find(o => o.id === parseInt(selectedOmnibusId))?.localidadActual?.id !== selectedViajeInfo.origenId && (
+                            <p style={{color: 'orange', fontSize: '0.9em', marginTop: '5px'}}>
+                                Advertencia: El ómnibus seleccionado ({omnibusOperativos.find(o => o.id === parseInt(selectedOmnibusId))?.matricula})
+                                no parece estar en la localidad de origen del viaje ({selectedViajeInfo.origenNombre} - ID: {selectedViajeInfo.origenId}).
+                                El backend debería validar esto.
+                            </p>
+                        )}
                 </div>
 
                 <button
