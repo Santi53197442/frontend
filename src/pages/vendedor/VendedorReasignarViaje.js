@@ -1,17 +1,26 @@
-// ./pages/vendedor/ReasignarViajeRow.jsx
+// ./pages/vendedor/VendedorReasignarViaje.jsx // (o la ruta que corresponda)
 
 import React, { useState } from 'react';
-import { reasignarViaje } from '../../services/api'; // Ajusta la ruta a tu apiService
+import { reasignarViaje } from '../../services/api'; // Asegúrate que la ruta a tu función API sea correcta
 
-// Asumiendo que esta fila recibe un 'viaje' como prop
 const VendedorReasignarViaje = ({ viaje, onReasignacionExitosa, onReasignacionError }) => {
     const [nuevoOmnibusId, setNuevoOmnibusId] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
     const [successMessage, setSuccessMessage] = useState('');
 
+    // --- GUARDA ESENCIAL ---
+    if (!viaje) {
+        // Esto se ejecutará si 'viaje' es undefined, null, false, 0, NaN o ""
+        // Para este caso, principalmente nos interesa undefined o null.
+        console.warn("VendedorReasignarViaje: La prop 'viaje' es undefined o null.");
+        // Decide qué mostrar. Podría ser un loader, un mensaje, o nada (null).
+        return <p>Cargando datos del viaje o el viaje no está disponible...</p>;
+    }
+    // --- FIN DE LA GUARDA ---
+
     const handleReasignar = async () => {
-        if (!nuevoOmnibusId) {
+        if (!nuevoOmnibusId.trim()) { // Añadido .trim() para evitar IDs vacíos con espacios
             setError("Por favor, ingrese el ID del nuevo ómnibus.");
             return;
         }
@@ -19,6 +28,7 @@ const VendedorReasignarViaje = ({ viaje, onReasignacionExitosa, onReasignacionEr
         setError(null);
         setSuccessMessage('');
         try {
+            // Ahora es seguro acceder a viaje.id porque la guarda de arriba lo asegura
             const viajeActualizado = await reasignarViaje(viaje.id, nuevoOmnibusId);
             setSuccessMessage(`Viaje ${viaje.id} reasignado al ómnibus ${nuevoOmnibusId} con éxito.`);
             if (onReasignacionExitosa) {
@@ -31,13 +41,13 @@ const VendedorReasignarViaje = ({ viaje, onReasignacionExitosa, onReasignacionEr
             }
         } finally {
             setIsLoading(false);
-            setNuevoOmnibusId(''); // Limpiar input
+            setNuevoOmnibusId('');
         }
     };
 
+    // Gracias a la guarda, aquí 'viaje' NUNCA será undefined
     return (
         <div className="reasignar-viaje">
-            {/* Muestra info del viaje si es necesario */}
             <p>Reasignar Viaje ID: {viaje.id} (Origen: {viaje.origen}, Destino: {viaje.destino})</p>
             <input
                 type="number"
@@ -55,4 +65,4 @@ const VendedorReasignarViaje = ({ viaje, onReasignacionExitosa, onReasignacionEr
     );
 };
 
-export default VendedorReasignarViaje; // <- Exportación por defecto
+export default VendedorReasignarViaje;
