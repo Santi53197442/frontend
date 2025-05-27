@@ -84,8 +84,8 @@ const AppRouter = () => {
                     <Route path="alta-masiva-omnibus" element={<VendedorOmnibusMasivo />} />
                     <Route path="alta-viaje" element={<VendedorAltaViajePage />} />
                     <Route path="listar-omnibus" element={<VendedorListarOmnibusPage />} />
-                    <Route path="Cambiar-A-Inactivo" element={<VendedorCambiarEstadoOmnibus />} />
-                    <Route path="Cambiar-A-Activo" element={<VendedorCambiarOmnibusaOperativo />} />
+                    <Route path="cambiar-a-inactivo" element={<VendedorCambiarEstadoOmnibus />} />
+                    <Route path="cambiar-a-activo" element={<VendedorCambiarOmnibusaOperativo />} />
                     {/* <Route path="mis-localidades" element={<VendedorMisLocalidadesPage />} /> */}
                 </Route>
             </Route>

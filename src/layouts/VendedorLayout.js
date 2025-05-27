@@ -88,7 +88,7 @@ const VendedorLayout = () => {
                         </li>
                         <li>
                             <NavLink
-                                to="/vendedor/Cambiar-A-Inactivo"
+                                to="/vendedor/cambiar-a-inactivo"
                                 className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
                             >
                                 <span>Cambiar omnibus a inactivo</span>
@@ -96,7 +96,7 @@ const VendedorLayout = () => {
                         </li>
                         <li>
                             <NavLink
-                                to="/vendedor/Cambiar-A-Activo"
+                                to="/vendedor/cambiar-a-activo"
                                 className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
                             >
                                 <span>Cambiar omnibus a Activo</span>
