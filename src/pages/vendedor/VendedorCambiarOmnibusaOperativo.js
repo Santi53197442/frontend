@@ -1,54 +1,7 @@
-// src/components/Vendedor/VendedorCambiarOmnibusaOperativo.js (versión sin antd)
+// src/pages/vendedor/VendedorCambiarOmnibusaOperativo.js
 import React, { useState, useEffect, useCallback } from 'react';
 import { obtenerOmnibusPorEstado, marcarOmnibusOperativo } from '../../services/api'; // Ajusta la ruta
-
-// Estilos básicos en línea (considera moverlos a un archivo CSS)
-const styles = {
-    container: { padding: '20px', fontFamily: 'Arial, sans-serif' },
-    title: { fontSize: '24px', marginBottom: '10px' },
-    text: { marginBottom: '20px', display: 'block' },
-    alert: {
-        padding: '10px',
-        marginBottom: '20px',
-        border: '1px solid transparent',
-        borderRadius: '4px',
-    },
-    alertError: { color: '#a94442', backgroundColor: '#f2dede', borderColor: '#ebccd1' },
-    alertSuccess: { color: '#3c763d', backgroundColor: '#dff0d8', borderColor: '#d6e9c6' },
-    spinnerContainer: { textAlign: 'center', margin: '20px' },
-    table: { width: '100%', borderCollapse: 'collapse', marginTop: '20px' },
-    th: { border: '1px solid #ddd', padding: '8px', backgroundColor: '#f2f2f2', textAlign: 'left' },
-    td: { border: '1px solid #ddd', padding: '8px' },
-    button: {
-        padding: '8px 12px',
-        backgroundColor: '#007bff',
-        color: 'white',
-        border: 'none',
-        borderRadius: '4px',
-        cursor: 'pointer',
-    },
-    buttonDisabled: { backgroundColor: '#ccc', cursor: 'not-allowed' },
-    modalOverlay: {
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(0,0,0,0.5)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    modalContent: {
-        backgroundColor: 'white',
-        padding: '20px',
-        borderRadius: '5px',
-        boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-        minWidth: '300px',
-        textAlign: 'center',
-    },
-    modalActions: { marginTop: '20px' }
-};
+import './VendedorCambiarOmnibusaOperativo.css'; // Importa el archivo CSS
 
 const ESTADO_BUSQUEDA = "INACTIVO";
 
@@ -98,7 +51,6 @@ const VendedorCambiarOmnibusaOperativo = () => {
         setSuccessMessage('');
         setIsModalVisible(false);
         try {
-            // const response = await marcarOmnibusOperativo(selectedOmnibus.id); // Quitamos la asignación
             await marcarOmnibusOperativo(selectedOmnibus.id);
             setSuccessMessage(`El ómnibus con matrícula ${selectedOmnibus.matricula} (ID: ${selectedOmnibus.id}) ha sido marcado como OPERATIVO exitosamente.`);
             setSelectedOmnibus(null);
@@ -117,66 +69,66 @@ const VendedorCambiarOmnibusaOperativo = () => {
     };
 
     if (loading && !omnibusInactivos.length && !error && !successMessage) {
-        return <div style={styles.spinnerContainer}><p>Cargando ómnibus inactivos...</p></div>;
+        return <div className="spinner-container"><p>Cargando ómnibus inactivos...</p></div>;
     }
 
     return (
-        <div style={styles.container}>
-            <h3 style={styles.title}>Marcar Ómnibus Inactivo como Operativo</h3>
-            <p style={styles.text}>
+        <div className="vceo-container"> {/* vceo: VendedorCambiarEstadoOmnibus */}
+            <h3 className="vceo-title">Marcar Ómnibus Inactivo como Operativo</h3>
+            <p className="vceo-text">
                 Aquí se listan los ómnibus que actualmente se encuentran en estado "{ESTADO_BUSQUEDA}".
                 Seleccione un ómnibus para cambiar su estado a "OPERATIVO".
             </p>
 
             {error && (
-                <div style={{ ...styles.alert, ...styles.alertError }}>
+                <div className="vceo-alert vceo-alert-error">
                     <strong>Error:</strong> {error}
-                    <button onClick={() => setError(null)} style={{ float: 'right', background: 'none', border: 'none', cursor: 'pointer' }}>×</button>
+                    <button onClick={() => setError(null)} className="vceo-alert-close">×</button>
                 </div>
             )}
             {successMessage && (
-                <div style={{ ...styles.alert, ...styles.alertSuccess }}>
+                <div className="vceo-alert vceo-alert-success">
                     <strong>Éxito:</strong> {successMessage}
-                    <button onClick={() => setSuccessMessage('')} style={{ float: 'right', background: 'none', border: 'none', cursor: 'pointer' }}>×</button>
+                    <button onClick={() => setSuccessMessage('')} className="vceo-alert-close">×</button>
                 </div>
             )}
 
-            {loading && omnibusInactivos.length > 0 && <p>Actualizando lista...</p>}
+            {loading && omnibusInactivos.length > 0 && <p className="vceo-loading-update">Actualizando lista...</p>}
 
-            {omnibusInactivos.length === 0 && !loading && <p>No hay ómnibus en estado INACTIVO.</p>}
+            {omnibusInactivos.length === 0 && !loading && <p className="vceo-empty-message">No hay ómnibus en estado INACTIVO.</p>}
 
             {omnibusInactivos.length > 0 && (
-                <table style={styles.table}>
+                <table className="vceo-table">
                     <thead>
                     <tr>
-                        <th style={styles.th}>ID</th>
-                        <th style={styles.th}>Matrícula</th>
-                        <th style={styles.th}>Marca</th>
-                        <th style={styles.th}>Modelo</th>
-                        <th style={styles.th}>Capacidad</th>
-                        <th style={styles.th}>Localidad Actual</th>
-                        <th style={styles.th}>Estado Actual</th>
-                        <th style={styles.th}>Acción</th>
+                        <th>ID</th>
+                        <th>Matrícula</th>
+                        <th>Marca</th>
+                        <th>Modelo</th>
+                        <th>Capacidad</th>
+                        <th>Localidad Actual</th>
+                        <th>Estado Actual</th>
+                        <th>Acción</th>
                     </tr>
                     </thead>
                     <tbody>
                     {omnibusInactivos.map((omnibus) => (
                         <tr key={omnibus.id}>
-                            <td style={styles.td}>{omnibus.id}</td>
-                            <td style={styles.td}>{omnibus.matricula}</td>
-                            <td style={styles.td}>{omnibus.marca}</td>
-                            <td style={styles.td}>{omnibus.modelo}</td>
-                            <td style={styles.td}>{omnibus.capacidadAsientos}</td>
-                            <td style={styles.td}>
+                            <td>{omnibus.id}</td>
+                            <td>{omnibus.matricula}</td>
+                            <td>{omnibus.marca}</td>
+                            <td>{omnibus.modelo}</td>
+                            <td>{omnibus.capacidadAsientos}</td>
+                            <td>
                                 {omnibus.localidadActual?.nombre || 'N/A'}
                                 {omnibus.localidadActual?.departamento ? ` (${omnibus.localidadActual.departamento})` : ''}
                             </td>
-                            <td style={{ ...styles.td, color: omnibus.estado === 'INACTIVO' ? 'red' : 'inherit' }}>
+                            <td className={omnibus.estado === 'INACTIVO' ? 'vceo-estado-inactivo' : ''}>
                                 {omnibus.estado}
                             </td>
-                            <td style={styles.td}>
+                            <td>
                                 <button
-                                    style={loading ? { ...styles.button, ...styles.buttonDisabled } : styles.button}
+                                    className={`vceo-button ${loading ? 'vceo-button-disabled' : ''}`}
                                     onClick={() => handleMarcarOperativoClick(omnibus)}
                                     disabled={loading}
                                 >
@@ -190,28 +142,28 @@ const VendedorCambiarOmnibusaOperativo = () => {
             )}
 
             {isModalVisible && selectedOmnibus && (
-                <div style={styles.modalOverlay}>
-                    <div style={styles.modalContent}>
+                <div className="vceo-modal-overlay">
+                    <div className="vceo-modal-content">
                         <h4>Confirmar Acción</h4>
                         <p>
                             ¿Está seguro de que desea marcar el ómnibus con matrícula <strong>{selectedOmnibus.matricula}</strong> (ID: {selectedOmnibus.id}) como <strong>OPERATIVO</strong>?
                         </p>
-                        <p>Estado actual: <span style={{ color: 'red' }}>{selectedOmnibus.estado}</span></p>
-                        <div style={styles.modalActions}>
+                        <p>Estado actual: <span className="vceo-estado-inactivo">{selectedOmnibus.estado}</span></p>
+                        <div className="vceo-modal-actions">
                             <button
-                                style={loading ? { ...styles.button, ...styles.buttonDisabled, marginRight: '10px' } : { ...styles.button, marginRight: '10px' }}
+                                className={`vceo-button ${loading ? 'vceo-button-disabled' : ''}`}
                                 onClick={handleConfirmMarcarOperativo}
                                 disabled={loading}
                             >
                                 {loading ? 'Procesando...' : 'Confirmar'}
-                            </Button>
+                            </button>
                             <button
-                                style={{...styles.button, backgroundColor: '#6c757d'}}
+                                className="vceo-button vceo-button-cancel"
                                 onClick={handleCancelModal}
                                 disabled={loading}
                             >
                                 Cancelar
-                            </Button>
+                            </button>
                         </div>
                     </div>
                 </div>

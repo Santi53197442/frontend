@@ -1,0 +1,187 @@
+/* src/pages/vendedor/VendedorCambiarOmnibusaOperativo.css */
+
+.vceo-container {
+    padding: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+    line-height: 1.5;
+}
+
+.vceo-title {
+    font-size: 24px;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.vceo-text,
+.vceo-empty-message,
+.vceo-loading-update {
+    margin-bottom: 20px;
+    display: block;
+    color: #555;
+}
+
+.spinner-container {
+    text-align: center;
+    margin: 40px 20px;
+    font-size: 18px;
+    color: #555;
+}
+
+/* Alertas */
+.vceo-alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    position: relative;
+}
+
+.vceo-alert-error {
+    color: #a94442;
+    background-color: #f2dede;
+    border-color: #ebccd1;
+}
+
+.vceo-alert-success {
+    color: #3c763d;
+    background-color: #dff0d8;
+    border-color: #d6e9c6;
+}
+
+.vceo-alert-close {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    font-weight: bold;
+    line-height: 1;
+    color: inherit;
+    opacity: 0.7;
+    cursor: pointer;
+}
+.vceo-alert-close:hover {
+    opacity: 1;
+}
+
+
+/* Tabla */
+.vceo-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.vceo-table th,
+.vceo-table td {
+    border: 1px solid #ddd;
+    padding: 10px 12px;
+    text-align: left;
+}
+
+.vceo-table th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+    color: #333;
+}
+
+.vceo-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.vceo-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+.vceo-estado-inactivo {
+    color: #dc3545; /* Rojo para estado inactivo */
+    font-weight: bold;
+}
+
+/* Botones */
+.vceo-button {
+    padding: 8px 15px;
+    font-size: 14px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+    background-color: #007bff;
+    color: white;
+    margin-right: 5px; /* Espacio entre botones en la misma línea */
+}
+
+.vceo-button:hover {
+    background-color: #0056b3;
+}
+
+.vceo-button-disabled {
+    background-color: #ccc;
+    color: #666;
+    cursor: not-allowed;
+}
+.vceo-button-disabled:hover {
+    background-color: #ccc;
+}
+
+
+.vceo-button-cancel {
+    background-color: #6c757d;
+}
+.vceo-button-cancel:hover {
+    background-color: #545b62;
+}
+
+
+/* Modal */
+.vceo-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000; /* Asegurar que esté por encima de otros contenidos */
+}
+
+.vceo-modal-content {
+    background-color: white;
+    padding: 25px 30px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    min-width: 350px;
+    max-width: 500px;
+    text-align: left;
+}
+
+.vceo-modal-content h4 {
+    margin-top: 0;
+    font-size: 20px;
+    color: #333;
+}
+
+.vceo-modal-content p {
+    margin-bottom: 15px;
+    color: #555;
+    line-height: 1.6;
+}
+
+.vceo-modal-content strong {
+    color: #000;
+}
+
+.vceo-modal-actions {
+    margin-top: 25px;
+    text-align: right;
+}
+
+.vceo-modal-actions .vceo-button {
+    min-width: 100px;
+}
