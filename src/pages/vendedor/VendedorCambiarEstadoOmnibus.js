@@ -1,6 +1,6 @@
 // src/components/VendedorCambiarEstadoOmnibus.jsx
 import React, { useState, useEffect } from 'react';
-import { obtenerTodosLosOmnibus, marcarOmnibusInactivo } from '../services/api'; // Ajusta la ruta a tu api.js
+import { obtenerTodosLosOmnibus, marcarOmnibusInactivo } from '../../services/api'; // Ajusta la ruta a tu api.js
 import './VendedorCambiarEstadoOmnibus.css'; // Crearemos este archivo CSS
 
 function VendedorCambiarEstadoOmnibus() {
