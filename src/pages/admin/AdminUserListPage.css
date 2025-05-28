@@ -169,7 +169,8 @@
 }
 
 .role-admin {
-    background-color: #343a40;
+    background-color: #3498db; /* Azul */
+    font-size: 0.75rem; /* Solo para admin si es necesario */
 }
 
 .role-vendedor {
