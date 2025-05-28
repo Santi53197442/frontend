@@ -39,7 +39,8 @@ function AdminUserListPage() {
 
     const rolesUnicos = useMemo(() => {
         if (!usersOriginal || usersOriginal.length === 0) return [];
-        const roles = new Set(usersOriginal.map(u => u.rol?.trim()).filter(Boolean)); // Añadido trim() aquí también para el dropdown
+        // Mostrar el rol original en el dropdown (ej. "ADMINISTRADOR")
+        const roles = new Set(usersOriginal.map(u => u.rol?.trim()).filter(Boolean));
         return ["", ...Array.from(roles).sort()];
     }, [usersOriginal]);
 
@@ -59,7 +60,7 @@ function AdminUserListPage() {
                 user.email.toLowerCase().includes(filtroEmail.toLowerCase())
             );
         }
-        if (filtroRol) { // filtroRol vendrá 'limpio' del dropdown gracias al trim() en rolesUnicos
+        if (filtroRol) {
             items = items.filter(user => user.rol?.trim() === filtroRol);
         }
 
@@ -150,12 +151,20 @@ function AdminUserListPage() {
                             </thead>
                             <tbody>
                             {filteredAndSortedUsers.map(user => {
-                                // Limpia el rol de espacios y lo convierte a minúsculas para la clase CSS
-                                // Si user.rol es null/undefined, o una cadena vacía después de trim(), usa 'desconocido'
-                                const rolLimpio = user.rol?.trim(); // Obtiene el rol y quita espacios
-                                const rolParaClase = (rolLimpio && rolLimpio !== "") ? rolLimpio.toLowerCase() : 'desconocido';
+                                const rolOriginal = user.rol?.trim();
+                                const rolParaClase = (rolOriginal && rolOriginal !== "") ? rolOriginal.toLowerCase() : 'desconocido';
 
-                                // console.log("ID:", user.id, "Rol API:", user.rol, "Rol Limpio:", rolLimpio, "Clase:", `role-${rolParaClase}`); // DEBUGGING
+                                // Determinar el texto a mostrar en el badge
+                                let textoDelBadge = 'DESCONOCIDO';
+                                if (rolOriginal && rolOriginal !== "") {
+                                    // Si el rol original (limpio) es 'administrador' (insensible a mayúsculas), mostrar 'Admin'
+                                    // Para otros roles, mostrar el rol original (que se capitalizará por CSS)
+                                    if (rolOriginal.toLowerCase() === 'administrador') {
+                                        textoDelBadge = 'Admin';
+                                    } else {
+                                        textoDelBadge = user.rol; // Usar el valor original para que text-transform: capitalize funcione
+                                    }
+                                }
 
                                 return (
                                     <tr key={user.id}>
@@ -168,8 +177,7 @@ function AdminUserListPage() {
                                         <td>{user.fechaNac ? new Date(user.fechaNac).toLocaleDateString() : 'N/D'}</td>
                                         <td>
                                                 <span className={`role-badge role-${rolParaClase}`}>
-                                                    {/* Muestra el rol original (o 'DESCONOCIDO' si es null/undefined/vacío) */}
-                                                    {(rolLimpio && rolLimpio !== "") ? user.rol : 'DESCONOCIDO'}
+                                                    {textoDelBadge}
                                                 </span>
                                         </td>
                                     </tr>

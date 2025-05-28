@@ -157,27 +157,36 @@
 
 /* --- Estilos para Roles (Badges) --- */
 .role-badge {
-    padding: 5px 10px;
+    padding: 5px 10px; /* El texto "Admin" es corto, este padding debería estar bien */
     border-radius: 15px;
     font-size: 0.8rem;
     font-weight: 500;
     color: white;
-    text-transform: capitalize; /* Esto hará que 'admin' se muestre como 'Admin' */
+    /* text-transform: capitalize; Lo quitamos si el JS ya define el texto exacto como "Admin" */
     display: inline-block;
-    min-width: 80px;
+    min-width: 80px; /* Puedes ajustar esto si "Admin" se ve muy apretado o muy suelto */
     text-align: center;
+    white-space: nowrap;
 }
 
+/* Si el rol en los datos es "ADMINISTRADOR" (o "Administrador", "administrador") */
+/* la clase generada por el JS (rolParaClase) será "administrador" */
+.role-administrador {
+    background-color: #3498db; /* Azul (o el color que hayas elegido) */
+}
+
+/* Si el rol en los datos es "admin" (o "Admin", "ADMIN") */
+/* la clase generada por el JS (rolParaClase) será "admin" */
 .role-admin {
-    background-color: #3498db; /* Azul */
-    font-size: 0.75rem; /* Solo para admin si es necesario */
+    background-color: #3498db; /* Mismo color azul */
 }
 
-.role-vendedor {
+
+.role-vendedor { /* Asume que user.rol es "VENDEDOR", "Vendedor", o "vendedor" */
     background-color: #2ecc71; /* Verde */
 }
 
-.role-cliente {
+.role-cliente { /* Asume que user.rol es "CLIENTE", "Cliente", o "cliente" */
     background-color: #f39c12; /* Naranja */
 }
 
