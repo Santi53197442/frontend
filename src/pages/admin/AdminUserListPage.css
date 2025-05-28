@@ -2,17 +2,14 @@
 
 /* --- Contenedor Principal de la Página --- */
 .admin-user-list-page {
-    /* Puedes añadir un fondo general a la página aquí si lo deseas */
-    /* background-color: #f4f6f8; */
-    padding: 20px 0; /* Padding vertical para la página */
+    padding: 20px 0;
 }
-
 
 /* --- Contenedor del Contenido Principal (Lista de Usuarios) --- */
 .user-list-container {
     padding: 25px;
     max-width: 95%;
-    margin: 0 auto 30px auto; /* 0 auto para centrarlo, con margen inferior */
+    margin: 0 auto 30px auto;
     background-color: #ffffff;
     border-radius: 10px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
@@ -24,7 +21,7 @@
     margin-bottom: 30px;
 }
 
-.user-list-container h2 { /* Título "Lista de Usuarios del Sistema" */
+.user-list-container h2 {
     color: #2c3e50;
     font-size: 1.8rem;
     font-weight: 600;
@@ -35,14 +32,14 @@
 
 /* --- Sección de Filtros --- */
 .filtros-usuarios-container {
-    background-color: #f8f9fa; /* Fondo ligeramente diferente para la sección de filtros */
+    background-color: #f8f9fa;
     padding: 20px;
     border-radius: 8px;
     margin-bottom: 30px;
     border: 1px solid #e9ecef;
 }
 
-.filtros-usuarios-container h3 { /* Título "Filtrar Usuarios" */
+.filtros-usuarios-container h3 {
     font-size: 1.4em;
     color: #343a40;
     margin-top: 0;
@@ -98,14 +95,13 @@
     font-weight: 500;
     transition: background-color 0.2s ease;
     width: 100%;
-    height: calc(2.25rem + 2px + 10px); /* Intentar igualar altura de inputs */
+    height: calc(2.25rem + 2px + 10px);
     line-height: 1.5;
 }
 
 .btn-limpiar-filtros:hover {
     background-color: #5a6268;
 }
-
 
 /* --- Tabla --- */
 .user-list-table-responsive {
@@ -143,7 +139,7 @@
     letter-spacing: 0.5px;
     border-bottom-width: 2px;
     border-top: 1px solid #e0e0e0;
-    cursor: pointer; /* Añadido para todos los th */
+    cursor: pointer;
 }
 
 .user-list-table tbody tr {
@@ -160,34 +156,33 @@
 }
 
 /* --- Estilos para Roles (Badges) --- */
-.role-badge { /* Clase base para todos los badges de rol */
+.role-badge {
     padding: 5px 10px;
-    border-radius: 15px; /* Estilo píldora */
+    border-radius: 15px;
     font-size: 0.8rem;
     font-weight: 500;
     color: white;
-    text-transform: capitalize; /* Muestra 'Admin', 'Vendedor', etc. */
+    text-transform: capitalize; /* Esto hará que 'admin' se muestre como 'Admin' */
     display: inline-block;
-    min-width: 80px; /* Ancho mínimo para consistencia */
+    min-width: 80px;
     text-align: center;
 }
 
-.role-admin { /* Generado por user.rol = "admin" o "ADMIN" */
+.role-admin {
     background-color: #3498db; /* Azul */
 }
 
-.role-vendedor { /* Generado por user.rol = "vendedor" o "VENDEDOR" */
+.role-vendedor {
     background-color: #2ecc71; /* Verde */
 }
 
-.role-cliente { /* Generado por user.rol = "cliente" o "CLIENTE" */
+.role-cliente {
     background-color: #f39c12; /* Naranja */
 }
 
-.role-desconocido { /* Generado si user.rol es null, undefined o no coincide */
+.role-desconocido {
     background-color: #95a5a6; /* Gris */
 }
-
 
 /* --- Mensajes --- */
 .loading-message,
@@ -198,12 +193,6 @@
     font-size: 1.05rem;
     margin-top: 20px;
     border-radius: 6px;
-}
-
-.loading-message { /* Tu CSS original ya tenía esto, lo mantengo por si acaso */
-    /* color: #7f8c8d;
-    background-color: #f8f9fa;
-    border: 1px solid #e9ecef; */
 }
 
 .error-message {
