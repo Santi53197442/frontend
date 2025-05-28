@@ -102,14 +102,14 @@ const VendedorLayout = () => {
                                 <span>Reasignar Viaje</span>
                             </NavLink>
                         </li>
-                        <li>
+                        {/*<li>
                             <NavLink
                                 to="/vendedor/listar-viajes"
                                 className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
                             >
                                 <span>Listar Viajes</span>
                             </NavLink>
-                        </li>
+                        </li>*/}
                         <li>
                             <NavLink
                                 to="/vendedor/listar-viajes-compra"
