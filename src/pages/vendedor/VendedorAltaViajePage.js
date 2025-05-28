@@ -1,6 +1,12 @@
+// src/pages/vendedor/VendedorAltaViajePage.js (o la ruta correcta)
 import React, { useState, useEffect } from 'react';
-import { crearViaje, obtenerTodasLasLocalidades } from '../../services/api'; // Ajusta la ruta a tu api.js
-import './VendedorAltaViajePage.css'; // CSS para esta página
+// Asegúrate que la importación de apiService sea correcta
+// Si tu apiService.js exporta 'crearViaje' directamente:
+import { crearViaje, obtenerTodasLasLocalidades } from '../../services/api';
+// Si es un export default:
+// import apiClient, { crearViaje, obtenerTodasLasLocalidades } from '../../services/apiService';
+
+import './VendedorAltaViajePage.css';
 
 const VendedorAltaViajePage = () => {
     // Estados del formulario
@@ -9,6 +15,7 @@ const VendedorAltaViajePage = () => {
     const [horaLlegada, setHoraLlegada] = useState('');
     const [origenId, setOrigenId] = useState('');
     const [destinoId, setDestinoId] = useState('');
+    const [precio, setPrecio] = useState(''); // <--- NUEVO ESTADO PARA PRECIO
 
     // Estados para la UI y datos
     const [localidades, setLocalidades] = useState([]);
@@ -17,14 +24,13 @@ const VendedorAltaViajePage = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [isLocalidadesLoading, setIsLocalidadesLoading] = useState(true);
 
-    // Cargar localidades para los dropdowns al montar el componente
     useEffect(() => {
         const cargarLocalidades = async () => {
             setIsLocalidadesLoading(true);
             try {
                 const response = await obtenerTodasLasLocalidades();
                 setLocalidades(response.data || []);
-                setError(''); // Limpiar errores previos
+                setError('');
             } catch (err) {
                 console.error("Error cargando localidades:", err);
                 setError("No se pudieron cargar las localidades. Intente recargar la página.");
@@ -42,6 +48,7 @@ const VendedorAltaViajePage = () => {
         setHoraLlegada('');
         setOrigenId('');
         setDestinoId('');
+        setPrecio(''); // <--- LIMPIAR PRECIO
     };
 
     const handleSubmit = async (e) => {
@@ -50,11 +57,20 @@ const VendedorAltaViajePage = () => {
         setError('');
         setIsLoading(true);
 
-        if (!fecha || !horaSalida || !horaLlegada || !origenId || !destinoId) {
-            setError("Todos los campos son obligatorios.");
+        // <--- VALIDACIÓN PARA PRECIO
+        if (!fecha || !horaSalida || !horaLlegada || !origenId || !destinoId || !precio) {
+            setError("Todos los campos, incluido el precio, son obligatorios.");
             setIsLoading(false);
             return;
         }
+
+        const precioFloat = parseFloat(precio);
+        if (isNaN(precioFloat) || precioFloat <= 0) {
+            setError("El precio debe ser un número positivo.");
+            setIsLoading(false);
+            return;
+        }
+        // Fin validación precio
 
         if (origenId === destinoId) {
             setError("La localidad de origen y destino no pueden ser la misma.");
@@ -74,11 +90,23 @@ const VendedorAltaViajePage = () => {
             horaLlegada,
             origenId: parseInt(origenId, 10),
             destinoId: parseInt(destinoId, 10),
+            precio: precioFloat, // <--- AÑADIR PRECIO AL OBJETO DE DATOS
         };
 
         try {
             const response = await crearViaje(viajeData);
-            setMensaje(`Viaje creado exitosamente con ID: ${response.data.id}. Asientos: ${response.data.asientosDisponibles}. Bus: ${response.data.busMatricula}`);
+            // Actualizar mensaje de éxito para incluir el precio si la respuesta lo trae
+            let successMsg = `Viaje creado exitosamente con ID: ${response.data.id}.`;
+            if (response.data.busMatricula) {
+                successMsg += ` Bus: ${response.data.busMatricula}.`;
+            }
+            if (response.data.asientosDisponibles !== undefined) {
+                successMsg += ` Asientos: ${response.data.asientosDisponibles}.`;
+            }
+            if (response.data.precio !== undefined) {
+                successMsg += ` Precio: $${response.data.precio.toFixed(2)}.`;
+            }
+            setMensaje(successMsg);
             limpiarFormulario();
         } catch (err) {
             console.error("Error al crear el viaje:", err.response?.data?.message || err.message);
@@ -105,6 +133,7 @@ const VendedorAltaViajePage = () => {
                         {mensaje && <div className="mensaje-exito">{mensaje}</div>}
                         {error && <div className="mensaje-error">{error}</div>}
 
+                        {/* ... otros form-group ... */}
                         <div className="form-group">
                             <label htmlFor="fecha">Fecha del Viaje:</label>
                             <input
@@ -143,6 +172,7 @@ const VendedorAltaViajePage = () => {
                             <label htmlFor="origen">Localidad de Origen:</label>
                             <select
                                 id="origen"
+                                name="origenId" // Asegúrate de que el name coincida
                                 value={origenId}
                                 onChange={(e) => setOrigenId(e.target.value)}
                                 required
@@ -160,6 +190,7 @@ const VendedorAltaViajePage = () => {
                             <label htmlFor="destino">Localidad de Destino:</label>
                             <select
                                 id="destino"
+                                name="destinoId" // Asegúrate de que el name coincida
                                 value={destinoId}
                                 onChange={(e) => setDestinoId(e.target.value)}
                                 required
@@ -172,6 +203,23 @@ const VendedorAltaViajePage = () => {
                             </select>
                             {localidades.length === 0 && !isLocalidadesLoading && <p className="mensaje-advertencia">No hay localidades cargadas para seleccionar.</p>}
                         </div>
+
+                        {/* --- NUEVO CAMPO PARA PRECIO --- */}
+                        <div className="form-group">
+                            <label htmlFor="precio">Precio del Viaje ($):</label>
+                            <input
+                                type="number"
+                                id="precio"
+                                name="precio" // Añadir name para posible uso futuro
+                                value={precio}
+                                onChange={(e) => setPrecio(e.target.value)}
+                                required
+                                min="0.01" // Mínimo precio positivo
+                                step="0.01" // Para permitir decimales
+                                placeholder="Ej: 25.50"
+                            />
+                        </div>
+                        {/* --- FIN NUEVO CAMPO PRECIO --- */}
 
                         <button type="submit" className="submit-button" disabled={isLoading || isLocalidadesLoading}>
                             {isLoading ? 'Creando Viaje...' : 'Crear Viaje'}
