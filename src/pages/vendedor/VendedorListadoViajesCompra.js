@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { buscarViajesConDisponibilidad, obtenerTodasLasLocalidades } from '../../services/api'; // Ajusta la ruta si es necesario
 import './ListadoViajes.css'; // Crearemos este archivo CSS
 
-const ListadoViajes = () => {
+const VendedorListadoViajesCompra = () => {
     const [viajes, setViajes] = useState([]);
     const [localidades, setLocalidades] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -170,4 +170,4 @@ const ListadoViajes = () => {
     );
 };
 
-export default ListadoViajes;
+export default VendedorListadoViajesCompra;
