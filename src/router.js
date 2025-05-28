@@ -91,7 +91,7 @@ const AppRouter = () => {
                     <Route path="cambiar-a-inactivo" element={<VendedorCambiarEstadoOmnibus />} />
                     <Route path="cambiar-a-activo" element={<VendedorCambiarOmnibusaOperativo />} />
                     <Route path="reasignar-viaje" element={<VendedorReasignarViaje />} />
-                    {/*<Route path="listar-viajes" element={<VendedorListarViajes />} />*/}
+                    <Route path="listar-viajes" element={<VendedorListarViajes />} />
                     <Route path="listar-viajes-compra" element={<VendedorListadoViajesCompra />} />
                     {/* <Route path="mis-localidades" element={<VendedorMisLocalidadesPage />} /> */}
                 </Route>
