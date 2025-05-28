@@ -1,133 +1,135 @@
 /* src/layouts/AdminLayout.css */
 
-/* Reseteo básico y fuente global (opcional, si no lo tienes ya) */
-body, html {
-    margin: 0;
-    padding: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Fuente moderna y limpia */
-    background-color: #f4f6f9; /* Un fondo de página muy claro y neutro */
-    color: #333; /* Color de texto base para el contenido principal */
-}
-
 .admin-layout {
     display: flex;
     min-height: 100vh;
+    position: relative; /* Para el posicionamiento del menú móvil si es overlay */
 }
 
 .admin-sidebar {
-    width: 260px; /* Un poco más de ancho para comodidad */
-    background-color: #2c3e50; /* Azul oscuro/gris, como el que tenías */
+    width: 250px; /* Ancho del sidebar en escritorio */
+    background-color: #2c3e50; /* Ejemplo de color oscuro */
     color: #ecf0f1;
-    padding: 20px 0; /* Padding vertical, horizontal se maneja en los items */
-    box-shadow: 2px 0px 8px rgba(0, 0, 0, 0.15); /* Sombra un poco más definida */
+    padding: 20px;
+    transition: transform 0.3s ease-in-out, width 0.3s ease-in-out; /* Transición suave */
     display: flex;
     flex-direction: column;
-    transition: width 0.3s ease; /* Para futura expansión/colapso si lo deseas */
 }
 
-.sidebar-header { /* Contenedor para el título si quieres más control */
-    padding: 0 20px; /* Padding horizontal para el header */
-    margin-bottom: 25px;
-}
-
-.admin-sidebar h3 { /* Estilo del título del panel */
-    text-align: left; /* Alineación izquierda para un look más estándar */
-    color: #ffffff;
-    margin-top: 10px; /* Ajuste de margen */
-    margin-bottom: 15px;
-    font-size: 1.5em; /* Ligeramente más pequeño para un look más elegante */
-    font-weight: 600;
-    border-bottom: 1px solid #3a5068; /* Separador más sutil y del mismo tono */
+.sidebar-header {
+    margin-bottom: 30px;
     padding-bottom: 15px;
+    border-bottom: 1px solid #34495e;
 }
 
-.sidebar-nav ul { /* nav directamente bajo sidebar-nav */
-    list-style-type: none;
+.sidebar-header h3 {
+    margin: 0;
+    font-size: 1.5rem;
+    text-align: center;
+    color: #fff;
+}
+
+.sidebar-nav ul {
+    list-style: none;
     padding: 0;
     margin: 0;
 }
 
-.sidebar-nav li {
-    margin: 0 15px 8px 15px; /* Margen horizontal para los items, y vertical entre ellos */
-}
-
-/* Estilo para los NavLink. Tu clase en el JS es 'nav-link', ajusta si usas otra */
-.sidebar-nav .nav-link { /* Aplicado al componente NavLink */
-    display: flex; /* Para alinear iconos si los añades */
-    align-items: center;
+.sidebar-nav .nav-link {
+    display: block;
     padding: 12px 15px;
-    color: #bdc3c7;
+    color: #bdc3c7; /* Color de enlace normal */
     text-decoration: none;
-    border-radius: 6px; /* Bordes más redondeados */
-    font-size: 0.98em; /* Tamaño de fuente ligeramente ajustado */
-    font-weight: 500; /* Un poco más de peso */
-    transition: background-color 0.2s ease, color 0.2s ease, transform 0.1s ease; /* Añadido transform */
+    border-radius: 4px;
+    margin-bottom: 5px;
+    transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .sidebar-nav .nav-link:hover {
-    background-color: #34495e;
-    color: #ffffff;
-    /* transform: translateX(3px); /* Pequeño efecto de movimiento al hacer hover */
+    background-color: #34495e; /* Color de fondo al pasar el mouse */
+    color: #fff;
 }
 
 .sidebar-nav .nav-link.active {
-    background-color: #e67e22; /* Naranja (puedes cambiarlo por un azul primario como #007bff) */
-    color: #ffffff;
-    font-weight: 600;
-    /* Quitar box-shadow inset, es un poco antiguo. El fondo es suficiente. */
-}
-
-/* OPCIONAL: Si quieres iconos (requiere Font Awesome o similar) */
-.sidebar-nav .nav-link .icon { /* Suponiendo que añades <i class="icon fas fa-..."></i> dentro del NavLink */
-    margin-right: 12px;
-    width: 20px;
-    text-align: center;
-    font-size: 1.1em; /* Tamaño del icono */
+    background-color: #1abc9c; /* Color para enlace activo (ej. verde azulado) */
+    color: #fff;
+    font-weight: bold;
 }
 
 .admin-content {
     flex-grow: 1;
-    padding: 25px 30px; /* Padding ajustado */
-    overflow-y: auto;
-    background-color: #ffffff; /* Contenido principal sobre fondo blanco para contraste */
-    margin: 15px; /* Margen alrededor del área de contenido */
-    border-radius: 8px; /* Bordes redondeados para el área de contenido */
-    box-shadow: 0 0 15px rgba(0,0,0,0.07); /* Sombra sutil alrededor del contenido */
+    padding: 30px;
+    background-color: #f4f6f8; /* Fondo claro para el contenido */
+    overflow-y: auto; /* Scroll si el contenido es largo */
 }
 
-/* Estilos base para el contenido de las páginas */
-.admin-content h2 {
-    font-size: 1.75em; /* Tamaño de título de página */
-    color: #2c3e50; /* Coherente con el sidebar */
-    margin-top: 0;
-    margin-bottom: 30px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid #dee2e6; /* Separador más ligero */
-    font-weight: 500;
+/* --- Estilos para Menú Móvil --- */
+.mobile-menu-toggle {
+    display: none; /* Oculto por defecto en escritorio */
+    position: fixed; /* O absolute, dependiendo de tu header */
+    top: 15px;
+    left: 15px; /* O right si lo prefieres del otro lado */
+    z-index: 1001; /* Encima del sidebar cuando está cerrado */
+    background-color: #2c3e50; /* O el color de tu header móvil */
+    color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 50%; /* Para hacerlo redondo */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
-/* --- Mejoras Adicionales que Podrías Considerar --- */
-
-/* 1. Efecto al hacer focus (accesibilidad) */
-.sidebar-nav .nav-link:focus-visible {
-    outline: 2px solid #e67e22; /* O el color de tu tema */
-    outline-offset: 2px;
+.mobile-menu-toggle svg {
+    display: block; /* Para quitar espacio extra debajo del svg */
 }
 
-/* 2. Separadores entre secciones del menú (si tienes muchas opciones) */
-.sidebar-nav .menu-separator {
-    height: 1px;
-    background-color: #3a5068;
-    margin: 15px 0;
-}
 
-/* 3. Estilo para un logo o nombre de la aplicación en el header del sidebar */
-.sidebar-logo {
-    display: block;
-    text-align: center;
-    font-size: 1.8em;
-    font-weight: bold;
-    color: #ffffff;
-    text-decoration: none;
-    margin-bottom: 20px;
+/* --- Media Query para Móviles (ej. hasta 768px) --- */
+@media (max-width: 768px) {
+    .mobile-menu-toggle {
+        display: block; /* Mostrar el botón de hamburguesa */
+    }
+
+    .admin-sidebar {
+        position: fixed; /* O absolute, para que sea un overlay */
+        top: 0;
+        left: 0;
+        height: 100%;
+        transform: translateX(-100%); /* Oculto fuera de la pantalla a la izquierda */
+        z-index: 1000; /* Encima del contenido pero debajo del botón de toggle si está abierto */
+        width: 280px; /* Un poco más ancho en móvil si es overlay */
+        box-shadow: 3px 0 15px rgba(0,0,0,0.2); /* Sombra cuando está abierto */
+    }
+
+    .admin-sidebar.open {
+        transform: translateX(0); /* Mostrar el sidebar deslizándolo desde la izquierda */
+    }
+
+    .admin-content {
+        margin-left: 0; /* El contenido ocupa todo el ancho */
+        /* Opcional: añadir un efecto de "empuje" o "overlay" */
+        /* transition: filter 0.3s ease-in-out; */
+    }
+
+    /* Opcional: Oscurecer el contenido principal cuando el menú móvil está abierto */
+    .admin-layout.mobile-menu-active .admin-content {
+        /* filter: brightness(0.7) blur(2px); */ /* Ejemplo de efecto */
+        /* pointer-events: none; */ /* Para evitar clics en el contenido detrás del menú */
+    }
+    /* Opcional: un overlay oscuro */
+    /* .admin-layout.mobile-menu-active::after {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0,0,0,0.5);
+        z-index: 999;
+    } */
+
+    .admin-layout.mobile-menu-active .mobile-menu-toggle {
+        /* Podrías querer que el botón de cierre se posicione dentro del sidebar abierto */
+        /* Por simplicidad, lo dejamos fijo arriba a la izquierda */
+    }
 }
