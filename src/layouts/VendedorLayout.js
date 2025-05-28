@@ -54,37 +54,18 @@ const VendedorLayout = () => {
                         </li>
                         <li>
                             <NavLink
-                                to="/vendedor/horarios" // Necesitarás crear esta ruta/página
+                                to="/vendedor/alta-masiva-omnibus"
                                 className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
                             >
-                                {/* <i className="icon fas fa-clock"></i> */}
-                                <span>Consultar Horarios</span>
+                                <span>Omnibus Masivo (CSV)</span>
                             </NavLink>
                         </li>
-                        <li>
-                            <NavLink
-                                to="/vendedor/alta-viaje"
-                                className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
-                            >
-                                <span>Alta Viaje</span>
-                            </NavLink>
-                        </li>
-                        {/* Separador opcional si tienes muchas secciones */}
-                        {/* <li className="menu-separator-container"><hr className="menu-separator" /></li> */}
                         <li>
                             <NavLink
                                 to="/vendedor/listar-omnibus"
                                 className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
                             >
                                 <span> Listar Omnibus</span>
-                            </NavLink>
-                        </li>
-                        <li>
-                            <NavLink
-                                to="/vendedor/alta-masiva-omnibus"
-                                className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
-                            >
-                                <span>Omnibus Masivo (CSV)</span>
                             </NavLink>
                         </li>
                         <li>
@@ -103,6 +84,16 @@ const VendedorLayout = () => {
                                 <span>Cambiar omnibus a Activo</span>
                             </NavLink>
                         </li>
+                        <li>
+                            <NavLink
+                                to="/vendedor/alta-viaje"
+                                className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
+                            >
+                                <span>Alta Viaje</span>
+                            </NavLink>
+                        </li>
+                        {/* Separador opcional si tienes muchas secciones */}
+                        {/* <li className="menu-separator-container"><hr className="menu-separator" /></li> */}
                         <li>
                             <NavLink
                                 to="/vendedor/reasignar-viaje"
