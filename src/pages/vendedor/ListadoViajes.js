@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { buscarViajesConDisponibilidad, obtenerTodasLasLocalidades } from '../services/apiService'; // Ajusta la ruta si es necesario
+import { buscarViajesConDisponibilidad, obtenerTodasLasLocalidades } from '../../services/api'; // Ajusta la ruta si es necesario
 import './ListadoViajes.css'; // Crearemos este archivo CSS
 
 const ListadoViajes = () => {
