@@ -1,12 +1,10 @@
-// src/pages/vendedor/VendedorAltaViajePage.js (o la ruta correcta)
 import React, { useState, useEffect } from 'react';
 // Asegúrate que la importación de apiService sea correcta
 // Si tu apiService.js exporta 'crearViaje' directamente:
-import { crearViaje, obtenerTodasLasLocalidades } from '../../services/api';
+import { crearViaje, obtenerTodasLasLocalidades } from '../../services/apiService'; // Ajusta la ruta si es necesario
 // Si es un export default:
 // import apiClient, { crearViaje, obtenerTodasLasLocalidades } from '../../services/apiService';
-
-import './VendedorAltaViajePage.css';
+import './VendedorAltaViajePage.css'; // CSS para esta página
 
 const VendedorAltaViajePage = () => {
     // Estados del formulario
@@ -15,7 +13,7 @@ const VendedorAltaViajePage = () => {
     const [horaLlegada, setHoraLlegada] = useState('');
     const [origenId, setOrigenId] = useState('');
     const [destinoId, setDestinoId] = useState('');
-    const [precio, setPrecio] = useState(''); // <--- NUEVO ESTADO PARA PRECIO
+    const [precio, setPrecio] = useState(''); // <--- ESTADO PARA PRECIO
 
     // Estados para la UI y datos
     const [localidades, setLocalidades] = useState([]);
@@ -24,13 +22,14 @@ const VendedorAltaViajePage = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [isLocalidadesLoading, setIsLocalidadesLoading] = useState(true);
 
+    // Cargar localidades para los dropdowns al montar el componente
     useEffect(() => {
         const cargarLocalidades = async () => {
             setIsLocalidadesLoading(true);
             try {
                 const response = await obtenerTodasLasLocalidades();
                 setLocalidades(response.data || []);
-                setError('');
+                setError(''); // Limpiar errores previos
             } catch (err) {
                 console.error("Error cargando localidades:", err);
                 setError("No se pudieron cargar las localidades. Intente recargar la página.");
@@ -57,7 +56,7 @@ const VendedorAltaViajePage = () => {
         setError('');
         setIsLoading(true);
 
-        // <--- VALIDACIÓN PARA PRECIO
+        // <--- VALIDACIÓN PARA PRECIO Y OTROS CAMPOS
         if (!fecha || !horaSalida || !horaLlegada || !origenId || !destinoId || !precio) {
             setError("Todos los campos, incluido el precio, son obligatorios.");
             setIsLoading(false);
@@ -66,7 +65,7 @@ const VendedorAltaViajePage = () => {
 
         const precioFloat = parseFloat(precio);
         if (isNaN(precioFloat) || precioFloat <= 0) {
-            setError("El precio debe ser un número positivo.");
+            setError("El precio debe ser un número positivo válido.");
             setIsLoading(false);
             return;
         }
@@ -100,11 +99,11 @@ const VendedorAltaViajePage = () => {
             if (response.data.busMatricula) {
                 successMsg += ` Bus: ${response.data.busMatricula}.`;
             }
-            if (response.data.asientosDisponibles !== undefined) {
+            if (response.data.asientosDisponibles !== undefined) { // Verificar si existe antes de mostrar
                 successMsg += ` Asientos: ${response.data.asientosDisponibles}.`;
             }
-            if (response.data.precio !== undefined) {
-                successMsg += ` Precio: $${response.data.precio.toFixed(2)}.`;
+            if (response.data.precio !== undefined) { // Verificar si existe antes de mostrar
+                successMsg += ` Precio: $${parseFloat(response.data.precio).toFixed(2)}.`;
             }
             setMensaje(successMsg);
             limpiarFormulario();
@@ -133,7 +132,6 @@ const VendedorAltaViajePage = () => {
                         {mensaje && <div className="mensaje-exito">{mensaje}</div>}
                         {error && <div className="mensaje-error">{error}</div>}
 
-                        {/* ... otros form-group ... */}
                         <div className="form-group">
                             <label htmlFor="fecha">Fecha del Viaje:</label>
                             <input
@@ -142,7 +140,7 @@ const VendedorAltaViajePage = () => {
                                 value={fecha}
                                 onChange={(e) => setFecha(e.target.value)}
                                 required
-                                min={new Date().toISOString().split('T')[0]}
+                                min={new Date().toISOString().split('T')[0]} // Fecha mínima es hoy
                             />
                         </div>
 
@@ -172,7 +170,7 @@ const VendedorAltaViajePage = () => {
                             <label htmlFor="origen">Localidad de Origen:</label>
                             <select
                                 id="origen"
-                                name="origenId" // Asegúrate de que el name coincida
+                                name="origenId" // Name para mejor manejo si usaras e.target.name
                                 value={origenId}
                                 onChange={(e) => setOrigenId(e.target.value)}
                                 required
@@ -190,7 +188,7 @@ const VendedorAltaViajePage = () => {
                             <label htmlFor="destino">Localidad de Destino:</label>
                             <select
                                 id="destino"
-                                name="destinoId" // Asegúrate de que el name coincida
+                                name="destinoId" // Name
                                 value={destinoId}
                                 onChange={(e) => setDestinoId(e.target.value)}
                                 required
@@ -210,12 +208,12 @@ const VendedorAltaViajePage = () => {
                             <input
                                 type="number"
                                 id="precio"
-                                name="precio" // Añadir name para posible uso futuro
+                                name="precio" // Name
                                 value={precio}
                                 onChange={(e) => setPrecio(e.target.value)}
                                 required
                                 min="0.01" // Mínimo precio positivo
-                                step="0.01" // Para permitir decimales
+                                step="0.01" // Para permitir decimales (ej. 25.50)
                                 placeholder="Ej: 25.50"
                             />
                         </div>
