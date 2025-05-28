@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 // Asegúrate que la importación de apiService sea correcta
 // Si tu apiService.js exporta 'crearViaje' directamente:
-import { crearViaje, obtenerTodasLasLocalidades } from '../../services/apiService'; // Ajusta la ruta si es necesario
+import { crearViaje, obtenerTodasLasLocalidades } from '../../services/api'; // Ajusta la ruta si es necesario
 // Si es un export default:
 // import apiClient, { crearViaje, obtenerTodasLasLocalidades } from '../../services/apiService';
 import './VendedorAltaViajePage.css'; // CSS para esta página
