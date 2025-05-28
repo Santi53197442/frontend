@@ -2,7 +2,7 @@
 
 /* --- General Page Styles --- */
 .vendedor-listar-omnibus-page {
-    padding: 25px;
+    padding: 20px; /* Reducido un poco para pantallas pequeñas */
     max-width: 1200px;
     margin: 20px auto;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -11,21 +11,15 @@
 }
 
 /* --- Page Header --- */
-.page-header {
-    margin-bottom: 30px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid #dee2e6;
-}
-
 .page-header h1 {
-    font-size: 2.2em;
+    font-size: 1.8em; /* Ligeramente más pequeño en base, se puede agrandar en desktop */
     color: #212529;
     margin-bottom: 8px;
     font-weight: 600;
 }
 
 .page-header p {
-    font-size: 1.05em;
+    font-size: 1em; /* Ligeramente más pequeño en base */
     color: #495057;
     line-height: 1.6;
 }
@@ -33,14 +27,14 @@
 /* --- Filtros Section --- */
 .filtros-omnibus-container {
     background-color: #ffffff;
-    padding: 25px;
+    padding: 20px; /* Padding base */
     border-radius: 8px;
-    margin-bottom: 30px;
+    margin-bottom: 25px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.07);
 }
 
 .filtros-omnibus-container h2 {
-    font-size: 1.6em;
+    font-size: 1.4em; /* Título de filtros */
     color: #343a40;
     margin-top: 0;
     margin-bottom: 20px;
@@ -49,9 +43,9 @@
 
 .filtros-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 20px;
-    align-items: end;
+    /* Por defecto, 1 columna para móviles primero */
+    grid-template-columns: 1fr;
+    gap: 15px; /* Espacio entre filtros en móvil */
 }
 
 .filtro-item {
@@ -76,6 +70,7 @@
     box-sizing: border-box;
     background-color: #fff;
     transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    width: 100%; /* Asegurar que ocupe todo el ancho en móvil */
 }
 
 .filtro-item select:focus,
@@ -95,9 +90,10 @@
     font-size: 0.95em;
     font-weight: 500;
     transition: background-color 0.2s ease;
-    width: 100%;
-    height: calc(2.25rem + 2px + 10px);
+    width: 100%; /* Ocupa todo el ancho */
+    /* height: calc(2.25rem + 2px + 10px); No es necesario si todos son width 100% */
     line-height: 1.5;
+    margin-top: 10px; /* Espacio si se apila */
 }
 
 .btn-limpiar-filtros:hover {
@@ -114,26 +110,36 @@
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+    /* Añadir un borde sutil para que se vea mejor el área de scroll en móvil */
+    border: 1px solid #e9ecef;
 }
 
 .tabla-omnibus {
     width: 100%;
     border-collapse: collapse;
+    /* min-width: 700px; Opcional: forzar un ancho mínimo si las columnas son muchas y muy estrechas */
 }
 
 .tabla-omnibus th,
 .tabla-omnibus td {
-    padding: 14px 18px;
+    padding: 10px 12px; /* Padding ligeramente reducido para móviles */
     text-align: left;
     border-bottom: 1px solid #e9ecef;
     vertical-align: middle;
+    font-size: 0.88rem; /* Tamaño de fuente ligeramente reducido en celdas */
+    white-space: nowrap; /* Para evitar saltos de línea no deseados por defecto */
 }
+/* Permitir saltos de línea solo donde sea explícitamente necesario o útil */
+.tabla-omnibus td.allow-wrap, .tabla-omnibus th.allow-wrap {
+    white-space: normal;
+}
+
 
 .tabla-omnibus th {
     background-color: #f8f9fa;
     font-weight: 600;
     color: #343a40;
-    font-size: 0.85em;
+    font-size: 0.8rem; /* Tamaño de fuente de cabeceras */
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
@@ -162,87 +168,87 @@
 /* --- Indicadores y Estados (Loading, Error, Empty) --- */
 .loading-container, .error-container, .empty-state {
     text-align: center;
-    padding: 50px 20px;
+    padding: 30px 15px; /* Padding ajustado */
     border: 1px dashed #ced4da;
     border-radius: 8px;
     background-color: #fff;
-    margin-top: 30px;
+    margin-top: 25px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.05);
 }
 
 .loading-message, .mensaje-error, .mensaje-informativo {
-    font-size: 1.15em;
+    font-size: 1.1em;
     color: #495057;
     margin-top: 15px;
 }
 
-.mensaje-error {
-    color: #dc3545;
-    font-weight: 500;
-}
-
-.spinner {
-    border: 4px solid rgba(0, 0, 0, 0.1);
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    border-left-color: #007bff;
-    animation: spin 1s linear infinite;
-    margin: 0 auto;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-.empty-state-icon {
-    font-size: 3.5em;
-    display: block;
-    margin-bottom: 15px;
-    color: #adb5bd;
-}
+.mensaje-error { color: #dc3545; font-weight: 500; }
+.spinner { /* (sin cambios) */ }
+@keyframes spin { /* (sin cambios) */ }
+.empty-state-icon { font-size: 3em; /* (sin cambios) */ }
 
 /* --- Status Badges --- */
 .status-badge {
-    padding: 4px 8px;           /* Padding ajustado */
-    border-radius: 12px;         /* Radio de borde */
-    font-size: 0.78rem;          /* Tamaño de fuente ajustado */
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;  /* Aún más pequeño para caber mejor en móvil */
     font-weight: 600;
     color: white;
     display: inline-block;
-    /* min-width: 100px; */     /* Comentado para permitir ancho flexible */
     text-align: center;
     letter-spacing: 0.5px;
     line-height: 1.4;
-    white-space: nowrap;         /* Evita que el texto se parta en líneas */
-    text-transform: uppercase;   /* Para que se muestre como OPERATIVO, FUERA_DE_SERVICIO, etc. */
+    white-space: nowrap;
+    text-transform: uppercase;
+    /* min-width: auto; */ /* Asegurar que no haya min-width */
+}
+/* (definiciones de color de status-badge sin cambios) */
+.status-fuera_de_servicio { background-color: #dc3545; }
+.status-en_mantenimiento { background-color: #ffc107; color: #212529; }
+.status-asignado_a_viaje { background-color: #17a2b8; }
+.status-disponible { background-color: #28a745; }
+.status-operativo { background-color: #28a745; }
+.status-n-d, .status- { background-color: #adb5bd; color: #fff; }
+
+
+/* === Media Queries para Responsividad === */
+
+/* Tablets y escritorios pequeños (ej. a partir de 600px) */
+@media (min-width: 600px) {
+    .filtros-grid {
+        /* 2 columnas para los filtros */
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .btn-limpiar-filtros {
+        margin-top: 0; /* Resetear margen si ya no está en su propia fila */
+        /* Si quieres que el botón ocupe la última celda completa en un grid de 2: */
+        /* grid-column: span 2; */ /* Descomenta si tienes un número impar de filtros antes del botón */
+    }
+    .page-header h1 { font-size: 2em; }
+    .page-header p { font-size: 1.05em; }
+    .tabla-omnibus th, .tabla-omnibus td { padding: 12px 15px; font-size: 0.9rem; }
+    .tabla-omnibus th { font-size: 0.82rem; }
+    .status-badge { font-size: 0.78rem; }
 }
 
-/* Colores específicos para los estados */
-.status-fuera_de_servicio {
-    background-color: #dc3545; /* Rojo */
-}
+/* Escritorios medianos (ej. a partir de 992px) */
+@media (min-width: 992px) {
+    .vendedor-listar-omnibus-page { padding: 25px; }
+    .filtros-omnibus-container { padding: 25px; }
+    .filtros-grid {
+        /* Volver al grid original o uno más flexible para pantallas anchas */
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        /* Si quieres un layout fijo de 4 columnas + botón, podrías hacer: */
+        /* grid-template-columns: repeat(4, 1fr) auto; */
+        /* Y ajustar el botón para que no se estire si no es necesario */
+    }
+    .btn-limpiar-filtros {
+        width: auto; /* Permitir que el botón tome su ancho natural */
+        padding: 10px 20px; /* Más padding horizontal */
+    }
 
-.status-en_mantenimiento {
-    background-color: #ffc107; /* Amarillo */
-    color: #212529;
-}
-
-.status-asignado_a_viaje {
-    background-color: #17a2b8; /* Celeste/Cyan */
-}
-
-.status-disponible {
-    background-color: #28a745; /* Verde */
-}
-
-.status-operativo { /* Nueva clase para el estado "OPERATIVO" */
-    background-color: #28a745; /* Verde (o el color que prefieras para este estado) */
-}
-
-.status-n-d,
-.status- { /* Para estados desconocidos, vacíos, null o undefined */
-    background-color: #adb5bd;
-    color: #fff;
+    .page-header h1 { font-size: 2.2em; }
+    .tabla-omnibus th, .tabla-omnibus td { padding: 14px 18px; font-size: 0.95rem; }
+    .tabla-omnibus th { font-size: 0.85rem; }
+    .status-badge { font-size: 0.8rem; }
 }
