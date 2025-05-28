@@ -36,6 +36,7 @@ import VendedorCambiarOmnibusaOperativo from './pages/vendedor/VendedorCambiarOm
 import VendedorReasignarViaje from './pages/vendedor/VendedorReasignarViaje';
 import VendedorListarViajes from './pages/vendedor/VendedorListarViajes';
 import VendedorListadoViajesCompra from "./pages/vendedor/VendedorListadoViajesCompra";
+import SeleccionAsientosPage from "./pages/vendedor/SeleccionAsientosPage";
 
 
 // import VendedorMisLocalidadesPage from './pages/vendedor/VendedorMisLocalidadesPage'; // Si la creas
@@ -93,6 +94,7 @@ const AppRouter = () => {
                     <Route path="reasignar-viaje" element={<VendedorReasignarViaje />} />
                     <Route path="listar-viajes" element={<VendedorListarViajes />} />
                     <Route path="listar-viajes-compra" element={<VendedorListadoViajesCompra />} />
+                    <Route path="viaje/:viajeId/seleccionar-asientos" element={<SeleccionAsientosPage />} />
                     {/* <Route path="mis-localidades" element={<VendedorMisLocalidadesPage />} /> */}
                 </Route>
             </Route>

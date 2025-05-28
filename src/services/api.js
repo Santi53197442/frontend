@@ -72,9 +72,6 @@ export const loginUser = async (credentials) => {
 };
 
 // --- FUNCIONES DE USUARIO ---
-/**
- * Obtiene el perfil del usuario actualmente autenticado.
- */
 export const getCurrentUserProfile = async () => {
     try {
         const response = await apiClient.get('/user/profile');
@@ -85,10 +82,6 @@ export const getCurrentUserProfile = async () => {
     }
 };
 
-/**
- * Actualiza el perfil del usuario actualmente autenticado.
- * @param {object} updateUserDTO - Objeto con los datos a actualizar.
- */
 export const updateUserProfile = async (updateUserDTO) => {
     try {
         const response = await apiClient.put('/user/profile', updateUserDTO);
@@ -99,13 +92,8 @@ export const updateUserProfile = async (updateUserDTO) => {
     }
 };
 
-/**
- * Cambia la contraseña del usuario actualmente autenticado.
- * @param {object} changePasswordDTO - Objeto con { currentPassword, newPassword }.
- */
 export const changePassword = async (changePasswordDTO) => {
     try {
-        // El endpoint es PUT /api/user/password según tu controlador de backend
         const response = await apiClient.put('/user/password', changePasswordDTO);
         return response;
     } catch (error) {
@@ -187,8 +175,6 @@ export const obtenerTodosLosOmnibus = async () => {
 
 export const obtenerOmnibusPorId = async (id) => {
     try {
-        // Asegúrate que este endpoint GET /vendedor/omnibus/{id} exista en tu backend.
-        // Si no existe, deberás crearlo o ajustar esta llamada.
         const response = await apiClient.get(`/vendedor/omnibus/${id}`);
         return response;
     } catch (error) {
@@ -207,16 +193,6 @@ export const obtenerOmnibusPorEstado = async (estado) => {
     }
 };
 
-// --- FUNCIONES PARA GESTIONAR ESTADO DE ÓMNIBUS (VENDEDOR) ---
-
-/**
- * Marca un ómnibus específico como inactivo (o cualquier estado de inactividad como EN_MANTENIMIENTO, FUERA_DE_SERVICIO),
- * especificando el nuevo estado y opcionalmente un rango de fechas.
- * @param {number|string} omnibusId - El ID del ómnibus.
- * @param {object} data - Objeto con { nuevoEstado: string, inicioInactividad: string (ISO DateTime), finInactividad: string (ISO DateTime) }
- *                        Donde nuevoEstado puede ser 'EN_MANTENIMIENTO', 'FUERA_DE_SERVICIO'.
- * @returns {Promise<axios.Response>} La respuesta de la API con el ómnibus actualizado.
- */
 export const marcarOmnibusInactivo = async (omnibusId, data) => {
     try {
         const response = await apiClient.put(`/vendedor/omnibus/${omnibusId}/marcar-inactivo`, data);
@@ -227,11 +203,6 @@ export const marcarOmnibusInactivo = async (omnibusId, data) => {
     }
 };
 
-/**
- * Marca un ómnibus específico como OPERATIVO.
- * @param {number|string} omnibusId - El ID del ómnibus a marcar como operativo.
- * @returns {Promise<axios.Response>} La respuesta de la API con el ómnibus actualizado.
- */
 export const marcarOmnibusOperativo = async (omnibusId) => {
     try {
         const response = await apiClient.put(`/vendedor/omnibus/${omnibusId}/marcar-operativo`);
@@ -243,7 +214,7 @@ export const marcarOmnibusOperativo = async (omnibusId) => {
 };
 
 
-// --- FUNCIONES PARA VIAJE (VENDEDOR) ---
+// --- FUNCIONES PARA VIAJE (VENDEDOR Y/O CLIENTE) ---
 export const crearViaje = async (viajeData) => {
     try {
         const response = await apiClient.post('/vendedor/viajes', viajeData);
@@ -265,23 +236,14 @@ export const finalizarViaje = async (viajeId) => {
     }
 };
 
-// --- FUNCIÓN PARA REASIGNAR UN VIAJE A OTRO ÓMNIBUS (CORREGIDA) -------------
-/**
- * Reasigna un viaje existente a un nuevo ómnibus.
- *
- * @param {number|string} viajeId        El ID del viaje a reasignar.
- * @param {number|string} nuevoOmnibusId El ID del nuevo ómnibus al que se asignará el viaje.
- * @returns {Promise<axios.Response>} La respuesta de la API con el ViajeResponseDTO actualizado.
- */
 export const reasignarViaje = async (viajeId, nuevoOmnibusId) => {
     try {
-        // El backend espera un objeto ReasignarViajeRequestDTO en el body
         const requestBody = {
-            nuevoOmnibusId: nuevoOmnibusId // Nombre de la propiedad debe coincidir con el DTO del backend
+            nuevoOmnibusId: nuevoOmnibusId
         };
         const response = await apiClient.put(
             `/vendedor/viajes/${viajeId}/reasignar`,
-            requestBody // Enviamos el nuevoOmnibusId en el cuerpo de la solicitud
+            requestBody
         );
         return response;
     } catch (error) {
@@ -303,14 +265,6 @@ export const obtenerViajesPorEstado = async (estado) => {
     }
 };
 
-/**
- * Busca y lista los viajes asignados a un ómnibus específico, con opciones de filtrado y ordenamiento.
- * @param {number|string} omnibusId El ID del ómnibus.
- * @param {object} params - Objeto con los parámetros de búsqueda y ordenamiento.
- *   Ej: { fechaDesde: '2024-01-01', fechaHasta: '2024-01-31', estadoViaje: 'PROGRAMADO', ordenarPor: 'fecha', direccionOrden: 'DESC' }
- *   Todos los parámetros son opcionales.
- * @returns {Promise<axios.Response>} La respuesta de la API con la lista de ViajeResponseDTO.
- */
 export const buscarViajesDeOmnibus = async (omnibusId, params = {}) => {
     try {
         const response = await apiClient.get(`/vendedor/omnibus/${omnibusId}/viajes`, { params });
@@ -323,46 +277,44 @@ export const buscarViajesDeOmnibus = async (omnibusId, params = {}) => {
         throw error;
     }
 };
-// --- FUNCIONES PARA VIAJE (VENDEDOR Y/O CLIENTE) ---
-// ... (tus funciones existentes de viaje como crearViaje, finalizarViaje, etc.) ...
 
-/**
- * Busca viajes con disponibilidad, aplicando filtros y ordenamiento.
- * @param {object} criterios - Objeto con los criterios de búsqueda.
- *   Ej: {
- *     origenId: 1,
- *     destinoId: 2,
- *     fechaDesde: '2024-07-01', // Formato YYYY-MM-DD
- *     fechaHasta: '2024-07-07', // Formato YYYY-MM-DD
- *     estado: 'PENDIENTE',     // O 'PROGRAMADO', 'EN_CURSO' según tu enum EstadoViaje
- *     minAsientosDisponibles: 5,
- *     sortBy: 'fechaSalida', // Campo por el cual ordenar
- *     sortDir: 'asc'         // 'asc' o 'desc'
- *   }
- *   Todos los parámetros son opcionales.
- * @returns {Promise<axios.Response<Array<object>>>} La respuesta de la API con la lista de ViajeConDisponibilidadDTO.
- */
 export const buscarViajesConDisponibilidad = async (criterios = {}) => {
     try {
-        // Los parámetros se envían como query params para una solicitud GET
-        // El backend espera un BusquedaViajesGeneralDTO, cuyos campos se mapearán desde los query params.
         const response = await apiClient.get('/vendedor/viajes/buscar-disponibles', {
             params: criterios
         });
-        return response; // response.data contendrá el array de ViajeConDisponibilidadDTO
+        return response;
     } catch (error) {
         console.error(
             "Error en API al buscar viajes con disponibilidad:",
             error.response?.data || error.message
         );
-        // Podrías querer devolver un array vacío o un objeto de error específico en lugar de solo relanzar
-        // throw {
-        //     message: "No se pudieron obtener los viajes disponibles.",
-        //     originalError: error.response?.data || error.message,
-        //     status: error.response?.status
-        // };
         throw error;
     }
 };
+
+// --- NUEVA FUNCIÓN ---
+/**
+ * Obtiene los detalles de un viaje específico, incluyendo la capacidad del ómnibus
+ * y la lista de números de asiento que ya están ocupados.
+ * @param {number|string} viajeId El ID del viaje a consultar.
+ * @returns {Promise<axios.Response<object>>} La respuesta de la API con el ViajeDetalleConAsientosDTO.
+ */
+export const obtenerDetallesViajeConAsientos = async (viajeId) => {
+    try {
+        // El endpoint es /api/vendedor/viajes/{viajeId}/detalles-asientos
+        // Si tu baseURL ya es /api, entonces el path relativo es /vendedor/viajes/...
+        const response = await apiClient.get(`/vendedor/viajes/${viajeId}/detalles-asientos`);
+        return response; // response.data contendrá el ViajeDetalleConAsientosDTO
+    } catch (error) {
+        console.error(
+            `Error en API al obtener detalles y asientos para el viaje ID ${viajeId}:`,
+            error.response?.data || error.message
+        );
+        throw error;
+    }
+};
+// --- FIN NUEVA FUNCIÓN ---
+
 
 export default apiClient;

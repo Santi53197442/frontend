@@ -1,8 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { buscarViajesConDisponibilidad, obtenerTodasLasLocalidades } from '../../services/api'; // Ajusta la ruta si es necesario
-import './ListadoViajes.css'; // Crearemos este archivo CSS
+import { useNavigate } from 'react-router-dom'; // <--- 1. IMPORTAR useNavigate
+// Asegúrate que la ruta a tu apiService sea correcta
+import { buscarViajesConDisponibilidad, obtenerTodasLasLocalidades } from '../../services/api';
+import './ListadoViajes.css';
 
 const VendedorListadoViajesCompra = () => {
+    const navigate = useNavigate(); // <--- 2. INICIALIZAR useNavigate
+
     const [viajes, setViajes] = useState([]);
     const [localidades, setLocalidades] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -12,14 +16,11 @@ const VendedorListadoViajesCompra = () => {
         origenId: '',
         destinoId: '',
         fechaDesde: '',
-        // fechaHasta: '', // Puedes añadir fechaHasta si lo deseas
-        minAsientosDisponibles: '', // Para que el usuario pueda ingresar un número
-        // estado: '', // Puedes añadir filtro por estado si lo necesitas
+        minAsientosDisponibles: '',
         sortBy: 'fechaSalida',
         sortDir: 'asc',
     });
 
-    // Cargar localidades para los select
     useEffect(() => {
         const cargarLocalidades = async () => {
             try {
@@ -27,13 +28,11 @@ const VendedorListadoViajesCompra = () => {
                 setLocalidades(response.data || []);
             } catch (err) {
                 console.error("Error al cargar localidades:", err);
-                // Manejar error de carga de localidades si es necesario
             }
         };
         cargarLocalidades();
     }, []);
 
-    // Función para buscar viajes, envuelta en useCallback para optimización
     const fetchViajes = useCallback(async () => {
         setLoading(true);
         setError(null);
@@ -41,7 +40,7 @@ const VendedorListadoViajesCompra = () => {
             const criteriosActivos = {};
             for (const key in filtros) {
                 if (filtros[key] !== null && filtros[key] !== '') {
-                    if (key === 'minAsientosDisponibles' && filtros[key] < 0) continue; // Ignorar si es negativo
+                    if (key === 'minAsientosDisponibles' && filtros[key] < 0) continue;
                     criteriosActivos[key] = filtros[key];
                 }
             }
@@ -53,12 +52,11 @@ const VendedorListadoViajesCompra = () => {
         } finally {
             setLoading(false);
         }
-    }, [filtros]); // Dependencia: se re-crea si 'filtros' cambia
+    }, [filtros]);
 
-    // Cargar viajes inicialmente y cuando los filtros cambian
     useEffect(() => {
         fetchViajes();
-    }, [fetchViajes]); // Dependencia: fetchViajes (que a su vez depende de filtros)
+    }, [fetchViajes]);
 
     const handleFiltroChange = (e) => {
         const { name, value } = e.target;
@@ -70,7 +68,7 @@ const VendedorListadoViajesCompra = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        fetchViajes(); // Llama a fetchViajes manualmente al enviar el formulario
+        fetchViajes();
     };
 
     const handleSortChange = (newSortBy) => {
@@ -91,12 +89,23 @@ const VendedorListadoViajesCompra = () => {
         return '';
     };
 
+    // <--- 3. CREAR LA FUNCIÓN HANDLER PARA EL BOTÓN "COMPRAR" ---
+    const handleSeleccionarAsientos = (viajeSeleccionado) => {
+        // Navega a la página de selección de asientos, pasando el objeto 'viaje'
+        // (que contiene id, precio, capacidadOmnibus, etc. del ViajeConDisponibilidadDTO)
+        // a través del estado de la ruta.
+        // La ruta debe coincidir con la que definiste en AppRouter.js
+        navigate(`/vendedor/viaje/${viajeSeleccionado.id}/seleccionar-asientos`, {
+            state: { viajeData: viajeSeleccionado }
+        });
+    };
 
     return (
         <div className="listado-viajes-container">
             <h2>Buscar Viajes Disponibles</h2>
 
             <form onSubmit={handleSubmit} className="filtros-form">
+                {/* ... tus inputs de filtro ... */}
                 <div className="filtro-grupo">
                     <label htmlFor="origenId">Origen:</label>
                     <select name="origenId" id="origenId" value={filtros.origenId} onChange={handleFiltroChange}>
@@ -125,9 +134,7 @@ const VendedorListadoViajesCompra = () => {
             </form>
 
             {error && <p className="error-mensaje">Error: {error}</p>}
-
             {loading && !error && <p className="loading-mensaje">Cargando viajes...</p>}
-
             {!loading && !error && viajes.length === 0 && (
                 <p className="no-viajes-mensaje">No se encontraron viajes con los criterios seleccionados.</p>
             )}
@@ -154,11 +161,15 @@ const VendedorListadoViajesCompra = () => {
                             <td>{new Date(viaje.fechaSalida).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })}</td>
                             <td>{viaje.omnibusMatricula}</td>
                             <td className="asientos-disponibles">{viaje.asientosDisponibles}</td>
-                            <td>${viaje.precio ? viaje.precio.toFixed(2) : 'N/A'}</td>
+                            <td>${viaje.precio ? parseFloat(viaje.precio).toFixed(2) : 'N/A'}</td>
                             <td>{viaje.estado}</td>
                             <td>
-                                <button className="btn-comprar" onClick={() => alert(`Comprar pasaje para viaje ID: ${viaje.id}`)}>
-                                    Comprar
+                                {/* <--- 4. MODIFICAR EL onClick DEL BOTÓN --- */}
+                                <button
+                                    className="btn-comprar"
+                                    onClick={() => handleSeleccionarAsientos(viaje)}
+                                >
+                                    Seleccionar Asientos
                                 </button>
                             </td>
                         </tr>
