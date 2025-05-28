@@ -1,33 +1,37 @@
+// src/pages/Admin/AdminUserListPage.js
 import React, { useState, useEffect, useMemo } from 'react';
 import apiClient from '../../services/api'; // Ajusta la ruta si es diferente
 import './AdminUserListPage.css'; // Importa el archivo CSS
 
-// Iconos para ordenamiento (puedes usar SVGs, FontAwesome, etc.)
-const SortAscIcon = () => <span> ▲</span>; // Triángulo hacia arriba
-const SortDescIcon = () => <span> ▼</span>; // Triángulo hacia abajo
+const SortAscIcon = () => <span> ▲</span>; // Triángulo hacia arriba con espacio
+const SortDescIcon = () => <span> ▼</span>; // Triángulo hacia abajo con espacio
 
 function AdminUserListPage() {
-    const [users, setUsers] = useState([]);
+    const [usersOriginal, setUsersOriginal] = useState([]); // Lista original sin filtrar
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // Estado para el ordenamiento
     const [sortConfig, setSortConfig] = useState({ key: 'id', direction: 'ascending' });
+
+    // Estados para los filtros
+    const [filtroNombre, setFiltroNombre] = useState('');
+    const [filtroEmail, setFiltroEmail] = useState('');
+    const [filtroRol, setFiltroRol] = useState(''); // 'Cualquiera' o el rol específico
 
     useEffect(() => {
         const fetchUsers = async () => {
             setLoading(true);
             setError(null);
             try {
-                const response = await apiClient.get('/admin/users');
-                setUsers(response.data);
+                const response = await apiClient.get('/admin/users'); // Asegúrate que esta ruta es correcta
+                setUsersOriginal(response.data || []);
             } catch (err) {
                 console.error("Error al cargar usuarios:", err);
                 if (err.response) {
                     if (err.response.status === 403) {
-                        setError('Acceso denegado. No tiene permisos para ver esta lista o la ruta es incorrecta.');
+                        setError('Acceso denegado. No tiene permisos para ver esta lista.');
                     } else if (err.response.status === 401) {
-                        setError('Sesión expirada o inválida.');
+                        setError('Sesión expirada o inválida. Por favor, inicie sesión nuevamente.');
                     } else {
                         setError(err.response.data?.message || err.message || `Error ${err.response.status} al cargar los usuarios.`);
                     }
@@ -43,37 +47,57 @@ function AdminUserListPage() {
         fetchUsers();
     }, []);
 
-    const sortedUsers = useMemo(() => {
-        if (!users || users.length === 0) return [];
-        let sortableUsers = [...users];
+    // Opciones para el desplegable de roles (derivadas de la lista completa)
+    const rolesUnicos = useMemo(() => {
+        if (!usersOriginal || usersOriginal.length === 0) return [];
+        const roles = new Set(usersOriginal.map(u => u.rol).filter(Boolean));
+        return ["", ...Array.from(roles).sort()]; // "" para "Cualquiera"
+    }, [usersOriginal]);
+
+    const filteredAndSortedUsers = useMemo(() => {
+        if (!usersOriginal || usersOriginal.length === 0) return [];
+        let items = [...usersOriginal];
+
+        // Aplicar filtros
+        if (filtroNombre) {
+            items = items.filter(user =>
+                (user.nombre.toLowerCase() + ' ' + user.apellido.toLowerCase()).includes(filtroNombre.toLowerCase()) ||
+                user.nombre.toLowerCase().includes(filtroNombre.toLowerCase()) ||
+                user.apellido.toLowerCase().includes(filtroNombre.toLowerCase())
+            );
+        }
+        if (filtroEmail) {
+            items = items.filter(user =>
+                user.email.toLowerCase().includes(filtroEmail.toLowerCase())
+            );
+        }
+        if (filtroRol) {
+            items = items.filter(user => user.rol === filtroRol);
+        }
+
+        // Aplicar ordenamiento
         if (sortConfig.key !== null) {
-            sortableUsers.sort((a, b) => {
+            items.sort((a, b) => {
                 let valA = a[sortConfig.key];
                 let valB = b[sortConfig.key];
 
                 if (sortConfig.key === 'fechaNac') {
                     valA = new Date(valA);
                     valB = new Date(valB);
-                }
-                else if (typeof valA === 'number' && typeof valB === 'number') {
+                } else if (typeof valA === 'number' && typeof valB === 'number') {
                     // No necesita conversión
-                }
-                else if (typeof valA === 'string' && typeof valB === 'string') {
+                } else if (typeof valA === 'string' && typeof valB === 'string') {
                     valA = valA.toLowerCase();
                     valB = valB.toLowerCase();
                 }
 
-                if (valA < valB) {
-                    return sortConfig.direction === 'ascending' ? -1 : 1;
-                }
-                if (valA > valB) {
-                    return sortConfig.direction === 'ascending' ? 1 : -1;
-                }
+                if (valA < valB) return sortConfig.direction === 'ascending' ? -1 : 1;
+                if (valA > valB) return sortConfig.direction === 'ascending' ? 1 : -1;
                 return 0;
             });
         }
-        return sortableUsers;
-    }, [users, sortConfig]);
+        return items;
+    }, [usersOriginal, filtroNombre, filtroEmail, filtroRol, sortConfig]);
 
     const requestSort = (key) => {
         let direction = 'ascending';
@@ -90,6 +114,11 @@ function AdminUserListPage() {
         return null;
     };
 
+    const limpiarFiltros = () => {
+        setFiltroNombre('');
+        setFiltroEmail('');
+        setFiltroRol('');
+    };
 
     if (loading) {
         return <div className="loading-message">Cargando usuarios...</div>;
@@ -100,65 +129,100 @@ function AdminUserListPage() {
     }
 
     return (
-        <div className="user-list-container">
-            <div className="user-list-title-wrapper">
-                <h2>Lista de Usuarios del Sistema</h2>
-            </div>
+        <div className="admin-user-list-page"> {/* Clase contenedora principal específica para la página */}
+            <div className="user-list-container"> {/* Contenedor para el contenido, como en tu CSS */}
+                <div className="user-list-title-wrapper">
+                    <h2>Lista de Usuarios del Sistema</h2>
+                </div>
 
-            {users.length === 0 ? (
-                <p className="no-users-message">No hay usuarios para mostrar.</p>
-            ) : (
-                <div className="user-list-table-responsive">
-                    <table className="user-list-table">
-                        <thead>
-                        <tr>
-                            <th onClick={() => requestSort('id')} style={{ cursor: 'pointer' }}>
-                                ID {getSortIcon('id')}
-                            </th>
-                            <th onClick={() => requestSort('nombre')} style={{ cursor: 'pointer' }}>
-                                Nombre {getSortIcon('nombre')}
-                            </th>
-                            <th onClick={() => requestSort('apellido')} style={{ cursor: 'pointer' }}>
-                                Apellido {getSortIcon('apellido')}
-                            </th>
-                            <th className="allow-wrap" onClick={() => requestSort('email')} style={{ cursor: 'pointer' }}>
-                                Email {getSortIcon('email')}
-                            </th>
-                            <th onClick={() => requestSort('ci')} style={{ cursor: 'pointer' }}>
-                                CI {getSortIcon('ci')}
-                            </th>
-                            <th onClick={() => requestSort('telefono')} style={{ cursor: 'pointer' }}>
-                                Teléfono {getSortIcon('telefono')}
-                            </th>
-                            <th onClick={() => requestSort('fechaNac')} style={{ cursor: 'pointer' }}>
-                                Fecha Nac. {getSortIcon('fechaNac')}
-                            </th>
-                            <th onClick={() => requestSort('rol')} style={{ cursor: 'pointer' }}>
-                                Rol {getSortIcon('rol')}
-                            </th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {sortedUsers.map(user => (
-                            <tr key={user.id}>
-                                <td>{user.id}</td>
-                                <td>{user.nombre}</td>
-                                <td>{user.apellido}</td>
-                                <td className="allow-wrap">{user.email}</td>
-                                <td>{user.ci}</td>
-                                <td>{user.telefono}</td>
-                                <td>{new Date(user.fechaNac).toLocaleDateString()}</td>
-                                <td>
-                                        <span className={`role-${(user.rol || 'desconocido').toLowerCase()}`}>
+                {/* Sección de Filtros */}
+                <section className="filtros-usuarios-container">
+                    <h3>Filtrar Usuarios</h3>
+                    <div className="filtros-grid">
+                        <div className="filtro-item">
+                            <label htmlFor="filtro-nombre">Nombre/Apellido:</label>
+                            <input
+                                type="text"
+                                id="filtro-nombre"
+                                value={filtroNombre}
+                                onChange={(e) => setFiltroNombre(e.target.value)}
+                                placeholder="Buscar por nombre o apellido"
+                            />
+                        </div>
+                        <div className="filtro-item">
+                            <label htmlFor="filtro-email">Email:</label>
+                            <input
+                                type="text"
+                                id="filtro-email"
+                                value={filtroEmail}
+                                onChange={(e) => setFiltroEmail(e.target.value)}
+                                placeholder="Buscar por email"
+                            />
+                        </div>
+                        <div className="filtro-item">
+                            <label htmlFor="filtro-rol">Rol:</label>
+                            <select
+                                id="filtro-rol"
+                                value={filtroRol}
+                                onChange={(e) => setFiltroRol(e.target.value)}
+                            >
+                                <option value="">Cualquiera</option>
+                                {rolesUnicos.slice(1).map(rol => ( // slice(1) para no repetir el ""
+                                    <option key={rol} value={rol}>{rol}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="filtro-acciones">
+                            <button type="button" onClick={limpiarFiltros} className="btn-limpiar-filtros">
+                                Limpiar Filtros
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+
+                {filteredAndSortedUsers.length === 0 ? (
+                    <p className="no-users-message">
+                        {usersOriginal.length > 0 ? "No hay usuarios que coincidan con los filtros." : "No hay usuarios para mostrar."}
+                    </p>
+                ) : (
+                    <div className="user-list-table-responsive">
+                        <table className="user-list-table">
+                            <thead>
+                            <tr>
+                                <th onClick={() => requestSort('id')}>ID{getSortIcon('id')}</th>
+                                <th onClick={() => requestSort('nombre')}>Nombre{getSortIcon('nombre')}</th>
+                                <th onClick={() => requestSort('apellido')}>Apellido{getSortIcon('apellido')}</th>
+                                <th className="allow-wrap" onClick={() => requestSort('email')}>Email{getSortIcon('email')}</th>
+                                <th onClick={() => requestSort('ci')}>CI{getSortIcon('ci')}</th>
+                                <th onClick={() => requestSort('telefono')}>Teléfono{getSortIcon('telefono')}</th>
+                                <th onClick={() => requestSort('fechaNac')}>Fecha Nac.{getSortIcon('fechaNac')}</th>
+                                <th onClick={() => requestSort('rol')}>Rol{getSortIcon('rol')}</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {filteredAndSortedUsers.map(user => (
+                                <tr key={user.id}>
+                                    <td>{user.id}</td>
+                                    <td>{user.nombre}</td>
+                                    <td>{user.apellido}</td>
+                                    <td className="allow-wrap">{user.email}</td>
+                                    <td>{user.ci}</td>
+                                    <td>{user.telefono || 'N/D'}</td>
+                                    <td>{user.fechaNac ? new Date(user.fechaNac).toLocaleDateString() : 'N/D'}</td>
+                                    <td>
+                                        {/* La clase CSS será por ejemplo: role-admin, role-vendedor */}
+                                        <span className={`role-badge role-${(user.rol || 'desconocido').toLowerCase()}`}>
                                             {user.rol || 'DESCONOCIDO'}
                                         </span>
-                                </td>
-                            </tr>
-                        ))}
-                        </tbody>
-                    </table>
-                </div>
-            )}
+                                    </td>
+                                </tr>
+                            ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+            </div>
         </div>
     );
 }

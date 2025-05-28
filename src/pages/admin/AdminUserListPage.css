@@ -1,12 +1,22 @@
-/* --- Contenedor Principal y Título --- */
+/* src/pages/Admin/AdminUserListPage.css */
+
+/* --- Contenedor Principal de la Página --- */
+.admin-user-list-page {
+    /* Puedes añadir un fondo general a la página aquí si lo deseas */
+    /* background-color: #f4f6f8; */
+    padding: 20px 0; /* Padding vertical para la página */
+}
+
+
+/* --- Contenedor del Contenido Principal (Lista de Usuarios) --- */
 .user-list-container {
-    padding: 25px; /* Un poco más de padding general */
-    max-width: 95%; /* Que ocupe más del ancho disponible, pero con márgenes */
-    margin: 30px auto;
-    background-color: #ffffff; /* Fondo blanco limpio */
+    padding: 25px;
+    max-width: 95%;
+    margin: 0 auto 30px auto; /* 0 auto para centrarlo, con margen inferior */
+    background-color: #ffffff;
     border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Sombra un poco más definida */
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; /* Fuente de sistema moderna */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
 .user-list-title-wrapper {
@@ -14,103 +24,168 @@
     margin-bottom: 30px;
 }
 
-.user-list-container h2 {
-    color: #2c3e50; /* Un azul oscuro/gris para el título */
-    font-size: 1.8rem; /* Ajuste de tamaño */
+.user-list-container h2 { /* Título "Lista de Usuarios del Sistema" */
+    color: #2c3e50;
+    font-size: 1.8rem;
     font-weight: 600;
-    border-bottom: 3px solid #3498db; /* Un azul más vibrante para el borde */
+    border-bottom: 3px solid #3498db;
     padding-bottom: 12px;
     display: inline-block;
 }
 
+/* --- Sección de Filtros --- */
+.filtros-usuarios-container {
+    background-color: #f8f9fa; /* Fondo ligeramente diferente para la sección de filtros */
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    border: 1px solid #e9ecef;
+}
+
+.filtros-usuarios-container h3 { /* Título "Filtrar Usuarios" */
+    font-size: 1.4em;
+    color: #343a40;
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-weight: 500;
+}
+
+.filtros-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+    align-items: end;
+}
+
+.filtro-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.filtro-item label {
+    font-size: 0.9em;
+    margin-bottom: 6px;
+    color: #495057;
+    font-weight: 500;
+}
+
+.filtro-item select,
+.filtro-item input[type="text"] {
+    padding: 10px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    font-size: 0.95em;
+    box-sizing: border-box;
+    background-color: #fff;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.filtro-item select:focus,
+.filtro-item input:focus {
+    outline: none;
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+.btn-limpiar-filtros {
+    padding: 10px 15px;
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.95em;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+    width: 100%;
+    height: calc(2.25rem + 2px + 10px); /* Intentar igualar altura de inputs */
+    line-height: 1.5;
+}
+
+.btn-limpiar-filtros:hover {
+    background-color: #5a6268;
+}
+
+
 /* --- Tabla --- */
 .user-list-table-responsive {
-    overflow-x: auto; /* Mantiene el scroll horizontal para pantallas pequeñas */
-    border: 1px solid #e0e0e0; /* Borde sutil alrededor de la tabla */
-    border-radius: 6px; /* Bordes redondeados para el contenedor de la tabla */
+    overflow-x: auto;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
 }
 
 .user-list-table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 800px; /* Ancho mínimo para evitar que se comprima demasiado */
+    min-width: 800px;
 }
 
 .user-list-table th,
 .user-list-table td {
-    padding: 14px 18px; /* Más padding */
+    padding: 14px 18px;
     text-align: left;
     vertical-align: middle;
-    border-bottom: 1px solid #e0e0e0; /* Bordes de fila más sutiles */
-    white-space: nowrap; /* Evita que el contenido de las celdas se parta en varias líneas por defecto */
+    border-bottom: 1px solid #e0e0e0;
+    white-space: nowrap;
 }
 
-/* Para columnas específicas donde sí quieres permitir el salto de línea (ej. email si es muy largo) */
 .user-list-table td.allow-wrap,
 .user-list-table th.allow-wrap {
-    white-space: normal; /* Permite que el texto se ajuste */
-    /* word-break: break-all; */ /* Opcional: para forzar el corte de palabras largas sin espacios */
+    white-space: normal;
 }
 
-
 .user-list-table thead th {
-    background-color: #f5f7fa; /* Un gris muy claro para el encabezado */
-    color: #34495e; /* Texto oscuro para el encabezado */
+    background-color: #f5f7fa;
+    color: #34495e;
     font-weight: 600;
-    text-transform: uppercase; /* Encabezados en mayúsculas */
-    font-size: 0.85rem; /* Tamaño un poco más pequeño para encabezados */
-    letter-spacing: 0.5px; /* Espaciado entre letras */
-    border-bottom-width: 2px; /* Borde inferior más grueso para el encabezado */
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    border-bottom-width: 2px;
     border-top: 1px solid #e0e0e0;
+    cursor: pointer; /* Añadido para todos los th */
 }
 
 .user-list-table tbody tr {
-    transition: background-color 0.2s ease-in-out; /* Transición suave para el hover */
+    transition: background-color 0.2s ease-in-out;
 }
 
 .user-list-table tbody tr:hover {
-    background-color: #ecf0f1; /* Un gris un poco más oscuro para el hover */
+    background-color: #ecf0f1;
 }
 
 .user-list-table tbody td {
-    color: #555; /* Color de texto para el cuerpo de la tabla */
+    color: #555;
     font-size: 0.9rem;
 }
 
-/* Estilos para roles (puedes expandir esto) */
-.user-list-table td span.role-admin {
+/* --- Estilos para Roles (Badges) --- */
+.role-badge { /* Clase base para todos los badges de rol */
+    padding: 5px 10px;
+    border-radius: 15px; /* Estilo píldora */
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: white;
+    text-transform: capitalize; /* Muestra 'Admin', 'Vendedor', etc. */
+    display: inline-block;
+    min-width: 80px; /* Ancho mínimo para consistencia */
+    text-align: center;
+}
+
+.role-admin { /* Generado por user.rol = "admin" o "ADMIN" */
     background-color: #3498db; /* Azul */
-    color: white;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    font-weight: 500;
 }
 
-.user-list-table td span.role-vendedor {
+.role-vendedor { /* Generado por user.rol = "vendedor" o "VENDEDOR" */
     background-color: #2ecc71; /* Verde */
-    color: white;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    font-weight: 500;
 }
 
-.user-list-table td span.role-cliente {
+.role-cliente { /* Generado por user.rol = "cliente" o "CLIENTE" */
     background-color: #f39c12; /* Naranja */
-    color: white;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    font-weight: 500;
 }
-.user-list-table td span.role-desconocido {
+
+.role-desconocido { /* Generado si user.rol es null, undefined o no coincide */
     background-color: #95a5a6; /* Gris */
-    color: white;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    font-weight: 500;
 }
 
 
@@ -125,14 +200,20 @@
     border-radius: 6px;
 }
 
+.loading-message { /* Tu CSS original ya tenía esto, lo mantengo por si acaso */
+    /* color: #7f8c8d;
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef; */
+}
+
 .error-message {
-    color: #c0392b; /* Rojo más oscuro */
+    color: #c0392b;
     background-color: #fdedec;
     border: 1px solid #eebbc0;
 }
 
 .no-users-message {
-    color: #7f8c8d; /* Gris más oscuro */
+    color: #7f8c8d;
     background-color: #f8f9fa;
     border: 1px solid #e9ecef;
 }
