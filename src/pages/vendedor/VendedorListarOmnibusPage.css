@@ -1,10 +1,10 @@
-/* src/pages/vendedor/VendedorListarOmnibusPage.css */
+/* src/pages/Vendedor/VendedorListarOmnibusPage.css */
 
 .vendedor-listar-omnibus-page {
-    padding: 25px;
-    background-color: #f9f9f9; /* Un fondo ligeramente más cálido */
-    min-height: calc(100vh - 60px); /* Asumiendo una altura de navbar/header */
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    font-family: Arial, sans-serif;
 }
 
 .page-header {
@@ -14,118 +14,120 @@
 }
 
 .page-header h1 {
-    font-size: 2rem;
+    font-size: 2em;
     color: #333;
-    margin: 0 0 5px 0;
+    margin-bottom: 5px;
 }
 
 .page-header p {
-    font-size: 1rem;
+    font-size: 1em;
     color: #666;
-    margin: 0;
 }
 
-/* Estilos para loading y error */
-.loading-container,
-.error-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 300px;
-    text-align: center;
+/* --- Filtros --- */
+.filtros-omnibus-container {
+    background-color: #f9f9f9;
     padding: 20px;
     border-radius: 8px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
-.loading-container {
-    background-color: #eef2f7;
-}
-
-.spinner {
-    border: 4px solid rgba(0, 0, 0, 0.1);
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    border-left-color: #007bff; /* Azul primario */
-    animation: spin 1s ease infinite;
+.filtros-omnibus-container h2 {
+    font-size: 1.4em;
+    color: #333;
+    margin-top: 0;
     margin-bottom: 15px;
 }
 
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+.filtros-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    align-items: end; /* Para alinear el botón de limpiar con la base de los inputs */
 }
 
-.loading-message {
-    font-size: 1.1rem;
+.filtro-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.filtro-item label {
+    font-size: 0.9em;
+    margin-bottom: 5px;
     color: #555;
+    font-weight: bold;
 }
 
-.error-container {
-    background-color: #ffebee; /* Rojo muy claro */
-    border: 1px solid #e57373; /* Rojo claro */
+.filtro-item select,
+.filtro-item input[type="number"],
+.filtro-item input[type="text"] { /* Si añades filtros de texto */
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 0.95em;
+    box-sizing: border-box; /* Importante para que padding no aumente el tamaño */
 }
 
-.mensaje-error {
-    font-size: 1.1rem;
-    color: #c62828; /* Rojo oscuro */
-    font-weight: 500;
+.filtro-item select:focus,
+.filtro-item input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
 }
 
-.empty-state {
-    text-align: center;
-    padding: 40px 20px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+.filtro-acciones {
+    /* Si el botón está en su propia celda del grid */
+}
+
+.btn-limpiar-filtros {
+    padding: 10px 15px;
+    background-color: #6c757d; /* Gris */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.95em;
+    transition: background-color 0.2s ease;
+    width: 100%; /* Para que ocupe el espacio en el grid item */
+}
+
+.btn-limpiar-filtros:hover {
+    background-color: #5a6268;
+}
+
+
+/* --- Tabla --- */
+.tabla-omnibus-container {
     margin-top: 20px;
 }
 
-.empty-state-icon {
-    font-size: 3rem;
-    display: block;
-    margin-bottom: 15px;
-    color: #007bff;
-}
-
-.mensaje-informativo {
-    font-size: 1.2rem;
-    color: #555;
-}
-
-/* Estilos de la tabla */
-.tabla-omnibus-container {
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    overflow: hidden; /* Para que el border-radius afecte a la tabla interna */
-}
-
 .table-responsive {
-    overflow-x: auto; /* Permite scroll horizontal en pantallas pequeñas */
+    overflow-x: auto; /* Permite scroll horizontal en tablas grandes */
 }
 
 .tabla-omnibus {
     width: 100%;
-    border-collapse: collapse; /* Bordes más limpios */
+    border-collapse: collapse;
+    background-color: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    overflow: hidden; /* Para que el border-radius se aplique a la tabla */
 }
 
 .tabla-omnibus th,
 .tabla-omnibus td {
     padding: 12px 15px;
     text-align: left;
-    border-bottom: 1px solid #e0e0e0; /* Líneas horizontales sutiles */
-    vertical-align: middle;
+    border-bottom: 1px solid #eee;
 }
 
 .tabla-omnibus th {
-    background-color: #f0f2f5; /* Un gris muy claro para encabezados */
-    font-weight: 600;
+    background-color: #f8f9fa;
+    font-weight: bold;
     color: #333;
-    font-size: 0.9rem;
+    font-size: 0.9em;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
 }
 
 .tabla-omnibus th.sortable {
@@ -134,73 +136,76 @@
 }
 
 .tabla-omnibus th.sortable:hover {
-    background-color: #e4e8ed;
-}
-
-.tabla-omnibus tbody tr:nth-of-type(even) {
-    background-color: #f8f9fa; /* Rayado sutil para filas pares */
+    background-color: #e9ecef;
 }
 
 .tabla-omnibus tbody tr:hover {
-    background-color: #e9ecef; /* Efecto hover en filas */
-    transition: background-color 0.15s ease-in-out;
+    background-color: #f1f1f1;
 }
 
-.tabla-omnibus td {
-    color: #555;
-    font-size: 0.95rem;
+.tabla-omnibus tbody tr:last-child td {
+    border-bottom: none;
 }
 
-.tabla-omnibus .text-center {
+.text-center {
+    text-align: center !important;
+}
+
+/* --- Indicadores y Estados --- */
+.loading-container, .error-container, .empty-state {
     text-align: center;
+    padding: 40px 20px;
+    border: 1px dashed #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    margin-top: 20px;
 }
 
-/* Badges de estado */
+.loading-message, .mensaje-error, .mensaje-informativo {
+    font-size: 1.1em;
+    color: #555;
+    margin-top: 10px;
+}
+
+.mensaje-error {
+    color: #d9534f; /* Rojo para errores */
+}
+
+.spinner {
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border-left-color: #007bff; /* Azul */
+    animation: spin 1s ease infinite;
+    margin: 0 auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.empty-state-icon {
+    font-size: 3em;
+    display: block;
+    margin-bottom: 10px;
+    color: #ccc;
+}
+
+
 .status-badge {
-    padding: 5px 10px;
-    border-radius: 15px;
-    font-size: 0.8rem;
-    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.85em;
+    font-weight: bold;
+    color: white;
     text-transform: capitalize;
     display: inline-block;
 }
 
-.status-badge.status-activo {
-    background-color: #d4edda; /* Verde claro */
-    color: #155724; /* Verde oscuro */
-}
-
-.status-badge.status-inactivo {
-    background-color: #f8d7da; /* Rojo claro */
-    color: #721c24; /* Rojo oscuro */
-}
-
-.status-badge.status-mantenimiento {
-    background-color: #fff3cd; /* Amarillo claro */
-    color: #856404; /* Amarillo oscuro */
-}
-
-/* Botones de acción (opcional, si los añades) */
-.btn-accion {
-    padding: 6px 12px;
-    margin-right: 5px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.85rem;
-    transition: opacity 0.2s ease;
-}
-
-.btn-accion:hover {
-    opacity: 0.8;
-}
-
-.btn-editar {
-    background-color: #007bff; /* Azul */
-    color: white;
-}
-
-.btn-ver {
-    background-color: #6c757d; /* Gris */
-    color: white;
-}
+.status-disponible { background-color: #28a745; } /* Verde */
+.status-en-mantenimiento { background-color: #ffc107; color: #333; } /* Amarillo */
+.status-fuera-de-servicio { background-color: #dc3545; } /* Rojo */
+.status-en-viaje { background-color: #17a2b8; } /* Celeste */
+/* Añade más clases de estado según necesites */
