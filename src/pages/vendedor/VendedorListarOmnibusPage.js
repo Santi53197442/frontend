@@ -39,7 +39,6 @@ const VendedorListarOmnibusPage = () => {
 
     const estadosUnicos = useMemo(() => {
         const estados = new Set(omnibusListaCompleta.map(o => o.estado).filter(Boolean));
-        // Si tus estados en el backend son "FUERA_DE_SERVICIO", esto los tomará tal cual.
         return ["", ...Array.from(estados).sort()];
     }, [omnibusListaCompleta]);
 
@@ -54,7 +53,7 @@ const VendedorListarOmnibusPage = () => {
         if (filtroMarca) {
             items = items.filter(o => o.marca === filtroMarca);
         }
-        if (filtroEstado) { // filtroEstado contendrá "FUERA_DE_SERVICIO", etc.
+        if (filtroEstado) {
             items = items.filter(o => o.estado === filtroEstado);
         }
         if (filtroCapacidadMin) {
@@ -191,7 +190,6 @@ const VendedorListarOmnibusPage = () => {
                             <tbody>
                             {filteredAndSortedOmnibus.map((omnibus) => {
                                 const estadoOriginal = omnibus.estado;
-                                // Esta línea genera clases como 'status-fuera_de_servicio' si estadoOriginal es 'FUERA_DE_SERVICIO'
                                 const claseCssEstado = `status-${String(estadoOriginal || '').toLowerCase().replace(/\s+/g, '-')}`;
 
                                 return (
@@ -203,7 +201,7 @@ const VendedorListarOmnibusPage = () => {
                                         <td className="text-center">{omnibus.capacidadAsientos}</td>
                                         <td>
                                             <span className={`status-badge ${claseCssEstado}`}>
-                                                {estadoOriginal || 'N/D'} {/* Muestra el estado original (ej. FUERA_DE_SERVICIO) */}
+                                                {estadoOriginal || 'N/D'}
                                             </span>
                                         </td>
                                         <td>{omnibus.localidadActual ? omnibus.localidadActual.nombre : 'N/D'}</td>

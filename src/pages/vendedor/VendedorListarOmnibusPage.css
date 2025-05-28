@@ -205,40 +205,44 @@
 
 /* --- Status Badges --- */
 .status-badge {
-    padding: 5px 12px;
-    border-radius: 15px;
-    font-size: 0.8em; /* Un poco más pequeño para que quepa mejor "FUERA_DE_SERVICIO" */
+    padding: 4px 8px;           /* Padding ajustado */
+    border-radius: 12px;         /* Radio de borde */
+    font-size: 0.78rem;          /* Tamaño de fuente ajustado */
     font-weight: 600;
     color: white;
-    /* text-transform: uppercase;  Quitado, ya que los datos ya vienen en mayúsculas y con guion bajo */
     display: inline-block;
-    min-width: 100px; /* Ajusta según necesidad */
+    /* min-width: 100px; */     /* Comentado para permitir ancho flexible */
     text-align: center;
     letter-spacing: 0.5px;
     line-height: 1.4;
+    white-space: nowrap;         /* Evita que el texto se parta en líneas */
+    text-transform: uppercase;   /* Para que se muestre como OPERATIVO, FUERA_DE_SERVICIO, etc. */
 }
 
-/* Colores específicos para los estados (nombres de clase en minúsculas y con guion bajo si así los genera el JS) */
+/* Colores específicos para los estados */
 .status-fuera_de_servicio {
     background-color: #dc3545; /* Rojo */
 }
 
 .status-en_mantenimiento {
     background-color: #ffc107; /* Amarillo */
-    color: #212529; /* Texto oscuro para amarillo */
+    color: #212529;
 }
 
 .status-asignado_a_viaje {
     background-color: #17a2b8; /* Celeste/Cyan */
 }
 
-.status-disponible { /* Si tienes este estado */
+.status-disponible {
     background-color: #28a745; /* Verde */
 }
 
-/* Para estados desconocidos, vacíos, null o undefined */
+.status-operativo { /* Nueva clase para el estado "OPERATIVO" */
+    background-color: #28a745; /* Verde (o el color que prefieras para este estado) */
+}
+
 .status-n-d,
-.status- { /* Esto se genera si omnibus.estado es null, undefined o "" */
-    background-color: #adb5bd; /* Un gris neutro */
+.status- { /* Para estados desconocidos, vacíos, null o undefined */
+    background-color: #adb5bd;
     color: #fff;
 }
