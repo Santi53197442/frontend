@@ -1,148 +1,131 @@
-/* src/pages/Vendedor/VendedorListarOmnibusPage.css */
+/* src/pages/vendedor/VendedorListarOmnibusPage.css */
 
-/* --- General Page Styles --- */
 .vendedor-listar-omnibus-page {
-    padding: 25px; /* Aumentado un poco el padding general */
-    max-width: 1200px;
-    margin: 20px auto; /* Margen superior e inferior */
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; /* Fuente más moderna */
-    background-color: #f4f6f8; /* Un fondo muy sutil para la página entera si es necesario */
-    border-radius: 8px; /* Si quieres que la página misma tenga bordes redondeados */
-    /* box-shadow: 0 4px 12px rgba(0,0,0,0.05); */ /* Sombra sutil opcional para la página */
+    padding: 25px;
+    background-color: #f9f9f9; /* Un fondo ligeramente más cálido */
+    min-height: calc(100vh - 60px); /* Asumiendo una altura de navbar/header */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* --- Page Header --- */
 .page-header {
     margin-bottom: 30px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid #dee2e6; /* Borde más sutil */
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e0e0e0;
 }
 
 .page-header h1 {
-    font-size: 2.2em; /* Tamaño de título principal */
-    color: #212529; /* Color de texto oscuro principal */
-    margin-bottom: 8px;
-    font-weight: 600;
+    font-size: 2rem;
+    color: #333;
+    margin: 0 0 5px 0;
 }
 
 .page-header p {
-    font-size: 1.05em;
-    color: #495057; /* Color de texto secundario */
-    line-height: 1.6;
+    font-size: 1rem;
+    color: #666;
+    margin: 0;
 }
 
-/* --- Filtros Section --- */
-.filtros-omnibus-container {
-    background-color: #ffffff; /* Fondo blanco para la sección de filtros */
-    padding: 25px;
-    border-radius: 8px;
-    margin-bottom: 30px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.07); /* Sombra más definida */
-}
-
-.filtros-omnibus-container h2 {
-    font-size: 1.6em; /* Título de la sección de filtros */
-    color: #343a40;
-    margin-top: 0;
-    margin-bottom: 20px;
-    font-weight: 500;
-}
-
-.filtros-grid {
-    display: grid;
-    /* Ajustado para 4 columnas en pantallas grandes, adaptable */
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 20px;
-    align-items: end; /* Alinea los elementos (especialmente el botón) a la base */
-}
-
-.filtro-item {
+/* Estilos para loading y error */
+.loading-container,
+.error-container {
     display: flex;
     flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    text-align: center;
+    padding: 20px;
+    border-radius: 8px;
 }
 
-.filtro-item label {
-    font-size: 0.9em;
-    margin-bottom: 6px;
-    color: #495057;
-    font-weight: 500; /* Un poco más de peso para las etiquetas */
+.loading-container {
+    background-color: #eef2f7;
 }
 
-.filtro-item select,
-.filtro-item input[type="number"],
-.filtro-item input[type="text"] {
-    padding: 10px 12px;
-    border: 1px solid #ced4da;
-    border-radius: 5px; /* Bordes redondeados más suaves */
-    font-size: 0.95em;
-    box-sizing: border-box;
-    background-color: #fff;
-    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+.spinner {
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border-left-color: #007bff; /* Azul primario */
+    animation: spin 1s ease infinite;
+    margin-bottom: 15px;
 }
 
-.filtro-item select:focus,
-.filtro-item input:focus {
-    outline: none;
-    border-color: #80bdff; /* Color de borde al enfocar (Bootstrap-like) */
-    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
-.filtro-acciones {
-    /* Si se necesita, el botón de limpiar se alinea con align-items: end en .filtros-grid */
+.loading-message {
+    font-size: 1.1rem;
+    color: #555;
 }
 
-.btn-limpiar-filtros {
-    padding: 10px 15px;
-    background-color: #6c757d; /* Gris estándar */
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 0.95em;
+.error-container {
+    background-color: #ffebee; /* Rojo muy claro */
+    border: 1px solid #e57373; /* Rojo claro */
+}
+
+.mensaje-error {
+    font-size: 1.1rem;
+    color: #c62828; /* Rojo oscuro */
     font-weight: 500;
-    transition: background-color 0.2s ease;
-    width: 100%; /* Para que ocupe el ancho de su celda en el grid */
-    height: calc(2.25rem + 2px + 10px); /* Para igualar altura con inputs + padding */
-    line-height: 1.5;
 }
 
-.btn-limpiar-filtros:hover {
-    background-color: #5a6268; /* Gris más oscuro al pasar el mouse */
-}
-
-/* --- Tabla Section --- */
-.tabla-omnibus-container {
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
     margin-top: 20px;
 }
 
-.table-responsive {
-    overflow-x: auto;
-    background-color: #fff; /* Fondo blanco para la tabla y su contenedor responsive */
+.empty-state-icon {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 15px;
+    color: #007bff;
+}
+
+.mensaje-informativo {
+    font-size: 1.2rem;
+    color: #555;
+}
+
+/* Estilos de la tabla */
+.tabla-omnibus-container {
+    background-color: #ffffff;
     border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    overflow: hidden; /* Para que el border-radius afecte a la tabla interna */
+}
+
+.table-responsive {
+    overflow-x: auto; /* Permite scroll horizontal en pantallas pequeñas */
 }
 
 .tabla-omnibus {
     width: 100%;
-    border-collapse: collapse;
-    /* overflow: hidden; Ya no es necesario si .table-responsive tiene el radius y shadow */
+    border-collapse: collapse; /* Bordes más limpios */
 }
 
 .tabla-omnibus th,
 .tabla-omnibus td {
-    padding: 14px 18px; /* Más padding en celdas */
+    padding: 12px 15px;
     text-align: left;
-    border-bottom: 1px solid #e9ecef; /* Borde de celda más sutil */
-    vertical-align: middle; /* Alineación vertical */
+    border-bottom: 1px solid #e0e0e0; /* Líneas horizontales sutiles */
+    vertical-align: middle;
 }
 
 .tabla-omnibus th {
-    background-color: #f8f9fa; /* Fondo de cabecera muy claro */
-    font-weight: 600; /* Cabeceras más notorias */
-    color: #343a40;
-    font-size: 0.85em; /* Texto de cabecera ligeramente más pequeño */
+    background-color: #f0f2f5; /* Un gris muy claro para encabezados */
+    font-weight: 600;
+    color: #333;
+    font-size: 0.9rem;
     text-transform: uppercase;
-    letter-spacing: 0.5px; /* Espaciado entre letras */
+    letter-spacing: 0.5px;
 }
 
 .tabla-omnibus th.sortable {
@@ -151,93 +134,73 @@
 }
 
 .tabla-omnibus th.sortable:hover {
-    background-color: #e9ecef; /* Cambio de fondo al pasar el mouse */
+    background-color: #e4e8ed;
+}
+
+.tabla-omnibus tbody tr:nth-of-type(even) {
+    background-color: #f8f9fa; /* Rayado sutil para filas pares */
 }
 
 .tabla-omnibus tbody tr:hover {
-    background-color: #f1f3f5; /* Color de fila al pasar el mouse */
+    background-color: #e9ecef; /* Efecto hover en filas */
+    transition: background-color 0.15s ease-in-out;
 }
 
-.tabla-omnibus tbody tr:last-child td {
-    border-bottom: none; /* Sin borde en la última fila */
+.tabla-omnibus td {
+    color: #555;
+    font-size: 0.95rem;
 }
 
-.text-center {
-    text-align: center !important;
-}
-
-/* --- Indicadores y Estados (Loading, Error, Empty) --- */
-.loading-container, .error-container, .empty-state {
+.tabla-omnibus .text-center {
     text-align: center;
-    padding: 50px 20px; /* Más padding vertical */
-    border: 1px dashed #ced4da;
-    border-radius: 8px;
-    background-color: #fff; /* Fondo blanco también para estos estados */
-    margin-top: 30px; /* Más margen superior */
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
 }
 
-.loading-message, .mensaje-error, .mensaje-informativo {
-    font-size: 1.15em; /* Texto un poco más grande */
-    color: #495057;
-    margin-top: 15px;
-}
-
-.mensaje-error {
-    color: #dc3545; /* Rojo Bootstrap para errores */
-    font-weight: 500;
-}
-
-.spinner {
-    border: 4px solid rgba(0, 0, 0, 0.1);
-    width: 40px; /* Spinner un poco más grande */
-    height: 40px;
-    border-radius: 50%;
-    border-left-color: #007bff; /* Azul Bootstrap */
-    animation: spin 1s linear infinite; /* Animación lineal */
-    margin: 0 auto;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-.empty-state-icon {
-    font-size: 3.5em; /* Ícono más grande */
-    display: block;
-    margin-bottom: 15px;
-    color: #adb5bd; /* Gris más claro para el ícono */
-}
-
-/* --- Status Badges --- */
+/* Badges de estado */
 .status-badge {
-    padding: 5px 12px; /* Padding ajustado para el badge */
-    border-radius: 15px; /* Badge más redondeado (píldora) */
-    font-size: 0.8em; /* Tamaño de fuente del badge */
-    font-weight: 600; /* Texto del badge en negrita */
-    color: white;
-    text-transform: uppercase; /* Todo en mayúsculas para consistencia */
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: capitalize;
     display: inline-block;
-    min-width: 100px; /* Ancho mínimo para consistencia visual */
-    text-align: center;
-    letter-spacing: 0.5px;
-    line-height: 1.4; /* Mejorar centrado vertical del texto */
 }
 
-/* Colores específicos para los estados (ejemplos) */
-.status-disponible { background-color: #28a745; } /* Verde */
-.status-en-mantenimiento { background-color: #ffc107; color: #212529; } /* Amarillo, texto oscuro */
-.status-fuera-de-servicio { background-color: #dc3545; } /* Rojo */
-.status-en-viaje { background-color: #17a2b8; } /* Celeste/Cyan */
-.status-programado { background-color: #007bff; } /* Azul */
-.status-finalizado { background-color: #6c757d; } /* Gris */
-/* Añade más según los estados que tengas, ejemplo: */
-/* .status-otro-estado { background-color: #fd7e14; } */ /* Naranja */
+.status-badge.status-activo {
+    background-color: #d4edda; /* Verde claro */
+    color: #155724; /* Verde oscuro */
+}
 
-/* Si un estado es 'N/D' o no tiene clase específica, un estilo por defecto */
-.status-n-d,
-.status- { /* Para cuando el estado es vacío o no mapea a una clase */
-    background-color: #adb5bd; /* Un gris neutro */
-    color: #fff;
+.status-badge.status-inactivo {
+    background-color: #f8d7da; /* Rojo claro */
+    color: #721c24; /* Rojo oscuro */
+}
+
+.status-badge.status-mantenimiento {
+    background-color: #fff3cd; /* Amarillo claro */
+    color: #856404; /* Amarillo oscuro */
+}
+
+/* Botones de acción (opcional, si los añades) */
+.btn-accion {
+    padding: 6px 12px;
+    margin-right: 5px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: opacity 0.2s ease;
+}
+
+.btn-accion:hover {
+    opacity: 0.8;
+}
+
+.btn-editar {
+    background-color: #007bff; /* Azul */
+    color: white;
+}
+
+.btn-ver {
+    background-color: #6c757d; /* Gris */
+    color: white;
 }
