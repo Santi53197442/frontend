@@ -7,25 +7,25 @@
 }
 
 .vendedor-sidebar {
-    width: 260px; /* Puedes ajustar el ancho del sidebar */
-    background-color: #3f51b5; /* Ejemplo de color (azul índigo) */
-    color: #e8eaf6; /* Color de texto claro */
+    width: 260px;
+    background-color: #343a40; /* GRIS OSCURO (CARBÓN) */
+    color: #adb5bd; /* Color de texto claro para contraste con fondo oscuro */
     padding: 20px;
     transition: transform 0.3s ease-in-out, width 0.3s ease-in-out;
     display: flex;
-    flex-direction: column; /* Para alinear header, nav, footer verticalmente */
+    flex-direction: column;
 }
 
 .sidebar-header {
     margin-bottom: 25px;
     padding-bottom: 15px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2); /* Borde sutil */
+    border-bottom: 1px solid #495057; /* Borde un poco más claro que el fondo */
     text-align: center;
 }
 
 .sidebar-logo-link {
     text-decoration: none;
-    color: #fff; /* Color del título del logo */
+    color: #f8f9fa; /* Texto del logo casi blanco para destacar */
 }
 
 .sidebar-header h3 {
@@ -34,8 +34,8 @@
 }
 
 .sidebar-nav {
-    flex-grow: 1; /* Hace que la navegación ocupe el espacio disponible */
-    overflow-y: auto; /* Scroll para muchos enlaces */
+    flex-grow: 1;
+    overflow-y: auto;
 }
 
 .sidebar-nav ul {
@@ -46,24 +46,24 @@
 
 .sidebar-nav .nav-link {
     display: block;
-    padding: 10px 15px; /* Ajusta el padding de los enlaces */
-    color: #c5cae9; /* Color de enlace normal más claro */
+    padding: 10px 15px;
+    color: #ced4da; /* Color de enlace normal, más claro */
     text-decoration: none;
     border-radius: 4px;
-    margin-bottom: 8px; /* Espacio entre enlaces */
+    margin-bottom: 8px;
     transition: background-color 0.2s ease, color 0.2s ease;
     font-size: 0.95rem;
 }
 
 .sidebar-nav .nav-link:hover {
-    background-color: rgba(255, 255, 255, 0.1); /* Fondo sutil al pasar el mouse */
-    color: #fff;
+    background-color: #495057; /* Fondo ligeramente más claro al pasar el mouse */
+    color: #f8f9fa; /* Texto casi blanco al pasar el mouse */
 }
 
 .sidebar-nav .nav-link.active {
-    background-color: #ff4081; /* Color de acento para enlace activo (ej. rosa) */
-    color: #fff;
-    font-weight: 500; /* Un poco menos bold que en admin quizás */
+    background-color: #007bff; /* Azul vibrante para enlace activo */
+    color: #fff; /* Texto blanco para enlace activo */
+    font-weight: 500;
 }
 
 .sidebar-nav .nav-link span {
@@ -72,17 +72,17 @@
 
 .sidebar-footer {
     padding-top: 20px;
-    margin-top: auto; /* Empuja el footer hacia abajo */
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    margin-top: auto;
+    border-top: 1px solid #495057; /* Borde un poco más claro que el fondo */
     text-align: center;
     font-size: 0.85rem;
-    color: #9fa8da;
+    color: #adb5bd; /* Mismo color que el texto general del sidebar */
 }
 
 .vendedor-content {
     flex-grow: 1;
-    padding: 25px; /* Padding para el contenido principal */
-    background-color: #eceff1; /* Un gris muy claro para el contenido */
+    padding: 25px;
+    background-color: #f8f9fa; /* Un gris muy claro para el contenido, buen contraste */
     overflow-y: auto;
 }
 
@@ -93,13 +93,13 @@
     top: 15px;
     left: 15px;
     z-index: 1001;
-    background-color: #3f51b5; /* Mismo color que el sidebar */
+    background-color: #343a40; /* Mismo color gris oscuro que el sidebar */
     color: white;
     border: none;
     padding: 10px;
     cursor: pointer;
     border-radius: 50%;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3); /* Sombra un poco más notoria */
 }
 
 .mobile-menu-toggle svg {
@@ -119,8 +119,8 @@
         height: 100%;
         transform: translateX(-100%);
         z-index: 1000;
-        width: 280px; /* Puedes ajustar el ancho del menú móvil */
-        box-shadow: 3px 0 15px rgba(0,0,0,0.2);
+        width: 280px;
+        box-shadow: 3px 0 15px rgba(0,0,0,0.25); /* Sombra un poco más notoria */
     }
 
     .vendedor-sidebar.open {
@@ -140,7 +140,7 @@
         content: '';
         position: fixed;
         top: 0; left: 0; right: 0; bottom: 0;
-        background-color: rgba(0,0,0,0.5);
+        background-color: rgba(0,0,0,0.6); // Overlay un poco más oscuro
         z-index: 999;
     } */
 }
