@@ -1,0 +1,257 @@
+/* src/pages/vendedor/SeleccionAsientosPage.css (o la ruta donde guardes el CSS) */
+
+.seleccion-asientos-container {
+    max-width: 750px; /* Un poco más ancho para la disposición de asientos */
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #f8f9fa; /* Un gris muy claro */
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+}
+
+.btn-volver {
+    background-color: #6c757d;
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-bottom: 20px;
+    font-size: 0.9em;
+    transition: background-color 0.2s;
+    display: inline-flex;
+    align-items: center;
+}
+.btn-volver:hover {
+    background-color: #5a6268;
+}
+.btn-volver:before { /* Opcional: ícono de flecha */
+    content: '\2190'; /* Código Unicode para flecha izquierda */
+    margin-right: 6px;
+    font-weight: bold;
+}
+
+
+.info-viaje-header {
+    text-align: center;
+    margin-bottom: 25px;
+    padding: 15px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    border: 1px solid #e0e6ed;
+}
+
+.info-viaje-header h2 {
+    color: #0056b3; /* Azul más oscuro para el título */
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 1.8em;
+}
+
+.info-viaje-header p {
+    color: #495057;
+    font-size: 1em;
+    line-height: 1.6;
+    margin: 8px 0;
+}
+.info-viaje-header p strong {
+    color: #343a40;
+}
+
+.leyenda-asientos {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px; /* Espacio entre ítems de la leyenda */
+    margin-bottom: 25px;
+    padding: 12px;
+    background-color: #e9ecef;
+    border-radius: 6px;
+    font-size: 0.9em;
+}
+
+.leyenda-item {
+    display: flex;
+    align-items: center;
+    color: #495057;
+}
+
+.cuadro {
+    width: 18px; /* Un poco más grande */
+    height: 18px;
+    margin-right: 8px;
+    border: 1px solid #adb5bd;
+    display: inline-block;
+    border-radius: 3px; /* Bordes ligeramente redondeados */
+}
+
+/* Colores de la leyenda y asientos deben coincidir */
+.cuadro.libre, .asiento.libre {
+    background-color: #28a745; /* Verde */
+    color: white;
+    border-color: #1e7e34;
+}
+.asiento.libre:hover {
+    background-color: #218838;
+    transform: scale(1.05);
+}
+
+.cuadro.ocupado, .asiento.ocupado {
+    background-color: #dc3545; /* Rojo */
+    color: white;
+    border-color: #b02a37;
+}
+.asiento.ocupado {
+    cursor: not-allowed;
+    opacity: 0.8; /* Ligeramente más opaco para mejor visibilidad del número */
+}
+.asiento.ocupado.wc { /* Estilo específico para WC */
+    font-size: 0.85em;
+    font-weight: bold;
+}
+
+
+.cuadro.seleccionado, .asiento.seleccionado {
+    background-color: #007bff; /* Azul */
+    color: white;
+    border-color: #0056b3;
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.5); /* Efecto de resplandor */
+}
+.asiento.seleccionado:hover {
+    background-color: #0056b3;
+}
+
+
+.omnibus-layout {
+    background-color: #ffffff;
+    padding: 25px;
+    border-radius: 8px;
+    border: 1px solid #d1d9e0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.cabecera-omnibus {
+    width: auto; /* Ajustar al contenido */
+    min-width: 60%; /* Mínimo ancho */
+    background-color: #343a40; /* Gris oscuro para la cabecera */
+    color: white;
+    text-align: center;
+    padding: 12px 20px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    font-size: 1.1em;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+
+.fila-asientos {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 6px; /* Un poco más de espacio entre filas */
+}
+
+.asiento {
+    width: 42px; /* Ajustar tamaño según necesidad */
+    height: 42px;
+    margin: 4px; /* Espacio entre asientos */
+    border: 1px solid #bfbfbf;
+    border-radius: 6px; /* Bordes más redondeados */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.9em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s;
+    user-select: none; /* Evitar selección de texto en el botón */
+}
+.asiento:disabled { /* Estilo para asientos deshabilitados (ocupados) */
+    cursor: not-allowed;
+}
+
+
+.asiento.pasillo {
+    background-color: transparent;
+    border: none;
+    cursor: default;
+    width: 25px; /* Ancho del pasillo */
+}
+.asiento.vacio {
+    background-color: #e9ecef;
+    border: 1px dashed #ced4da;
+    cursor: default;
+    opacity: 0.6;
+}
+
+
+.resumen-compra {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #ffffff;
+    border: 1px solid #d1d9e0;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+.resumen-compra h3 {
+    margin-top: 0;
+    color: #0056b3; /* Azul para el título del resumen */
+    font-size: 1.4em;
+    margin-bottom: 15px;
+}
+.resumen-compra p {
+    margin: 10px 0;
+    font-size: 1.05em;
+    color: #495057;
+}
+.resumen-compra p.asientos-elegidos-lista {
+    font-weight: bold;
+    color: #007bff; /* Azul para los asientos seleccionados */
+    background-color: #e7f3ff;
+    padding: 8px;
+    border-radius: 4px;
+    display: inline-block; /* Para que el fondo solo ocupe el texto */
+}
+
+
+.btn-confirmar-compra {
+    background-color: #28a745; /* Verde para confirmar */
+    color: white;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.15em;
+    font-weight: bold;
+    margin-top: 15px;
+    transition: background-color 0.2s, transform 0.1s;
+    text-transform: uppercase;
+}
+.btn-confirmar-compra:hover {
+    background-color: #218838;
+    transform: translateY(-2px); /* Pequeño efecto al pasar el mouse */
+}
+
+/* Mensajes generales (puedes tenerlos en un CSS global también) */
+.loading-mensaje {
+    text-align: center;
+    padding: 20px;
+    font-size: 1.1em;
+    color: #555;
+}
+.error-mensaje {
+    color: #721c24; /* Rojo oscuro para texto de error */
+    background-color: #f8d7da; /* Fondo rojo claro */
+    border: 1px solid #f5c6cb; /* Borde rojo */
+    padding: 12px;
+    border-radius: 4px;
+    text-align: center;
+    margin: 15px 0;
+}
