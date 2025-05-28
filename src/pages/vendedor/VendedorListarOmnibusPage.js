@@ -4,15 +4,16 @@ import { obtenerTodosLosOmnibus } from '../../services/api'; // Ajusta la ruta
 import './VendedorListarOmnibusPage.css'; // Asegúrate de crear y poblar este archivo CSS
 
 const VendedorListarOmnibusPage = () => {
-    const [omnibusListaCompleta, setOmnibusListaCompleta] = useState([]); // Lista original sin filtrar
+    const [omnibusListaCompleta, setOmnibusListaCompleta] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState('');
     const [sortConfig, setSortConfig] = useState({ key: 'id', direction: 'ascending' });
 
     // Estados para los filtros
-    const [filtroMarca, setFiltroMarca] = useState(''); // 'Cualquiera' o la marca específica
-    const [filtroEstado, setFiltroEstado] = useState(''); // 'Cualquiera' o el estado específico
-    const [filtroCapacidadMin, setFiltroCapacidadMin] = useState(''); // Capacidad mínima
+    const [filtroMatricula, setFiltroMatricula] = useState(''); // NUEVO para matrícula
+    const [filtroMarca, setFiltroMarca] = useState('');
+    const [filtroEstado, setFiltroEstado] = useState('');
+    const [filtroCapacidadMin, setFiltroCapacidadMin] = useState('');
 
     useEffect(() => {
         const cargarOmnibus = async () => {
@@ -29,26 +30,29 @@ const VendedorListarOmnibusPage = () => {
                 setIsLoading(false);
             }
         };
-
         cargarOmnibus();
     }, []);
 
-    // Opciones para los desplegables de filtros (derivadas de la lista completa)
     const marcasUnicas = useMemo(() => {
         const marcas = new Set(omnibusListaCompleta.map(o => o.marca).filter(Boolean));
-        return ["", ...Array.from(marcas).sort()]; // "" para "Cualquiera"
+        return ["", ...Array.from(marcas).sort()];
     }, [omnibusListaCompleta]);
 
     const estadosUnicos = useMemo(() => {
+        // Asegúrate que estos sean los estados reales de los ómnibus, no localidades.
         const estados = new Set(omnibusListaCompleta.map(o => o.estado).filter(Boolean));
-        return ["", ...Array.from(estados).sort()]; // "" para "Cualquiera"
+        return ["", ...Array.from(estados).sort()];
     }, [omnibusListaCompleta]);
-
 
     const filteredAndSortedOmnibus = useMemo(() => {
         let items = [...omnibusListaCompleta];
 
         // Aplicar filtros
+        if (filtroMatricula) {
+            items = items.filter(o =>
+                o.matricula.toLowerCase().includes(filtroMatricula.toLowerCase())
+            );
+        }
         if (filtroMarca) {
             items = items.filter(o => o.marca === filtroMarca);
         }
@@ -62,7 +66,7 @@ const VendedorListarOmnibusPage = () => {
             }
         }
 
-        // Aplicar ordenamiento
+        // Aplicar ordenamiento (sin cambios aquí)
         if (sortConfig.key !== null) {
             items.sort((a, b) => {
                 let aValue = a[sortConfig.key];
@@ -89,7 +93,7 @@ const VendedorListarOmnibusPage = () => {
             });
         }
         return items;
-    }, [omnibusListaCompleta, filtroMarca, filtroEstado, filtroCapacidadMin, sortConfig]);
+    }, [omnibusListaCompleta, filtroMatricula, filtroMarca, filtroEstado, filtroCapacidadMin, sortConfig]);
 
     const requestSort = (key) => {
         let direction = 'ascending';
@@ -107,6 +111,7 @@ const VendedorListarOmnibusPage = () => {
     };
 
     const limpiarFiltros = () => {
+        setFiltroMatricula(''); // Limpiar filtro de matrícula
         setFiltroMarca('');
         setFiltroEstado('');
         setFiltroCapacidadMin('');
@@ -127,10 +132,21 @@ const VendedorListarOmnibusPage = () => {
                 <p>Gestiona y visualiza la flota de ómnibus registrados en el sistema.</p>
             </header>
 
-            {/* Sección de Filtros */}
             <section className="filtros-omnibus-container">
                 <h2>Filtrar Ómnibus</h2>
                 <div className="filtros-grid">
+                    {/* NUEVO FILTRO POR MATRÍCULA */}
+                    <div className="filtro-item">
+                        <label htmlFor="filtro-matricula">Matrícula:</label>
+                        <input
+                            type="text"
+                            id="filtro-matricula"
+                            value={filtroMatricula}
+                            onChange={(e) => setFiltroMatricula(e.target.value)}
+                            placeholder="Ej: SAB1234"
+                        />
+                    </div>
+
                     <div className="filtro-item">
                         <label htmlFor="filtro-marca">Marca:</label>
                         <select
@@ -139,7 +155,7 @@ const VendedorListarOmnibusPage = () => {
                             onChange={(e) => setFiltroMarca(e.target.value)}
                         >
                             <option value="">Cualquiera</option>
-                            {marcasUnicas.slice(1).map(marca => ( // slice(1) para no repetir el "" de "Cualquiera"
+                            {marcasUnicas.slice(1).map(marca => (
                                 <option key={marca} value={marca}>{marca}</option>
                             ))}
                         </select>
@@ -191,27 +207,13 @@ const VendedorListarOmnibusPage = () => {
                         <table className="tabla-omnibus">
                             <thead>
                             <tr>
-                                <th onClick={() => requestSort('id')} className="sortable">
-                                    ID{getSortIndicator('id')}
-                                </th>
-                                <th onClick={() => requestSort('matricula')} className="sortable">
-                                    Matrícula{getSortIndicator('matricula')}
-                                </th>
-                                <th onClick={() => requestSort('marca')} className="sortable">
-                                    Marca{getSortIndicator('marca')}
-                                </th>
-                                <th onClick={() => requestSort('modelo')} className="sortable">
-                                    Modelo{getSortIndicator('modelo')}
-                                </th>
-                                <th onClick={() => requestSort('capacidadAsientos')} className="sortable text-center">
-                                    Capacidad{getSortIndicator('capacidadAsientos')}
-                                </th>
-                                <th onClick={() => requestSort('estado')} className="sortable">
-                                    Estado{getSortIndicator('estado')}
-                                </th>
-                                <th onClick={() => requestSort('localidadActual.nombre')} className="sortable">
-                                    Localidad Actual{getSortIndicator('localidadActual.nombre')}
-                                </th>
+                                <th onClick={() => requestSort('id')} className="sortable">ID{getSortIndicator('id')}</th>
+                                <th onClick={() => requestSort('matricula')} className="sortable">Matrícula{getSortIndicator('matricula')}</th>
+                                <th onClick={() => requestSort('marca')} className="sortable">Marca{getSortIndicator('marca')}</th>
+                                <th onClick={() => requestSort('modelo')} className="sortable">Modelo{getSortIndicator('modelo')}</th>
+                                <th onClick={() => requestSort('capacidadAsientos')} className="sortable text-center">Capacidad{getSortIndicator('capacidadAsientos')}</th>
+                                <th onClick={() => requestSort('estado')} className="sortable">Estado{getSortIndicator('estado')}</th>
+                                <th onClick={() => requestSort('localidadActual.nombre')} className="sortable">Localidad Actual{getSortIndicator('localidadActual.nombre')}</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -223,8 +225,10 @@ const VendedorListarOmnibusPage = () => {
                                     <td>{omnibus.modelo}</td>
                                     <td className="text-center">{omnibus.capacidadAsientos}</td>
                                     <td>
-                                        <span className={`status-badge status-${String(omnibus.estado).toLowerCase().replace(/\s+/g, '-')}`}>
-                                            {omnibus.estado}
+                                        {/* Asegúrate que omnibus.estado tenga valores como "Disponible", "En Mantenimiento", etc.
+                                            y que tengas clases CSS como .status-disponible, .status-en-mantenimiento */}
+                                        <span className={`status-badge status-${String(omnibus.estado || '').toLowerCase().replace(/\s+/g, '-')}`}>
+                                            {omnibus.estado || 'N/D'}
                                         </span>
                                     </td>
                                     <td>{omnibus.localidadActual ? omnibus.localidadActual.nombre : 'N/D'}</td>
