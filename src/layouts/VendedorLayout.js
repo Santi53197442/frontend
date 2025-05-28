@@ -110,6 +110,14 @@ const VendedorLayout = () => {
                                 <span>Listar Viajes</span>
                             </NavLink>
                         </li>
+                        <li>
+                            <NavLink
+                                to="/vendedor/listar-viajes-compra"
+                                className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
+                            >
+                                <span>Listar Viajes Compra</span>
+                            </NavLink>
+                        </li>
                     </ul>
                 </nav>
 

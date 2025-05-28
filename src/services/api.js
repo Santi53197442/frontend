@@ -323,5 +323,46 @@ export const buscarViajesDeOmnibus = async (omnibusId, params = {}) => {
         throw error;
     }
 };
+// --- FUNCIONES PARA VIAJE (VENDEDOR Y/O CLIENTE) ---
+// ... (tus funciones existentes de viaje como crearViaje, finalizarViaje, etc.) ...
+
+/**
+ * Busca viajes con disponibilidad, aplicando filtros y ordenamiento.
+ * @param {object} criterios - Objeto con los criterios de búsqueda.
+ *   Ej: {
+ *     origenId: 1,
+ *     destinoId: 2,
+ *     fechaDesde: '2024-07-01', // Formato YYYY-MM-DD
+ *     fechaHasta: '2024-07-07', // Formato YYYY-MM-DD
+ *     estado: 'PENDIENTE',     // O 'PROGRAMADO', 'EN_CURSO' según tu enum EstadoViaje
+ *     minAsientosDisponibles: 5,
+ *     sortBy: 'fechaSalida', // Campo por el cual ordenar
+ *     sortDir: 'asc'         // 'asc' o 'desc'
+ *   }
+ *   Todos los parámetros son opcionales.
+ * @returns {Promise<axios.Response<Array<object>>>} La respuesta de la API con la lista de ViajeConDisponibilidadDTO.
+ */
+export const buscarViajesConDisponibilidad = async (criterios = {}) => {
+    try {
+        // Los parámetros se envían como query params para una solicitud GET
+        // El backend espera un BusquedaViajesGeneralDTO, cuyos campos se mapearán desde los query params.
+        const response = await apiClient.get('/vendedor/viajes/buscar-disponibles', {
+            params: criterios
+        });
+        return response; // response.data contendrá el array de ViajeConDisponibilidadDTO
+    } catch (error) {
+        console.error(
+            "Error en API al buscar viajes con disponibilidad:",
+            error.response?.data || error.message
+        );
+        // Podrías querer devolver un array vacío o un objeto de error específico en lugar de solo relanzar
+        // throw {
+        //     message: "No se pudieron obtener los viajes disponibles.",
+        //     originalError: error.response?.data || error.message,
+        //     status: error.response?.status
+        // };
+        throw error;
+    }
+};
 
 export default apiClient;
