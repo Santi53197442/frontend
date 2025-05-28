@@ -1,106 +1,181 @@
-// src/pages/Home.js
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { useAuth } from '../AuthContext';
-import './Home.css'; // Asegúrate que esta importación exista y sea correcta
+/* src/pages/Home.css */
 
-                        const lugaresTuristicos = [
-                                                  {
-                                                      id: 1,
-                                                      nombre: "Colonia del Sacramento",
-                                                      descripcion: "Una ciudad histórica con calles empedradas y arquitectura colonial portuguesa y española. Su Barrio Histórico es Patrimonio de la Humanidad por la UNESCO, perfecto para perderse en el tiempo.",
-                                                      imagenUrl: process.env.PUBLIC_URL + '/images/colonia.png'
-                                                  },
-{
-    id: 2,
-    nombre: "Punta del Este",
-    descripcion: "Famosa por sus playas glamorosas, vida nocturna vibrante y la icónica escultura de La Mano en Playa Brava. Un destino de verano por excelencia con opciones para todos los gustos.",
-    imagenUrl: process.env.PUBLIC_URL + '/images/punta_del_este.png'
-},
-{
-    id: 3,
-    nombre: "Montevideo",
-    descripcion: "La capital del país, una ciudad llena de cultura, historia y una hermosa rambla costanera. Desde el Mercado del Puerto hasta sus teatros y museos, Montevideo ofrece una rica experiencia urbana.",
-    imagenUrl: process.env.PUBLIC_URL + '/images/montevideo.png'
-},
-{
-    id: 4,
-    nombre: "Cabo Polonio",
-    descripcion: "Un pueblo bohemio y rústico entre dunas, famoso por su faro, la reserva de lobos marinos y su ambiente desconectado sin electricidad. Una experiencia única en la costa de Rocha.",
-    imagenUrl: process.env.PUBLIC_URL + '/images/cabo_polonio.png'
-},
-{
-    id: 5,
-    nombre: "Punta del Diablo",
-    descripcion: "Pueblo de pescadores con un encanto rústico, playas ideales para el surf y un ambiente relajado. Sus casas coloridas y su estilo bohemio atraen a visitantes que buscan tranquilidad y naturaleza.",
-    imagenUrl: process.env.PUBLIC_URL + '/images/punta_del_diablo.png'
-},
-{
-    id: 6,
-    nombre: "Piriápolis",
-    descripcion: "Encantadora ciudad balnearia fundada por Francisco Piria, con una hermosa rambla, cerros con vistas panorámicas (como el Cerro San Antonio) y el místico Castillo de Piria. Ofrece una mezcla de historia y playa.",
-    imagenUrl: process.env.PUBLIC_URL + '/images/piriapolis.png'
+.home-page-wrapper {
+    /* Si necesitas algún estilo para el contenedor de toda la página Home */
 }
-];
 
-const Home = () => {
-                     const { user, isAuthenticated } = useAuth();
+.home-page-main-content {
+    /* Para el contenido principal, excluyendo header/footer si son globales */
+}
 
-                     return (
-                     // La clase 'home-page-container' del JSX original se mantiene.
-                     // Si el CSS tiene '.home-page-wrapper' como contenedor principal, podrías cambiarla.
-                     // Por ahora, asumimos que '.home-page-container' es intencional o que el CSS se adaptará.
-                     <main className="home-page-container"> {/* o "home-page-wrapper" si así lo define tu CSS global */}
-                 <section className="hero-section">
-                 <div className="hero-content"> {/* Contenedor para centrar y limitar ancho */}
-                 <h1>Descubre Uruguay con Omnibus Tour</h1>
-                 <p className="hero-subtitle"> {/* Clase para el subtítulo del hero */}
-                     Tu aventura comienza aquí. Explora los destinos más maravillosos que nuestro país tiene para ofrecer.
-                 </p>
-                 </div>
-                 {isAuthenticated && user && user.rol === 'administrador' && (
-                 <div className="admin-home-actions">
-                 <Link to="/admin/dashboard" className="admin-dashboard-button">
-                 Ir al Panel de Administración
-                 </Link>
-                 </div>
-                 )}
-                 {/* Aquí podrías añadir un .cta-button si es necesario
-                <div style={{ marginTop: '20px' }}>
-                    <Link to="/destinos" className="cta-button">Ver todos los destinos</Link>
-                </div>
-                */}
-                 </section>
+/* --- Hero Section --- */
+.hero-section {
+    text-align: center;
+    padding: 60px 20px; /* Más padding vertical */
+    background-color: #eef1f5; /* Un color de fondo claro y moderno */
+    color: #333;
+    /* Podrías añadir una imagen de fondo aquí:
+    background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/images/hero-background.jpg');
+    background-size: cover;
+    background-position: center;
+    color: #fff;
+    */
+}
 
-                 <section className="lugares-section">
-                 <h2 className="section-title">Lugares Turísticos Destacados</h2> {/* Clase para el título de la sección */}
-                 <div className="lugares-grid">
-                 {lugaresTuristicos.map((lugar) => (
-                 <div key={lugar.id} className="lugar-card">
-                 {lugar.imagenUrl && (
-                 <div className="lugar-imagen-container"> {/* Contenedor para la imagen */}
-                 <img
-                 src={lugar.imagenUrl}
-                     alt={lugar.nombre}
-                     className="lugar-imagen"
-                     />
-                     </div>
-                 )}
-                 <div className="lugar-card-content">
-                 <h3>{lugar.nombre}</h3>
-                 <p>{lugar.descripcion}</p>
-                 {/* Si quieres un enlace "Ver más" en cada card:
-                                <Link to={`/lugar/${lugar.id}`} className="lugar-card-link">
-                                    Ver más
-                                </Link>
-                                */}
-                 </div>
-                 </div>
-                 ))}
-                 </div>
-                 </section>
-                 </main>
-                 );
-                 };
+.hero-content {
+    max-width: 800px;
+    margin: 0 auto;
+}
 
-export default Home;
+.hero-section h1 {
+    font-size: 2.8rem; /* Ajusta según tu tipografía */
+    margin-bottom: 15px;
+    font-weight: 700;
+    line-height: 1.2;
+    /* color: #fff;  Si usas imagen de fondo oscura */
+}
+
+.hero-section .hero-subtitle {
+    font-size: 1.25rem;
+    margin-bottom: 30px;
+    line-height: 1.7;
+    color: #555c66;
+    /* color: #f0f0f0; Si usas imagen de fondo oscura */
+}
+
+.admin-home-actions {
+    margin-top: 25px;
+    margin-bottom: 20px; /* Espacio si hay un CTA principal después */
+}
+
+.admin-dashboard-button {
+    display: inline-block;
+    padding: 12px 28px;
+    background-color: #e67e22; /* Naranja, o el color de tu marca para acciones de admin */
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 1.05em;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+}
+
+.admin-dashboard-button:hover {
+    background-color: #d35400; /* Naranja más oscuro */
+    transform: translateY(-2px);
+    box-shadow: 0 5px 10px rgba(0,0,0,0.15);
+}
+
+.cta-button { /* Estilo para un botón Call to Action principal si lo añades */
+    display: inline-block;
+    padding: 14px 35px;
+    background-color: #3498db; /* Color primario de tu marca */
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 1.1em;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.cta-button:hover {
+    background-color: #2980b9;
+    transform: translateY(-2px);
+}
+
+
+/* --- Lugares Turísticos Section --- */
+.lugares-section {
+    padding: 40px 20px;
+    max-width: 1200px; /* Limitar el ancho para mejor legibilidad */
+    margin: 0 auto; /* Centrar la sección */
+}
+
+.section-title { /* Para h2 como "Lugares Turísticos Destacados" */
+    text-align: center;
+    font-size: 2.2em;
+    color: #2c3e50;
+    margin-bottom: 40px;
+    position: relative;
+    padding-bottom: 15px;
+}
+
+.section-title::after { /* Línea decorativa debajo del título */
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 3px;
+    background-color: #3498db; /* Color de acento */
+}
+
+.lugares-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Columnas responsivas */
+    gap: 30px; /* Espacio entre tarjetas */
+}
+
+.lugar-card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    overflow: hidden; /* Para que la imagen no se salga del borde redondeado */
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.lugar-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.lugar-imagen-container {
+    width: 100%;
+    height: 200px; /* Altura fija para la imagen */
+    overflow: hidden;
+}
+
+.lugar-imagen {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Para que la imagen cubra el contenedor sin deformarse */
+    display: block;
+}
+
+.lugar-card-content {
+    padding: 20px;
+    flex-grow: 1; /* Para que el contenido ocupe el espacio si las descripciones varían */
+    display: flex;
+    flex-direction: column;
+}
+
+.lugar-card-content h3 {
+    font-size: 1.4em;
+    color: #333;
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.lugar-card-content p {
+    font-size: 0.95em;
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 15px; /* Espacio antes del enlace "Ver más" si lo añades */
+    flex-grow: 1;
+}
+
+.lugar-card-link { /* Si añades un enlace "Ver más" dentro de la tarjeta */
+    display: inline-block;
+    margin-top: auto; /* Empuja el enlace al final de la tarjeta */
+    color: #3498db;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.lugar-card-link:hover {
+    text-decoration: underline;
+}
