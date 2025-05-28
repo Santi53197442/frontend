@@ -25,9 +25,21 @@ const lugaresTuristicos = [
     },
     {
         id: 4,
-        nombre: "Rocha",
-        descripcion: "Un departamento conocido por sus playas vírgenes, paisajes naturales y un ambiente más rústico y tranquilo. Ideal para los amantes de la naturaleza, el surf y la desconexión.",
-        imagenUrl: process.env.PUBLIC_URL + '/images/rocha.png'
+        nombre: "Cabo Polonio",
+        descripcion: "Un pueblo bohemio y rústico entre dunas, famoso por su faro, la reserva de lobos marinos y su ambiente desconectado sin electricidad. Una experiencia única en la costa de Rocha.",
+        imagenUrl: process.env.PUBLIC_URL + '/images/cabo_polonio.png'
+    },
+    { // MODIFICADO (antes Atlántida)
+        id: 5,
+        nombre: "Punta del Diablo", // CAMBIADO
+        descripcion: "Pueblo de pescadores con un encanto rústico, playas ideales para el surf y un ambiente relajado. Sus casas coloridas y su estilo bohemio atraen a visitantes que buscan tranquilidad y naturaleza.", // CAMBIADO
+        imagenUrl: process.env.PUBLIC_URL + '/images/punta_del_diablo.png' // CAMBIADO (asegúrate que esta imagen exista)
+    },
+    {
+        id: 6,
+        nombre: "Piriápolis",
+        descripcion: "Encantadora ciudad balnearia fundada por Francisco Piria, con una hermosa rambla, cerros con vistas panorámicas (como el Cerro San Antonio) y el místico Castillo de Piria. Ofrece una mezcla de historia y playa.",
+        imagenUrl: process.env.PUBLIC_URL + '/images/piriapolis.png'
     }
 ];
 
