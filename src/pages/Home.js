@@ -47,38 +47,34 @@ const Home = () => {
     const { user, isAuthenticated } = useAuth();
 
     return (
-        // La clase 'home-page-container' del JSX original se mantiene.
-        // Si el CSS tiene '.home-page-wrapper' como contenedor principal, podrías cambiarla.
-        // Por ahora, asumimos que '.home-page-container' es intencional o que el CSS se adaptará.
-        <main className="home-page-container"> {/* o "home-page-wrapper" si así lo define tu CSS global */}
+        <main className="home-page-container">
             <section className="hero-section">
-                <div className="hero-content"> {/* Contenedor para centrar y limitar ancho */}
-                    <h1>Descubre Uruguay con Omnibus Tour</h1>
-                    <p className="hero-subtitle"> {/* Clase para el subtítulo del hero */}
-                        Tu aventura comienza aquí. Explora los destinos más maravillosos que nuestro país tiene para ofrecer.
-                    </p>
+                <div className="hero-content">
+                    <h1>Descubre Uruguay con Carpibus</h1>
                 </div>
-                {isAuthenticated && user && user.rol === 'administrador' && (
-                    <div className="admin-home-actions">
-                        <Link to="/admin/dashboard" className="admin-dashboard-button">
-                            Ir al Panel de Administración
-                        </Link>
+                {isAuthenticated && user && (
+                    <div className="admin-home-actions"> {/* Puedes renombrar esta clase si es más general */}
+                        {user.rol === 'administrador' && (
+                            <Link to="/admin/dashboard" className="admin-dashboard-button">
+                                Ir al Panel de Administración
+                            </Link>
+                        )}
+                        {user.rol === 'vendedor' && (
+                            <Link to="/vendedor/dashboard" className="admin-dashboard-button"> {/* Puedes usar la misma clase o crear una nueva si el estilo es diferente */}
+                                Ir al Panel de Vendedor
+                            </Link>
+                        )}
                     </div>
                 )}
-                {/* Aquí podrías añadir un .cta-button si es necesario
-                <div style={{ marginTop: '20px' }}>
-                    <Link to="/destinos" className="cta-button">Ver todos los destinos</Link>
-                </div>
-                */}
             </section>
 
             <section className="lugares-section">
-                <h2 className="section-title">Lugares Turísticos Destacados</h2> {/* Clase para el título de la sección */}
+                <h2 className="section-title">Lugares Turísticos Destacados</h2>
                 <div className="lugares-grid">
                     {lugaresTuristicos.map((lugar) => (
                         <div key={lugar.id} className="lugar-card">
                             {lugar.imagenUrl && (
-                                <div className="lugar-imagen-container"> {/* Contenedor para la imagen */}
+                                <div className="lugar-imagen-container">
                                     <img
                                         src={lugar.imagenUrl}
                                         alt={lugar.nombre}
@@ -89,11 +85,6 @@ const Home = () => {
                             <div className="lugar-card-content">
                                 <h3>{lugar.nombre}</h3>
                                 <p>{lugar.descripcion}</p>
-                                {/* Si quieres un enlace "Ver más" en cada card:
-                                <Link to={`/lugar/${lugar.id}`} className="lugar-card-link">
-                                    Ver más
-                                </Link>
-                                */}
                             </div>
                         </div>
                     ))}
