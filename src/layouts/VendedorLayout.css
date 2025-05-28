@@ -1,146 +1,146 @@
 /* src/layouts/VendedorLayout.css */
 
-/* Reseteo básico y fuente global (igual que AdminLayout para consistencia) */
-body, html { /* Aplica esto en tu App.css o index.css globalmente si aún no lo has hecho */
-    margin: 0;
-    padding: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #eef0f2; /* Un gris muy claro para el fondo general de la página */
-    color: #333;
-}
-
 .vendedor-layout {
     display: flex;
     min-height: 100vh;
+    position: relative;
 }
 
 .vendedor-sidebar {
-    width: 260px;
-    background-color: #343a40; /* Gris oscuro, casi negro. Puedes usar #2c3e50 si prefieres un tono más azulado. */
-    color: #adb5bd; /* Color de texto claro para contraste con el fondo oscuro */
-    padding: 20px 0;
-    box-shadow: 3px 0px 10px rgba(0, 0, 0, 0.1); /* Sombra sutil */
+    width: 260px; /* Puedes ajustar el ancho del sidebar */
+    background-color: #3f51b5; /* Ejemplo de color (azul índigo) */
+    color: #e8eaf6; /* Color de texto claro */
+    padding: 20px;
+    transition: transform 0.3s ease-in-out, width 0.3s ease-in-out;
     display: flex;
-    flex-direction: column;
-    transition: width 0.3s ease;
+    flex-direction: column; /* Para alinear header, nav, footer verticalmente */
 }
 
 .sidebar-header {
-    padding: 0 20px;
-    margin-bottom: 20px; /* Reducido un poco */
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2); /* Borde sutil */
+    text-align: center;
 }
 
 .sidebar-logo-link {
     text-decoration: none;
+    color: #fff; /* Color del título del logo */
 }
 
-.vendedor-sidebar .sidebar-header h3 {
-    text-align: left;
-    color: #ffffff; /* Blanco para el título principal del panel */
-    margin-top: 10px;
-    margin-bottom: 15px;
-    font-size: 1.4em; /* Ajustado */
-    font-weight: 600;
-    border-bottom: 1px solid #495057; /* Separador en tono gris oscuro */
-    padding-bottom: 15px;
+.sidebar-header h3 {
+    margin: 0;
+    font-size: 1.6rem;
+}
+
+.sidebar-nav {
+    flex-grow: 1; /* Hace que la navegación ocupe el espacio disponible */
+    overflow-y: auto; /* Scroll para muchos enlaces */
 }
 
 .sidebar-nav ul {
-    list-style-type: none;
+    list-style: none;
     padding: 0;
     margin: 0;
-    flex-grow: 1; /* Para empujar el footer del sidebar hacia abajo */
-}
-
-.sidebar-nav li {
-    margin: 0 15px 6px 15px; /* Margen reducido entre items */
 }
 
 .sidebar-nav .nav-link {
-    display: flex;
-    align-items: center;
-    padding: 11px 15px; /* Padding ajustado */
-    color: #ced4da; /* Gris claro para los enlaces inactivos */
+    display: block;
+    padding: 10px 15px; /* Ajusta el padding de los enlaces */
+    color: #c5cae9; /* Color de enlace normal más claro */
     text-decoration: none;
-    border-radius: 5px; /* Bordes un poco menos redondeados */
-    font-size: 0.95em;
-    font-weight: 500;
+    border-radius: 4px;
+    margin-bottom: 8px; /* Espacio entre enlaces */
     transition: background-color 0.2s ease, color 0.2s ease;
+    font-size: 0.95rem;
 }
-
-/* Iconos (si los usas) */
-.sidebar-nav .nav-link .icon {
-    margin-right: 10px;
-    width: 18px; /* Ajustado */
-    text-align: center;
-    font-size: 1em; /* Ajustado */
-    color: #868e96; /* Color de icono gris medio */
-}
-.sidebar-nav .nav-link.active .icon {
-    color: #ffffff; /* Icono blanco en enlace activo */
-}
-
 
 .sidebar-nav .nav-link:hover {
-    background-color: #495057; /* Gris un poco más claro al hacer hover */
-    color: #ffffff;
-}
-.sidebar-nav .nav-link:hover .icon {
-    color: #ffffff; /* Icono blanco en hover */
+    background-color: rgba(255, 255, 255, 0.1); /* Fondo sutil al pasar el mouse */
+    color: #fff;
 }
 
 .sidebar-nav .nav-link.active {
-    background-color: #007bff; /* Azul primario para el activo (puedes cambiarlo a un gris más claro si prefieres monocromático) */
-    /* Ejemplo monocromático para activo: background-color: #5a6268; */
-    color: #ffffff; /* Texto blanco para el activo */
-    font-weight: 600;
+    background-color: #ff4081; /* Color de acento para enlace activo (ej. rosa) */
+    color: #fff;
+    font-weight: 500; /* Un poco menos bold que en admin quizás */
 }
 
-/* Para el separador opcional */
-.menu-separator-container {
-    padding: 5px 15px;
-}
-.menu-separator {
-    border: none;
-    height: 1px;
-    background-color: #495057; /* Separador del mismo tono que el hover */
+.sidebar-nav .nav-link span {
+    vertical-align: middle;
 }
 
 .sidebar-footer {
-    padding: 15px 20px;
+    padding-top: 20px;
     margin-top: auto; /* Empuja el footer hacia abajo */
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
     text-align: center;
-    font-size: 0.8em;
-    color: #868e96; /* Color de texto del footer */
-    border-top: 1px solid #495057;
+    font-size: 0.85rem;
+    color: #9fa8da;
 }
-
 
 .vendedor-content {
     flex-grow: 1;
-    padding: 20px 25px; /* Padding ajustado */
+    padding: 25px; /* Padding para el contenido principal */
+    background-color: #eceff1; /* Un gris muy claro para el contenido */
     overflow-y: auto;
-    background-color: #f8f9fa; /* Un gris muy, muy claro para el área de contenido */
-    /* Si quieres el efecto de "tarjeta" para el contenido como en AdminLayout: */
-    /* margin: 15px;
-    border-radius: 8px;
-    background-color: #ffffff;
-    box-shadow: 0 0 15px rgba(0,0,0,0.05); */
 }
 
-/* Estilos base para el contenido de las páginas (h2) */
-.vendedor-content h2 { /* Heredado de VendedorLayout.css anterior, puede que ya lo tengas en el CSS de cada página */
-    font-size: 1.75em;
-    color: #343a40; /* Gris oscuro para los títulos de página */
-    margin-top: 0;
-    margin-bottom: 25px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid #dee2e6; /* Separador gris claro */
-    font-weight: 500;
+/* --- Estilos para Menú Móvil --- */
+.mobile-menu-toggle {
+    display: none;
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 1001;
+    background-color: #3f51b5; /* Mismo color que el sidebar */
+    color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 50%;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
-/* Focus visible para accesibilidad */
-.sidebar-nav .nav-link:focus-visible {
-    outline: 2px solid #007bff; /* O el color de tu tema */
-    outline-offset: 1px;
+.mobile-menu-toggle svg {
+    display: block;
+}
+
+/* --- Media Query para Móviles (ej. hasta 768px) --- */
+@media (max-width: 768px) {
+    .mobile-menu-toggle {
+        display: block;
+    }
+
+    .vendedor-sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100%;
+        transform: translateX(-100%);
+        z-index: 1000;
+        width: 280px; /* Puedes ajustar el ancho del menú móvil */
+        box-shadow: 3px 0 15px rgba(0,0,0,0.2);
+    }
+
+    .vendedor-sidebar.open {
+        transform: translateX(0);
+    }
+
+    .vendedor-content {
+        margin-left: 0;
+    }
+
+    /* Opcional: Oscurecer el contenido principal cuando el menú móvil está abierto */
+    .vendedor-layout.mobile-menu-active .vendedor-content {
+        /* filter: brightness(0.7); */
+    }
+    /* Opcional: Overlay oscuro */
+    /* .vendedor-layout.mobile-menu-active::after {
+        content: '';
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background-color: rgba(0,0,0,0.5);
+        z-index: 999;
+    } */
 }
