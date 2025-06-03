@@ -399,6 +399,3 @@ export const obtenerUsuariosParaSeleccion = async () => {
 
 
 export default apiClient;
-
-
-export default apiClient;
