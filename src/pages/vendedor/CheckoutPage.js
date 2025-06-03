@@ -1,6 +1,6 @@
 // src/pages/vendedor/CheckoutPage.js
 import React from 'react';
-import Checkout from '../../components/vendedor/Checkout'; // Asumiendo que crearás este componente
+import Checkout from './Checkout';
 
 const CheckoutPage = () => {
     return (
