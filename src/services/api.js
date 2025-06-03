@@ -314,18 +314,6 @@ export const obtenerDetallesViajeConAsientos = async (viajeId) => {
         throw error;
     }
 };
-export const obtenerDetallesViajeConAsientos = async (viajeId) => {
-    try {
-        const response = await apiClient.get(`/vendedor/viajes/${viajeId}/detalles-asientos`);
-        return response;
-    } catch (error) {
-        console.error(
-            `Error en API al obtener detalles y asientos para el viaje ID ${viajeId}:`,
-            error.response?.data || error.message
-        );
-        throw error;
-    }
-};
 
 // --- FUNCIONES PARA PASAJES ---
 
