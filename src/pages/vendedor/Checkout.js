@@ -5,7 +5,7 @@ import {
     comprarPasaje,
     obtenerUsuariosParaSeleccion,
     obtenerDetallesViajeConAsientos // Para recargar si es necesario
-} from '../../services/apiService';
+} from '../../services/api';
 import './Checkout.css'; // Necesitarás crear este archivo CSS
 
 const Checkout = () => {

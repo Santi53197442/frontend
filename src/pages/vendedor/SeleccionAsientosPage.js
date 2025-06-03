@@ -1,7 +1,7 @@
 // src/pages/vendedor/SeleccionAsientosPage.js
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
-import { obtenerDetallesViajeConAsientos } from '../../services/apiService'; // Correcta importación
+import { obtenerDetallesViajeConAsientos } from '../../services/api'; // Correcta importación
 import './SeleccionAsientosPage.css'; // Tu CSS
 
 const SeleccionAsientosPage = () => {
