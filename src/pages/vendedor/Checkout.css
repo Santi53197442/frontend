@@ -1,0 +1,165 @@
+/* src/components/vendedor/Checkout.css */
+.checkout-page-container {
+    padding: 25px;
+    max-width: 700px;
+    margin: 30px auto;
+    font-family: 'Arial', sans-serif;
+    background-color: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.07);
+}
+
+.btn-checkout-volver-atras {
+    background-color: #6c757d; /* Gris */
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-bottom: 25px;
+    font-size: 0.95em;
+    transition: background-color 0.2s;
+}
+.btn-checkout-volver-atras:hover { background-color: #545b62; }
+.btn-checkout-volver-atras:disabled { background-color: #adb5bd; cursor: not-allowed; }
+
+
+.checkout-page-container h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+    font-size: 1.7em;
+    border-bottom: 2px solid #007bff; /* Azul */
+    padding-bottom: 10px;
+}
+
+.checkout-resumen-viaje {
+    background-color: #f8f9fa; /* Gris muy claro */
+    padding: 20px;
+    margin-bottom: 25px;
+    border-radius: 6px;
+    border: 1px solid #dee2e6; /* Borde gris claro */
+}
+.checkout-resumen-viaje h3 {
+    color: #0056b3; /* Azul oscuro */
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 1.3em;
+}
+.checkout-resumen-viaje p {
+    margin: 8px 0;
+    font-size: 1em;
+    color: #495057; /* Gris medio */
+    line-height: 1.6;
+}
+.checkout-resumen-viaje strong { color: #212529; /* Casi negro */ }
+.checkout-asiento-num {
+    font-weight: bold;
+    color: #dc3545; /* Rojo */
+    background-color: #fde0e0;
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+.checkout-precio-val {
+    font-weight: bold;
+    color: #28a745; /* Verde */
+    font-size: 1.2em;
+}
+
+.checkout-selector-cliente {
+    padding: 20px;
+    margin-bottom: 25px;
+    background-color: #f0f8ff; /* Azul muy pálido */
+    border: 1px solid #cce5ff;
+    border-radius: 6px;
+}
+.checkout-selector-cliente label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 600;
+    color: #004085; /* Azul oscuro */
+    font-size: 1.1em;
+}
+.checkout-selector-cliente select {
+    width: 100%;
+    padding: 12px;
+    border-radius: 4px;
+    border: 1px solid #b8daff; /* Azul claro */
+    box-sizing: border-box;
+    font-size: 1em;
+    background-color: white;
+}
+.checkout-selector-cliente select:disabled { background-color: #e9ecef; }
+
+.checkout-aviso-pago {
+    font-size: 0.9em;
+    color: #6c757d; /* Gris */
+    text-align: center;
+    margin-bottom: 15px;
+    font-style: italic;
+}
+
+.checkout-acciones {
+    text-align: center;
+    margin-top: 25px;
+}
+
+.btn-checkout-pagar {
+    background-color: #28a745; /* Verde */
+    color: white;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.15em;
+    font-weight: 600;
+    transition: background-color 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.btn-checkout-pagar:hover:not(:disabled) { background-color: #1e7e34; /* Verde más oscuro */ }
+.btn-checkout-pagar:disabled { background-color: #adb5bd; cursor: not-allowed; }
+
+.checkout-confirmacion-exitosa {
+    text-align: center;
+    padding: 25px;
+    background-color: #d1e7dd; /* Verde claro */
+    border: 1px solid #badbcc;
+    color: #0f5132; /* Texto verde oscuro */
+    border-radius: 6px;
+    margin-top: 25px;
+}
+.checkout-confirmacion-exitosa h4 { margin-top: 0; font-size: 1.5em; margin-bottom: 15px; }
+.checkout-confirmacion-exitosa p { margin: 10px 0; font-size: 1.05em; }
+.checkout-confirmacion-exitosa strong { color: #0a3622; /* Verde aún más oscuro */ }
+
+.checkout-acciones-post button {
+    background-color: #0d6efd; /* Azul primario */
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin: 10px 5px 0;
+    font-size: 0.9em;
+}
+.checkout-acciones-post button:hover { background-color: #0b5ed7; }
+
+
+.loading-mensaje, .error-mensaje {
+    text-align: center; padding: 15px; margin: 20px 0; border-radius: 4px;
+}
+.loading-mensaje { color: #004085; background-color: #cce5ff; border: 1px solid #b8daff; }
+.error-container-checkout { text-align: center; }
+.error-mensaje.checkout-error { /* Para errores específicos del checkout */
+    color: #721c24; background-color: #f8d7da; border: 1px solid #f5c6cb;
+    margin-top: 15px; margin-bottom: 15px;
+}
+.btn-checkout-volver {
+    margin-top: 10px;
+    background-color: #6c757d;
+    color: white;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+}

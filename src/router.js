@@ -37,6 +37,8 @@ import VendedorReasignarViaje from './pages/vendedor/VendedorReasignarViaje';
 import VendedorListarViajes from './pages/vendedor/VendedorListarViajes';
 import VendedorListadoViajesCompra from "./pages/vendedor/VendedorListadoViajesCompra";
 import SeleccionAsientosPage from "./pages/vendedor/SeleccionAsientosPage";
+import CheckoutPage from './pages/vendedor/CheckoutPage';
+
 
 
 // import VendedorMisLocalidadesPage from './pages/vendedor/VendedorMisLocalidadesPage'; // Si la creas
@@ -96,6 +98,7 @@ const AppRouter = () => {
                     <Route path="listar-viajes-compra" element={<VendedorListadoViajesCompra />} />
                     <Route path="viaje/:viajeId/seleccionar-asientos" element={<SeleccionAsientosPage />} />
                     <Route path="viaje/:viajeId/seleccionar-asientos" element={<SeleccionAsientosPage />} />
+                    <Route path="viaje/:viajeIdFromParams/asiento/:asientoFromParams/checkout" element={<CheckoutPage />} />
                     {/* <Route path="mis-localidades" element={<VendedorMisLocalidadesPage />} /> */}
                 </Route>
             </Route>

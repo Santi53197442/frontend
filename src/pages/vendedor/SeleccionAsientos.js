@@ -1,158 +1,101 @@
-// src/components/vendedor/SeleccionAsientos.js (o donde lo vayas a crear)
+// src/components/vendedor/SeleccionAsientos.js
 import React, { useState, useEffect, useCallback } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import {
-    obtenerDetallesViajeConAsientos, // Ya lo tenías en tu apiService
-    obtenerAsientosOcupados,
-    comprarPasaje,
-    obtenerUsuariosParaSeleccion // Asegúrate que este endpoint esté bien en tu apiService
-} from '../../services/apiService'; // Ruta a tu apiService.js
-import './SeleccionAsientos.css'; // Crea este archivo CSS o usa el style tag como antes
+    obtenerDetallesViajeConAsientos,
+    obtenerAsientosOcupados
+} from '../../services/apiService'; // Ajusta la ruta a tu apiService.js
+import './SeleccionAsientos.css'; // Asegúrate de tener este archivo CSS
 
 const SeleccionAsientos = () => {
     const navigate = useNavigate();
-    const location = useLocation(); // Para obtener viajeData si se pasó por state
-    const { viajeId: viajeIdParam } = useParams(); // Obtiene el viajeId de la URL
+    const location = useLocation();
+    const { viajeId: viajeIdFromParams } = useParams(); // 'viajeId' debe coincidir con tu ruta
 
-    const viajeId = parseInt(viajeIdParam, 10);
-
-    // Estado para los datos del viaje (del DTO ViajeDetalleConAsientosDTO)
     const [viajeDetalles, setViajeDetalles] = useState(location.state?.viajeData || null);
     const [asientosOcupados, setAsientosOcupados] = useState([]);
-    const [asientoSeleccionado, setAsientoSeleccionado] = useState(null);
-    const [clientes, setClientes] = useState([]);
-    const [clienteSeleccionadoId, setClienteSeleccionadoId] = useState('');
+    const [asientoSeleccionado, setAsientoSeleccionado] = useState(null); // Inicia en null
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [compraError, setCompraError] = useState(null);
-    const [compraExitosaInfo, setCompraExitosaInfo] = useState(null); // Para guardar el PasajeResponseDTO
 
-    const cargarDatosIniciales = useCallback(async () => {
-        if (isNaN(viajeId)) {
-            setError("ID de Viaje inválido en la URL.");
+    const parsedViajeId = parseInt(viajeIdFromParams, 10);
+
+    const cargarDatosViajeYAsientos = useCallback(async () => {
+        if (isNaN(parsedViajeId)) {
+            setError("ID de Viaje inválido.");
             setLoading(false);
             return;
         }
+        setLoading(true);
+        setError(null);
         try {
-            setLoading(true);
-            setError(null);
-            setCompraError(null);
-            setCompraExitosaInfo(null); // Resetear en cada carga
-
-            let currentViajeDetalles = viajeDetalles;
-            // Si no tenemos los detalles o el ID no coincide, los cargamos
-            if (!currentViajeDetalles || currentViajeDetalles.id !== viajeId) {
-                const responseDetalles = await obtenerDetallesViajeConAsientos(viajeId);
-                currentViajeDetalles = responseDetalles.data; // ViajeDetalleConAsientosDTO
-                setViajeDetalles(currentViajeDetalles);
+            // Si no tenemos los detalles del viaje desde el state, o el ID no coincide, los cargamos.
+            if (!viajeDetalles || viajeDetalles.id !== parsedViajeId) {
+                console.log(`Cargando detalles para viaje ID: ${parsedViajeId}`);
+                const responseDetalles = await obtenerDetallesViajeConAsientos(parsedViajeId);
+                setViajeDetalles(responseDetalles.data); // Asume que response.data es ViajeDetalleConAsientosDTO
+            } else {
+                console.log(`Usando viajeData desde state para viaje ID: ${parsedViajeId}`);
             }
 
-            const responseOcupados = await obtenerAsientosOcupados(viajeId);
+            const responseOcupados = await obtenerAsientosOcupados(parsedViajeId);
             setAsientosOcupados(responseOcupados.data || []);
-
-            // Cargar clientes (solo si es VENDEDOR/ADMIN)
-            // Asume que tienes una forma de obtener el rol del usuario actual
-            const userRole = localStorage.getItem('userRole'); // O como obtengas el rol
-            if (userRole === 'VENDEDOR' || userRole === 'ADMIN') {
-                const responseClientes = await obtenerUsuariosParaSeleccion();
-                setClientes(responseClientes.data || []);
-            } else if (userRole === 'CLIENTE') {
-                const clienteLogueadoId = localStorage.getItem('userId'); // O como obtengas el ID
-                if (clienteLogueadoId) {
-                    setClienteSeleccionadoId(clienteLogueadoId);
-                } else {
-                    setError("No se pudo identificar al cliente para la compra.");
-                }
-            }
         } catch (err) {
-            console.error("Error al cargar datos iniciales:", err);
+            console.error("Error al cargar datos del viaje o asientos:", err);
             const errorMessage = err.response?.data?.message || err.message || "Error al cargar datos.";
             setError(errorMessage);
-            setViajeDetalles(null);
+            setViajeDetalles(null); // Limpiar si falla la carga crítica
         } finally {
             setLoading(false);
         }
-    }, [viajeId, viajeDetalles]); // viajeDetalles como dep para que si viene por state, no recargue innecesariamente
+    }, [parsedViajeId, viajeDetalles]); // Dependencia en viajeDetalles para re-evaluar si ya lo tenemos
 
     useEffect(() => {
-        cargarDatosIniciales();
-    }, [cargarDatosIniciales]); // Se ejecuta cuando viajeId (de la URL) cambia
+        cargarDatosViajeYAsientos();
+    }, [cargarDatosViajeYAsientos]);
 
 
     const handleSeleccionarAsiento = (numeroAsiento) => {
-        if (asientosOcupados.includes(numeroAsiento) || compraExitosaInfo) return;
-        setAsientoSeleccionado(numeroAsiento === asientoSeleccionado ? null : numeroAsiento);
-        setCompraError(null);
+        if (asientosOcupados.includes(numeroAsiento)) return; // No seleccionar ocupados
+        // Si el asiento clickeado es el ya seleccionado, lo des-selecciona (null). Sino, lo selecciona.
+        setAsientoSeleccionado(prevSeleccionado => prevSeleccionado === numeroAsiento ? null : numeroAsiento);
     };
 
-    const handleComprarPasaje = async () => {
+    const handleIrACheckout = () => {
         if (!asientoSeleccionado) {
-            setCompraError("Por favor, seleccione un asiento.");
-            return;
-        }
-        // Validar cliente seleccionado si el rol lo requiere
-        const userRole = localStorage.getItem('userRole');
-        if ((userRole === 'VENDEDOR' || userRole === 'ADMIN') && !clienteSeleccionadoId) {
-            setCompraError("Por favor, seleccione un cliente.");
+            alert("Por favor, seleccione un asiento para continuar.");
             return;
         }
         if (!viajeDetalles || !viajeDetalles.id) {
-            setCompraError("Datos del viaje no disponibles para la compra.");
+            alert("No hay información del viaje disponible.");
             return;
         }
-
-        setLoading(true);
-        setCompraError(null);
-
-        try {
-            // Aquí podrías añadir una simulación de pasarela de pago si quisieras
-            console.log("Simulando proceso de pago...");
-            await new Promise(resolve => setTimeout(resolve, 1000)); // Simula espera
-            console.log("Pago simulado exitoso!");
-
-            const payload = {
-                viajeId: viajeDetalles.id,
-                clienteId: parseInt(clienteSeleccionadoId, 10),
-                numeroAsiento: asientoSeleccionado,
-            };
-            const responseCompra = await comprarPasaje(payload);
-            setCompraExitosaInfo(responseCompra.data); // Guardamos el PasajeResponseDTO
-
-            // Actualizar UI tras compra exitosa
-            setAsientosOcupados(prev => [...prev, asientoSeleccionado].sort((a, b) => a - b));
-            setAsientoSeleccionado(null);
-            // Actualizar asientos disponibles en viajeDetalles si es necesario mostrarlo
-            setViajeDetalles(prev => ({...prev, asientosDisponibles: prev.asientosDisponibles -1 }));
-
-            // alert(`¡Pasaje comprado con éxito! ID: ${responseCompra.data.id}. Asiento: ${responseCompra.data.numeroAsiento}`);
-
-        } catch (err) {
-            console.error("Error en la compra del pasaje:", err);
-            const errorMessage = err.response?.data?.message || err.message || "Ocurrió un error durante la compra.";
-            setCompraError(errorMessage);
-        } finally {
-            setLoading(false);
-        }
+        // Navegar a la página de checkout, pasando la información necesaria
+        // El nombre del parámetro en la ruta para asientoNumero debe ser :asientoNumero
+        navigate(`/vendedor/viaje/${viajeDetalles.id}/asiento/${asientoSeleccionado}/checkout`, {
+            state: {
+                viajeData: viajeDetalles,       // El objeto ViajeDetalleConAsientosDTO completo
+                asientoNumero: asientoSeleccionado // El número de asiento seleccionado
+            }
+        });
     };
 
-    // Función para obtener la capacidad total de asientos del ómnibus.
-    // Tu ViajeDetalleConAsientosDTO debe incluir esta información.
-    // Podría ser `viajeDetalles.capacidadOmnibus` o `viajeDetalles.omnibus.capacidadAsientos`.
     const getCapacidadAsientos = () => {
         if (!viajeDetalles) return 0;
+        // Tu ViajeDetalleConAsientosDTO debe tener 'capacidadOmnibus' o 'omnibus.capacidadAsientos'
         return viajeDetalles.capacidadOmnibus || (viajeDetalles.omnibus && viajeDetalles.omnibus.capacidadAsientos) || 0;
     };
 
     const renderAsientos = () => {
         const capacidad = getCapacidadAsientos();
         if (capacidad === 0 && !loading) return <p>No se pudo determinar la capacidad del ómnibus.</p>;
-        if (capacidad === 0 && loading) return <p>Cargando capacidad de asientos...</p>;
+        if (capacidad === 0 && loading) return <p className="loading-mensaje">Cargando mapa de asientos...</p>;
 
         let asientosVisuales = [];
         for (let i = 1; i <= capacidad; i++) {
             const estaOcupado = asientosOcupados.includes(i);
-            const estaSeleccionado = asientoSeleccionado === i;
+            const estaSeleccionado = asientoSeleccionado === i; // Compara con el estado
             let claseAsiento = "asiento";
             if (estaOcupado) claseAsiento += " ocupado";
             if (estaSeleccionado) claseAsiento += " seleccionado";
@@ -161,16 +104,15 @@ const SeleccionAsientos = () => {
                 <button
                     key={i}
                     className={claseAsiento}
-                    onClick={() => handleSeleccionarAsiento(i)}
-                    disabled={estaOcupado || !!compraExitosaInfo}
+                    onClick={() => handleSeleccionarAsiento(i)} // Pasa el número de asiento correcto
+                    disabled={estaOcupado}
                 >
                     {i}
                 </button>
             );
         }
-        // Agrupar en filas (ejemplo 2 pasillo 2)
         const filas = [];
-        for (let i = 0; i < asientosVisuales.length; i += 4) {
+        for (let i = 0; i < asientosVisuales.length; i += 4) { // Asumiendo diseño 2-pasillo-2
             filas.push(
                 <div key={`fila-${i/4}`} className="fila-asientos">
                     {asientosVisuales.slice(i, i + 2)}
@@ -182,91 +124,51 @@ const SeleccionAsientos = () => {
         return filas;
     };
 
-    // Manejadores para botones de navegación post-compra
-    const handleBuscarOtroViaje = () => {
-        navigate('/vendedor/viajes/buscar'); // Ajusta esta ruta si es diferente
-    };
-
-    const handleComprarOtroPasajeMismoViaje = () => {
-        setCompraExitosaInfo(null); // Permite nueva selección
-        setAsientoSeleccionado(null);
-        // No es necesario recargar todo, solo resetear el estado de compra.
-    };
-
-
-    if (loading && !viajeDetalles) return <p className="loading-mensaje">Cargando datos del viaje...</p>;
-    if (error) return <p className="error-mensaje">Error: {error} <button onClick={cargarDatosIniciales}>Reintentar</button></p>;
-    if (!viajeDetalles && !loading) return <p>No se encontraron datos para este viaje (ID: {viajeId}). <button onClick={handleBuscarOtroViaje}>Volver al Listado</button></p>;
-
-    const userRole = localStorage.getItem('userRole');
+    if (loading && !viajeDetalles) return <p className="loading-mensaje">Cargando detalles del viaje...</p>;
+    if (error) return <p className="error-mensaje">Error: {error} <button onClick={() => navigate(-1)}>Volver</button></p>;
+    if (!viajeDetalles && !loading) return <p>No se encontraron datos para este viaje. <button onClick={() => navigate(-1)}>Volver</button></p>;
 
     return (
         <div className="seleccion-asientos-container">
-            <h2>Seleccionar Asientos para el Viaje</h2>
-            {viajeDetalles && (
-                <div className="info-viaje">
-                    <p><strong>Viaje ID:</strong> {viajeDetalles.id}</p>
-                    <p><strong>Origen:</strong> {viajeDetalles.origenNombre} - <strong>Destino:</strong> {viajeDetalles.destinoNombre}</p>
-                    <p><strong>Fecha:</strong> {new Date(viajeDetalles.fechaSalida || (viajeDetalles.fecha + 'T' + viajeDetalles.horaSalida)).toLocaleString()}</p>
-                    <p><strong>Precio por asiento:</strong> ${viajeDetalles.precio ? parseFloat(viajeDetalles.precio).toFixed(2) : 'N/A'}</p>
-                    <p><strong>Asientos Disponibles (general):</strong> {viajeDetalles.asientosDisponibles}</p>
-                </div>
-            )}
-
-            { (userRole === 'VENDEDOR' || userRole === 'ADMIN') && !compraExitosaInfo && (
-                <div className="selector-cliente">
-                    <label htmlFor="cliente">Seleccionar Cliente:</label>
-                    <select id="cliente" value={clienteSeleccionadoId} onChange={(e) => setClienteSeleccionadoId(e.target.value)} required disabled={loading || !!compraExitosaInfo}>
-                        <option value="">-- Elija un cliente --</option>
-                        {clientes.map(cliente => (
-                            <option key={cliente.id} value={cliente.id}>{cliente.nombre} (ID: {cliente.id})</option>
-                        ))}
-                    </select>
-                </div>
-            )}
-
-            <h3>Mapa de Asientos</h3>
-            <div className="leyenda-asientos">
-                <span className="asiento-ejemplo disponible"></span> Disponible
-                <span className="asiento-ejemplo seleccionado"></span> Seleccionado
-                <span className="asiento-ejemplo ocupado"></span> Ocupado
-            </div>
-            <div className="mapa-asientos-wrapper">
-                {loading && getCapacidadAsientos() === 0 ? <p className="loading-mensaje">Cargando asientos...</p> : renderAsientos()}
-            </div>
-
-            {asientoSeleccionado && !compraExitosaInfo && (
-                <p className="asiento-seleccionado-info">Asiento seleccionado: <strong>{asientoSeleccionado}</strong></p>
-            )}
-
-            {compraError && <p className="error-mensaje">{compraError}</p>}
-
-            {!compraExitosaInfo && (
-                <button
-                    onClick={handleComprarPasaje}
-                    disabled={!asientoSeleccionado || ((userRole === 'VENDEDOR' || userRole === 'ADMIN') && !clienteSeleccionadoId) || loading}
-                    className="btn-comprar-final"
-                >
-                    {loading ? 'Procesando...' : 'Confirmar y Comprar Pasaje'}
-                </button>
-            )}
-
-            {compraExitosaInfo && (
-                <div className="confirmacion-compra">
-                    <h4>¡Compra Exitosa!</h4>
-                    <p>Pasaje ID: <strong>{compraExitosaInfo.id}</strong></p>
-                    <p>Cliente: <strong>{compraExitosaInfo.clienteNombre}</strong> (ID: {compraExitosaInfo.clienteId})</p>
-                    <p>Viaje: {compraExitosaInfo.origenViaje} a {compraExitosaInfo.destinoViaje}</p>
-                    <p>Fecha y Hora: {new Date(compraExitosaInfo.fechaViaje + 'T' + compraExitosaInfo.horaSalidaViaje).toLocaleString()}</p>
-                    <p>Asiento: <strong>{compraExitosaInfo.numeroAsiento}</strong></p>
-                    <p>Precio: ${parseFloat(compraExitosaInfo.precio).toFixed(2)}</p>
-                    {/* <button onClick={() => alert("PDF no implementado aún")}>Descargar PDF</button> */}
-                    <button onClick={handleComprarOtroPasajeMismoViaje}>Comprar Otro Pasaje (mismo viaje)</button>
-                </div>
-            )}
-            <button onClick={handleBuscarOtroViaje} style={{marginTop: '20px'}} className="btn-volver">
-                {compraExitosaInfo ? 'Ir al Listado de Viajes' : 'Cancelar y Volver al Listado'}
+            <button onClick={() => navigate(-1)} className="btn-volver-listado">
+                ← Volver al Listado
             </button>
+            <h2>Selección de Asientos</h2>
+            <div className="info-viaje-seleccion">
+                <p><strong>{viajeDetalles.origenNombre} → {viajeDetalles.destinoNombre}</strong></p>
+                <p>Salida: {new Date(viajeDetalles.fechaSalida || (viajeDetalles.fecha + 'T' + viajeDetalles.horaSalida)).toLocaleString('es-ES', { dateStyle: 'full', timeStyle: 'short' })}</p>
+                <p>Servicio: {viajeDetalles.omnibusMatricula || (viajeDetalles.omnibus && viajeDetalles.omnibus.matricula)}</p>
+                <p>Precio por asiento: <strong>${viajeDetalles.precio ? parseFloat(viajeDetalles.precio).toFixed(2) : 'N/A'}</strong></p>
+            </div>
+
+            <div className="leyenda-asientos-wrapper">
+                <span className="leyenda-item"><span className="asiento-ejemplo disponible"></span> Libre</span>
+                <span className="leyenda-item"><span className="asiento-ejemplo ocupado"></span> Ocupado</span>
+                <span className="leyenda-item"><span className="asiento-ejemplo seleccionado"></span> Seleccionado</span>
+            </div>
+
+            <div className="mapa-asientos-render">
+                <div className="frente-omnibus-barra">FRENTE DEL ÓMNIBUS</div>
+                {renderAsientos()}
+            </div>
+
+            {asientoSeleccionado ? (
+                <div className="resumen-seleccion-actual">
+                    <h3>Asiento Seleccionado:</h3>
+                    <div className="asiento-numero-grande">{asientoSeleccionado}</div> {/* Muestra el asiento del estado */}
+                    <p>Cantidad: 1</p>
+                    <p>Total a Pagar: ${viajeDetalles.precio ? parseFloat(viajeDetalles.precio).toFixed(2) : '0.00'}</p>
+                    <button
+                        onClick={handleIrACheckout}
+                        className="btn-continuar-checkout"
+                        disabled={loading}
+                    >
+                        Continuar y Pagar
+                    </button>
+                </div>
+            ) : (
+                <p className="mensaje-seleccionar-asiento">Por favor, seleccione un asiento del mapa.</p>
+            )}
         </div>
     );
 };

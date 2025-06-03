@@ -1,257 +1,140 @@
-/* src/pages/vendedor/SeleccionAsientosPage.css (o la ruta donde guardes el CSS) */
-
-.seleccion-asientos-container {
-    max-width: 750px; /* Un poco más ancho para la disposición de asientos */
-    margin: 20px auto;
+/* src/pages/vendedor/SeleccionAsientosPage.css */
+.sp-container {
     padding: 20px;
-    background-color: #f8f9fa; /* Un gris muy claro */
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    color: #333;
+    max-width: 700px;
+    margin: 20px auto;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 
-.btn-volver {
+.sp-btn-volver {
     background-color: #6c757d;
     color: white;
-    padding: 8px 15px;
     border: none;
+    padding: 10px 15px;
     border-radius: 5px;
     cursor: pointer;
     margin-bottom: 20px;
     font-size: 0.9em;
-    transition: background-color 0.2s;
-    display: inline-flex;
-    align-items: center;
 }
-.btn-volver:hover {
-    background-color: #5a6268;
-}
-.btn-volver:before { /* Opcional: ícono de flecha */
-    content: '\2190'; /* Código Unicode para flecha izquierda */
-    margin-right: 6px;
-    font-weight: bold;
-}
+.sp-btn-volver:hover { background-color: #5a6268; }
 
-
-.info-viaje-header {
+.sp-info-viaje {
     text-align: center;
-    margin-bottom: 25px;
+    margin-bottom: 20px;
     padding: 15px;
-    background-color: #ffffff;
-    border-radius: 8px;
-    border: 1px solid #e0e6ed;
-}
-
-.info-viaje-header h2 {
-    color: #0056b3; /* Azul más oscuro para el título */
-    margin-top: 0;
-    margin-bottom: 15px;
-    font-size: 1.8em;
-}
-
-.info-viaje-header p {
-    color: #495057;
-    font-size: 1em;
-    line-height: 1.6;
-    margin: 8px 0;
-}
-.info-viaje-header p strong {
-    color: #343a40;
-}
-
-.leyenda-asientos {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 15px; /* Espacio entre ítems de la leyenda */
-    margin-bottom: 25px;
-    padding: 12px;
-    background-color: #e9ecef;
+    background-color: #fff;
+    border: 1px solid #e9ecef;
     border-radius: 6px;
-    font-size: 0.9em;
 }
+.sp-info-viaje h2 { color: #343a40; margin-top: 0; margin-bottom: 10px; font-size: 1.6em; }
+.sp-info-viaje p { margin: 5px 0; color: #495057; }
+.sp-info-viaje strong { color: #212529; }
 
-.leyenda-item {
+.sp-leyenda {
     display: flex;
+    justify-content: space-around;
     align-items: center;
-    color: #495057;
-}
-
-.cuadro {
-    width: 18px; /* Un poco más grande */
-    height: 18px;
-    margin-right: 8px;
-    border: 1px solid #adb5bd;
-    display: inline-block;
-    border-radius: 3px; /* Bordes ligeramente redondeados */
-}
-
-/* Colores de la leyenda y asientos deben coincidir */
-.cuadro.libre, .asiento.libre {
-    background-color: #28a745; /* Verde */
-    color: white;
-    border-color: #1e7e34;
-}
-.asiento.libre:hover {
-    background-color: #218838;
-    transform: scale(1.05);
-}
-
-.cuadro.ocupado, .asiento.ocupado {
-    background-color: #dc3545; /* Rojo */
-    color: white;
-    border-color: #b02a37;
-}
-.asiento.ocupado {
-    cursor: not-allowed;
-    opacity: 0.8; /* Ligeramente más opaco para mejor visibilidad del número */
-}
-.asiento.ocupado.wc { /* Estilo específico para WC */
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: #e9ecef;
+    border-radius: 4px;
     font-size: 0.85em;
-    font-weight: bold;
 }
-
-
-.cuadro.seleccionado, .asiento.seleccionado {
-    background-color: #007bff; /* Azul */
-    color: white;
-    border-color: #0056b3;
-    box-shadow: 0 0 8px rgba(0, 123, 255, 0.5); /* Efecto de resplandor */
+.sp-leyenda-item { display: flex; align-items: center; color: #333; }
+.sp-ejemplo {
+    width: 18px; height: 18px; border-radius: 3px;
+    margin-right: 5px; border: 1px solid #adb5bd;
 }
-.asiento.seleccionado:hover {
-    background-color: #0056b3;
-}
+.sp-ejemplo.sp-libre { background-color: #c3e6cb; border-color: #81c784; } /* Verde */
+.sp-ejemplo.sp-ocupado { background-color: #f5c6cb; border-color: #ef9a9a; } /* Rojo */
+.sp-ejemplo.sp-seleccionado { background-color: #b3e5fc; border-color: #64b5f6; } /* Azul */
 
-
-.omnibus-layout {
-    background-color: #ffffff;
-    padding: 25px;
-    border-radius: 8px;
-    border: 1px solid #d1d9e0;
+.sp-mapa-omnibus {
+    border: 1px solid #dee2e6;
+    padding: 20px;
+    margin-bottom: 25px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    background-color: #fff;
+    border-radius: 6px;
+}
+.sp-frente-omnibus {
+    background-color: #495057; color: white;
+    padding: 8px 0; width: 70%; max-width: 280px;
+    text-align: center; margin-bottom: 20px; font-weight: 500;
+    border-radius: 4px; font-size: 0.9em; letter-spacing: 0.5px;
 }
 
-.cabecera-omnibus {
-    width: auto; /* Ajustar al contenido */
-    min-width: 60%; /* Mínimo ancho */
-    background-color: #343a40; /* Gris oscuro para la cabecera */
-    color: white;
-    text-align: center;
-    padding: 12px 20px;
-    margin-bottom: 20px;
-    border-radius: 5px;
-    font-weight: bold;
-    font-size: 1.1em;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-
-.fila-asientos {
+.fila-asiento-div { /* Para las filas generadas en renderAsientos */
     display: flex;
-    justify-content: center;
-    margin-bottom: 6px; /* Un poco más de espacio entre filas */
-}
-
-.asiento {
-    width: 42px; /* Ajustar tamaño según necesidad */
-    height: 42px;
-    margin: 4px; /* Espacio entre asientos */
-    border: 1px solid #bfbfbf;
-    border-radius: 6px; /* Bordes más redondeados */
-    display: flex;
-    justify-content: center;
+    justify-content: center; /* Centrar la fila de asientos */
     align-items: center;
-    font-size: 0.9em;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s;
-    user-select: none; /* Evitar selección de texto en el botón */
+    margin-bottom: 5px;
 }
-.asiento:disabled { /* Estilo para asientos deshabilitados (ocupados) */
-    cursor: not-allowed;
-}
-
-
-.asiento.pasillo {
-    background-color: transparent;
-    border: none;
-    cursor: default;
-    width: 25px; /* Ancho del pasillo */
-}
-.asiento.vacio {
-    background-color: #e9ecef;
-    border: 1px dashed #ced4da;
-    cursor: default;
-    opacity: 0.6;
-}
-
-
-.resumen-compra {
-    margin-top: 30px;
-    padding: 20px;
-    background-color: #ffffff;
-    border: 1px solid #d1d9e0;
-    border-radius: 8px;
-    text-align: center;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-}
-.resumen-compra h3 {
-    margin-top: 0;
-    color: #0056b3; /* Azul para el título del resumen */
-    font-size: 1.4em;
-    margin-bottom: 15px;
-}
-.resumen-compra p {
-    margin: 10px 0;
-    font-size: 1.05em;
-    color: #495057;
-}
-.resumen-compra p.asientos-elegidos-lista {
-    font-weight: bold;
-    color: #007bff; /* Azul para los asientos seleccionados */
-    background-color: #e7f3ff;
-    padding: 8px;
-    border-radius: 4px;
-    display: inline-block; /* Para que el fondo solo ocupe el texto */
-}
-
-
-.btn-confirmar-compra {
-    background-color: #28a745; /* Verde para confirmar */
-    color: white;
-    padding: 12px 30px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1.15em;
-    font-weight: bold;
-    margin-top: 15px;
+.asiento-btn { /* Para los botones de asiento generados */
+    width: 40px; height: 40px; margin: 4px;
+    border: 1px solid; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 5px; font-size: 0.9em; font-weight: 500;
     transition: background-color 0.2s, transform 0.1s;
-    text-transform: uppercase;
 }
-.btn-confirmar-compra:hover {
-    background-color: #218838;
-    transform: translateY(-2px); /* Pequeño efecto al pasar el mouse */
+.asiento-btn.libre {
+    background-color: #e6fffa; border-color: #90cdf4; color: #2c5282;
+}
+.asiento-btn.libre:hover { background-color: #bee3f8; transform: scale(1.05); }
+.asiento-btn.ocupado {
+    background-color: #fed7d7; border-color: #f56565; color: #c53030;
+    cursor: not-allowed; opacity: 0.6;
+}
+.asiento-btn.seleccionado {
+    background-color: #90cdf4; border-color: #4299e1; color: #1a365d;
+    font-weight: bold; transform: scale(1.05);
+}
+.asiento-btn.placeholder { /* Para asientos vacíos en la grilla */
+    background-color: transparent;
+    border: 1px dashed #e2e8f0;
+    cursor: default;
+}
+.pasillo-div { /* Para el espacio del pasillo generado */
+    width: 25px; /* Ancho del pasillo */
+    height: 40px; /* Altura igual al asiento */
+    margin: 4px;
 }
 
-/* Mensajes generales (puedes tenerlos en un CSS global también) */
-.loading-mensaje {
-    text-align: center;
-    padding: 20px;
-    font-size: 1.1em;
-    color: #555;
+
+.sp-resumen-seleccion {
+    text-align: center; padding: 20px;
+    background-color: #f0f9ff; border: 1px solid #bee3f8;
+    border-radius: 6px; margin-top: 20px;
 }
-.error-mensaje {
-    color: #721c24; /* Rojo oscuro para texto de error */
-    background-color: #f8d7da; /* Fondo rojo claro */
-    border: 1px solid #f5c6cb; /* Borde rojo */
-    padding: 12px;
-    border-radius: 4px;
-    text-align: center;
-    margin: 15px 0;
+.sp-resumen-seleccion h3 { margin-top: 0; margin-bottom: 15px; color: #1e40af; font-size: 1.3em; }
+.sp-asiento-elegido {
+    font-size: 2em; font-weight: bold; color: #1e3a8a;
+    background-color: #fff; border: 2px solid #60a5fa;
+    border-radius: 50%; width: 55px; height: 55px;
+    line-height: 51px; margin: 0 auto 10px auto;
+    display: inline-block;
 }
+.sp-resumen-seleccion p { margin: 6px 0; color: #2c5282; font-size: 1.05em;}
+.sp-btn-continuar {
+    background-color: #38a169; color: white; border: none;
+    padding: 12px 25px; border-radius: 5px; cursor: pointer;
+    font-size: 1.1em; font-weight: 500; margin-top: 15px;
+}
+.sp-btn-continuar:hover { background-color: #2f855a; }
+
+.sp-mensaje-info {
+    text-align: center; color: #718096; margin-top: 20px;
+    padding: 15px; background-color: #f7fafc;
+    border: 1px dashed #e2e8f0; border-radius: 4px;
+}
+
+.loading-mensaje, .error-mensaje { text-align: center; padding: 15px; margin: 20px 0; border-radius: 4px; }
+.loading-mensaje { color: #1e40af; background-color: #dbeafe; border: 1px solid #bfdbfe; }
+.error-container { text-align: center; }
+.error-mensaje { color: #991b1b; background-color: #fee2e2; border: 1px solid #fca5a5; }
+.error-container .btn-volver { margin-top: 10px; background-color: #718096; color:white; }
