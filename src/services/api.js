@@ -314,7 +314,103 @@ export const obtenerDetallesViajeConAsientos = async (viajeId) => {
         throw error;
     }
 };
-// --- FIN NUEVA FUNCIÓN ---
+export const obtenerDetallesViajeConAsientos = async (viajeId) => {
+    try {
+        const response = await apiClient.get(`/vendedor/viajes/${viajeId}/detalles-asientos`);
+        return response;
+    } catch (error) {
+        console.error(
+            `Error en API al obtener detalles y asientos para el viaje ID ${viajeId}:`,
+            error.response?.data || error.message
+        );
+        throw error;
+    }
+};
+
+// --- FUNCIONES PARA PASAJES ---
+
+/**
+ * Obtiene la lista de números de asientos que ya están ocupados para un viaje específico.
+ * @param {number|string} viajeId El ID del viaje.
+ * @returns {Promise<axios.Response<number[]>>} La respuesta de la API con un array de números de asiento.
+ */
+export const obtenerAsientosOcupados = async (viajeId) => {
+    try {
+        const response = await apiClient.get(`/vendedor/viajes/${viajeId}/asientos-ocupados`);
+        // response.data será el array de números [1, 5, 10]
+        return response;
+    } catch (error) {
+        console.error(
+            `Error en API al obtener asientos ocupados para el viaje ID ${viajeId}:`,
+            error.response?.data || error.message
+        );
+        throw error;
+    }
+};
+
+/**
+ * Realiza la compra de un pasaje.
+ * @param {object} compraRequestDTO El DTO con los datos para la compra.
+ * @param {number} compraRequestDTO.viajeId
+ * @param {number} compraRequestDTO.clienteId
+ * @param {number} compraRequestDTO.numeroAsiento
+ * @returns {Promise<axios.Response<object>>} La respuesta de la API con el PasajeResponseDTO.
+ */
+export const comprarPasaje = async (compraRequestDTO) => {
+    try {
+        const response = await apiClient.post('/vendedor/pasajes/comprar', compraRequestDTO);
+        // response.data será el PasajeResponseDTO
+        return response;
+    } catch (error) {
+        console.error(
+            "Error en API al comprar pasaje:",
+            error.response?.data || error.message
+        );
+        throw error;
+    }
+};
+
+/**
+ * Obtiene una lista de usuarios (clientes) para que el vendedor seleccione.
+ * DEBES AJUSTAR EL ENDPOINT A TU IMPLEMENTACIÓN REAL.
+ * @returns {Promise<axios.Response<object[]>>} La respuesta de la API con un array de usuarios.
+ */
+export const obtenerUsuariosParaSeleccion = async () => {
+    try {
+        // EJEMPLO DE ENDPOINT: Podría ser /admin/usuarios?rol=CLIENTE
+        // o /vendedor/clientes. Asegúrate que este endpoint exista y devuelva
+        // un array de objetos usuario, cada uno con al menos 'id' y 'nombre'.
+        const response = await apiClient.get('/admin/usuarios?rol=CLIENTE'); // <-- ¡¡AJUSTA ESTE ENDPOINT!!
+        // response.data será el array de usuarios
+        return response;
+    } catch (error) {
+        console.error(
+            "Error en API al obtener lista de clientes:",
+            error.response?.data || error.message
+        );
+        throw error;
+    }
+};
+
+
+// Si vas a implementar la descarga de PDF:
+// export const descargarPasajePdf = async (pasajeId) => {
+//     try {
+//         const response = await apiClient.get(`/vendedor/pasajes/${pasajeId}/pdf`, {
+//             responseType: 'blob', // Importante para archivos
+//         });
+//         return response;
+//     } catch (error) {
+//         console.error(
+//             `Error en API al descargar PDF para pasaje ID ${pasajeId}:`,
+//             error.response?.data || error.message
+//         );
+//         throw error;
+//     }
+// };
+
+
+export default apiClient;
 
 
 export default apiClient;

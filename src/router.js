@@ -95,6 +95,7 @@ const AppRouter = () => {
                     <Route path="listar-viajes" element={<VendedorListarViajes />} />
                     <Route path="listar-viajes-compra" element={<VendedorListadoViajesCompra />} />
                     <Route path="viaje/:viajeId/seleccionar-asientos" element={<SeleccionAsientosPage />} />
+                    <Route path="viaje/:viajeId/seleccionar-asientos" element={<SeleccionAsientosPage />} />
                     {/* <Route path="mis-localidades" element={<VendedorMisLocalidadesPage />} /> */}
                 </Route>
             </Route>

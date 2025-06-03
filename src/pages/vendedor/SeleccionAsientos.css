@@ -1,0 +1,179 @@
+/* src/components/vendedor/SeleccionAsientos.css */
+.seleccion-asientos-container {
+    padding: 20px;
+    max-width: 700px;
+    margin: auto;
+    font-family: sans-serif;
+}
+
+.info-viaje, .selector-cliente {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+}
+.info-viaje p, .selector-cliente label {
+    margin: 5px 0;
+}
+
+.selector-cliente select {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    border-radius: 4px;
+    border: 1px solid #ced4da;
+}
+
+.mapa-asientos-wrapper {
+    border: 1px solid #ccc;
+    padding: 20px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-radius: 5px;
+}
+
+.leyenda-asientos {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 15px;
+    font-size: 0.9em;
+    gap: 20px; /* Espacio entre elementos de la leyenda */
+}
+
+.asiento-ejemplo {
+    width: 20px;
+    height: 20px;
+    border-radius: 3px;
+    display: inline-block;
+    margin-right: 5px;
+    vertical-align: middle;
+}
+.asiento-ejemplo.disponible { background-color: #e6f2ff; border: 1px solid #007bff; }
+.asiento-ejemplo.seleccionado { background-color: #28a745; border: 1px solid #1e7e34; }
+.asiento-ejemplo.ocupado { background-color: #f8d7da; border: 1px solid #dc3545; }
+
+
+.fila-asientos {
+    display: flex;
+    margin-bottom: 5px;
+    align-items: center;
+}
+
+.asiento {
+    width: 38px;
+    height: 38px;
+    margin: 5px;
+    border: 1px solid #007bff;
+    background-color: #e6f2ff;
+    color: #007bff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    font-size: 0.9em;
+    transition: background-color 0.2s ease-in-out, transform 0.1s ease;
+}
+.asiento:hover:not(:disabled) {
+    background-color: #cce0ff;
+    transform: scale(1.05);
+}
+.asiento.ocupado {
+    background-color: #f8d7da; /* Un rojo más suave */
+    color: #721c24; /* Texto oscuro para contraste */
+    border-color: #f5c6cb;
+    cursor: not-allowed;
+}
+.asiento.ocupado:hover {
+    background-color: #f8d7da;
+    transform: none;
+}
+.asiento.seleccionado {
+    background-color: #28a745;
+    color: white;
+    border-color: #1e7e34;
+    font-weight: bold;
+}
+.pasillo {
+    width: 25px; /* Espacio para el pasillo */
+}
+
+.asiento-seleccionado-info {
+    text-align: center;
+    margin: 15px 0;
+    font-size: 1.1em;
+}
+
+.btn-comprar-final, .btn-volver {
+    padding: 12px 25px;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 10px;
+    display: block; /* Para que ocupe el ancho o centrarlo */
+    margin-left: auto;
+    margin-right: auto;
+}
+.btn-comprar-final { background-color: #28a745; }
+.btn-comprar-final:disabled { background-color: #ccc; cursor: not-allowed; }
+.btn-volver { background-color: #6c757d; }
+
+
+.error-mensaje {
+    color: #721c24; /* Rojo oscuro */
+    margin-top: 15px;
+    background-color: #f8d7da; /* Fondo rojo claro */
+    border: 1px solid #f5c6cb; /* Borde rojo más claro */
+    padding: 10px;
+    border-radius: 4px;
+    text-align: center;
+}
+.loading-mensaje {
+    color: #004085; /* Azul oscuro */
+    margin-top: 15px;
+    background-color: #cce5ff; /* Fondo azul claro */
+    border: 1px solid #b8daff; /* Borde azul más claro */
+    padding: 10px;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.confirmacion-compra {
+    margin-top: 20px;
+    padding: 20px;
+    border: 1px solid #1e7e34; /* Borde verde oscuro */
+    background-color: #d4edda; /* Fondo verde claro */
+    color: #155724; /* Texto verde oscuro */
+    border-radius: 5px;
+    text-align: left;
+}
+.confirmacion-compra h4 {
+    margin-top: 0;
+    color: #155724;
+    text-align: center;
+    margin-bottom: 15px;
+}
+.confirmacion-compra p {
+    margin: 8px 0;
+}
+.confirmacion-compra button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 10px;
+    margin-top:10px;
+}
+.confirmacion-compra button:hover {
+    background-color: #0056b3;
+}
