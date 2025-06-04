@@ -43,7 +43,9 @@ import SeleccionAsientosPage from "./pages/vendedor/SeleccionAsientosPage"; // P
 import CheckoutPage from './pages/vendedor/CheckoutPage'; // Para VENDEDOR (puedes duplicarlo para cliente)
 
 // Cliente Específico (NUEVO)
-import ClienteSeleccionAsientos from "./pages/cliente/ClienteSeleccionAsientosPage"; // <-- NUEVO, ajusta path
+import ClienteSeleccionAsientos from "./pages/cliente/ClienteSeleccionAsientosPage";
+import ClienteSeleccionAsientosPage from "./pages/cliente/ClienteSeleccionAsientosPage";
+
 // import ClienteCheckoutPage from "./pages/cliente/ClienteCheckoutPage"; // <-- Opcional, si duplicas checkout
 
 // Página de Acceso Denegado (NUEVO)
@@ -73,7 +75,7 @@ const AppRouter = () => {
 
             {/* --- RUTAS DEL FLUJO DE COMPRA DEL CLIENTE (SIN LAYOUT DE VENDEDOR) --- */}
             <Route element={<ProtectedRoute allowedRoles={['CLIENTE', 'cliente', 'VENDEDOR', 'vendedor', 'ADMINISTRADOR', 'administrador']} />}>
-                <Route path="/compra/viaje/:viajeId/seleccionar-asientos" element={<ClienteSeleccionAsientos />} />
+                <Route path="/compra/viaje/:viajeId/seleccionar-asientos" element={<ClienteSeleccionAsientosPage />} />
                 {/* Si tienes ClienteCheckoutPage, úsalo aquí: */}
                 {/* <Route path="/compra/viaje/:viajeId/asiento/:asientoNumero/checkout" element={<ClienteCheckoutPage />} /> */}
                 <Route path="/compra/viaje/:viajeId/asiento/:asientoNumero/checkout" element={<CheckoutPage />} /> {/* Reutilizando CheckoutPage por ahora */}
