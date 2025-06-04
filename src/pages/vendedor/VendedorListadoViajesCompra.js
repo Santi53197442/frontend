@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { buscarViajesConDisponibilidad, obtenerTodasLasLocalidades } from '../../services/api';
-import './ClienteSeleccionAsientosPage.css';
+import './ListadoViajes.css';
 import { useAuth } from '../../AuthContext';
 
 const VendedorListadoViajesCompra = () => {

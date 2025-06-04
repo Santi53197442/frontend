@@ -5,7 +5,7 @@ import {
     obtenerDetallesViajeConAsientos,
     obtenerAsientosOcupados
 } from '../../services/api'; // Ajusta la ruta si es necesario
-import './SeleccionAsientos.css'; // Puedes reutilizar el CSS o crear uno específico
+import './ClienteSeleccionAsientosPage.css'; // Puedes reutilizar el CSS o crear uno específico
 // No necesitas useAuth aquí si este componente es SOLO para clientes y siempre navega a la ruta de cliente
 
 const ClienteSeleccionAsientos = () => {
