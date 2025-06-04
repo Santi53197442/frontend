@@ -7,7 +7,7 @@ import {
     obtenerAsientosOcupados
 } from '../../services/api'; // Ajusta la ruta si es necesario
 // Asumiendo que quieres reutilizar el mismo CSS que el de vendedor:
-import '../../pages/vendedor/SeleccionAsientos.css'; // Ajusta la ruta al CSS que quieras usar
+import './ClienteSeleccionAsientosPage.css'; // Ajusta la ruta al CSS que quieras usar
 
 const ClienteSeleccionAsientos = () => {
     const navigate = useNavigate();
