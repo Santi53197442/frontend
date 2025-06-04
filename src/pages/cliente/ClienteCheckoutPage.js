@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { comprarPasaje, obtenerDetallesViajeConAsientos } from '../../services/api'; // Ajusta la ruta a tu apiService
 import { useAuth } from '../../AuthContext'; // Ajusta la ruta a tu AuthContext
-import '../vendedor/CheckoutPage.css'; // REUTILIZANDO CSS DEL VENDEDOR - Ajusta ruta si es diferente o crea uno nuevo
+import './CheckoutPage.css'; // REUTILIZANDO CSS DEL VENDEDOR - Ajusta ruta si es diferente o crea uno nuevo
 
 const ClienteCheckoutPage = () => {
     const navigate = useNavigate();
