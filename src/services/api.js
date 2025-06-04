@@ -407,14 +407,5 @@ export const buscarClientePorCI = async (ci) => {
         throw error; // Permite que el componente maneje el 404
     }
 };
-export const buscarClientePorCI = async (ci) => {
-    try {
-        // Endpoint: GET /api/user/ci/{ci} (como lo definimos en UserController)
-        const response = await apiClient.get(`/user/ci/${ci}`);
-        return response; // response.data será ClienteEncontradoDTO {id, nombre, apellido, ci, email}
-    } catch (error) {
-        console.error(`API Error: buscarClientePorCI para CI ${ci}:`, error.response?.data || error.message);
-        throw error;
-    }
-};
+
 export default apiClient;
