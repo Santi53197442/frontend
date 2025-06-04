@@ -5,7 +5,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 // --- IMPORTACIONES DE COMPONENTES Y PÁGINAS ---
 // Públicas
 import Home from "./pages/Home";
-import Login from "./components/Login"; // Ajusta paths según tu estructura
+import Login from "./components/Login";
 import Register from "./components/Register";
 import ForgotPasswordPage from './components/ForgotPassword';
 import ResetPasswordPage from './components/ResetPassword';
@@ -30,8 +30,8 @@ import AdminUserListDeletePage from './pages/admin/AdminUserListDeletePage';
 import VendedorDashboard from './pages/vendedor/VendedorDashboard';
 import VendedorAltaLocalidadPage from './pages/vendedor/VendedorAltaLocalidadPage';
 import VendedorLocalidadMasivo from './pages/vendedor/VendedorLocalidadMasivo';
-import VendedorAltaOmnibusPage from "./pages/vendedor/VendedorAltaOmnibusPage";
-import VendedorOmnibusMasivo from "./pages/vendedor/VendedorOmnibusMasivo";
+import VendedorAltaOmnibusPage from './pages/vendedor/VendedorAltaOmnibusPage';
+import VendedorOmnibusMasivo from './pages/vendedor/VendedorOmnibusMasivo';
 import VendedorAltaViajePage from './pages/vendedor/VendedorAltaViajePage';
 import VendedorListarOmnibusPage from './pages/vendedor/VendedorListarOmnibusPage';
 import VendedorCambiarEstadoOmnibus from './pages/vendedor/VendedorCambiarEstadoOmnibus';
@@ -40,15 +40,13 @@ import VendedorReasignarViaje from './pages/vendedor/VendedorReasignarViaje';
 import VendedorListarViajes from './pages/vendedor/VendedorListarViajes';
 import VendedorListadoViajesCompra from "./pages/vendedor/VendedorListadoViajesCompra";
 import SeleccionAsientosPage from "./pages/vendedor/SeleccionAsientosPage"; // Para VENDEDOR
-import CheckoutPage from './pages/vendedor/CheckoutPage'; // Para VENDEDOR (puedes duplicarlo para cliente)
+import CheckoutPage from './pages/vendedor/CheckoutPage'; // Para VENDEDOR
 
-// Cliente Específico (NUEVO)
-import ClienteSeleccionAsientos from "./pages/cliente/ClienteSeleccionAsientosPage";
-import ClienteSeleccionAsientosPage from "./pages/cliente/ClienteSeleccionAsientosPage";
+// Cliente Específico
+import ClienteSeleccionAsientos from "./components/cliente/ClienteSeleccionAsientos"; // Ajusta path
+import ClienteCheckoutPage from "./pages/cliente/ClienteCheckoutPage"; // <-- NUEVA IMPORTACIÓN, ajusta path
 
-// import ClienteCheckoutPage from "./pages/cliente/ClienteCheckoutPage"; // <-- Opcional, si duplicas checkout
-
-// Página de Acceso Denegado (NUEVO)
+// Página de Acceso Denegado
 const UnauthorizedPage = () => (
     <div style={{ padding: '50px', textAlign: 'center' }}>
         <h1>Acceso Denegado</h1>
@@ -67,28 +65,21 @@ const AppRouter = () => {
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
-            <Route path="/unauthorized" element={<UnauthorizedPage />} /> {/* Ruta para acceso denegado */}
+            <Route path="/unauthorized" element={<UnauthorizedPage />} />
 
-            {/* --- RUTA PARA VER LISTADO DE VIAJES (usada por clientes desde Home) --- */}
             <Route path="/viajes" element={<VendedorListadoViajesCompra />} />
-
 
             {/* --- RUTAS DEL FLUJO DE COMPRA DEL CLIENTE (SIN LAYOUT DE VENDEDOR) --- */}
             <Route element={<ProtectedRoute allowedRoles={['CLIENTE', 'cliente', 'VENDEDOR', 'vendedor', 'ADMINISTRADOR', 'administrador']} />}>
-                <Route path="/compra/viaje/:viajeId/seleccionar-asientos" element={<ClienteSeleccionAsientosPage />} />
-                {/* Si tienes ClienteCheckoutPage, úsalo aquí: */}
-                {/* <Route path="/compra/viaje/:viajeId/asiento/:asientoNumero/checkout" element={<ClienteCheckoutPage />} /> */}
-                <Route path="/compra/viaje/:viajeId/asiento/:asientoNumero/checkout" element={<CheckoutPage />} /> {/* Reutilizando CheckoutPage por ahora */}
+                <Route path="/compra/viaje/:viajeId/seleccionar-asientos" element={<ClienteSeleccionAsientos />} />
+                <Route path="/compra/viaje/:viajeId/asiento/:asientoNumero/checkout" element={<ClienteCheckoutPage />} /> {/* Usa ClienteCheckoutPage */}
             </Route>
 
-
-            {/* --- Rutas Protegidas (Autenticación General Requerida) --- */}
             <Route element={<ProtectedRoute />}>
                 <Route path="/editar-perfil" element={<EditProfile />} />
                 <Route path="/cambiar-contraseña" element={<CambiarContraseña />} />
             </Route>
 
-            {/* --- Rutas de Administración (con AdminLayout) --- */}
             <Route element={<ProtectedRoute allowedRoles={['ADMINISTRADOR', 'administrador']} />}>
                 <Route path="/admin" element={<AdminLayout />}>
                     <Route index element={<AdminDashboard />} />
@@ -100,7 +91,6 @@ const AppRouter = () => {
                 </Route>
             </Route>
 
-            {/* --- RUTAS DE GESTIÓN DEL VENDEDOR (con VendedorLayout) --- */}
             <Route element={<ProtectedRoute allowedRoles={['VENDEDOR', 'vendedor', 'ADMINISTRADOR', 'administrador']} />}>
                 <Route path="/vendedor" element={<VendedorLayout />}>
                     <Route index element={<VendedorDashboard />} />
@@ -115,11 +105,9 @@ const AppRouter = () => {
                     <Route path="cambiar-a-activo" element={<VendedorCambiarOmnibusaOperativo />} />
                     <Route path="reasignar-viaje" element={<VendedorReasignarViaje />} />
                     <Route path="listar-viajes" element={<VendedorListarViajes />} />
-                    <Route path="listar-viajes-compra" element={<VendedorListadoViajesCompra />} /> {/* Vendedor accede a su listado */}
-
-                    {/* Flujo de compra para el VENDEDOR (con el VendedorLayout) */}
-                    <Route path="viaje/:viajeId/seleccionar-asientos" element={<SeleccionAsientosPage />} /> {/* Usa el original del vendedor */}
-                    <Route path="viaje/:viajeId/asiento/:asientoNumero/checkout" element={<CheckoutPage />} />
+                    <Route path="listar-viajes-compra" element={<VendedorListadoViajesCompra />} />
+                    <Route path="viaje/:viajeId/seleccionar-asientos" element={<SeleccionAsientosPage />} />
+                    <Route path="viaje/:viajeId/asiento/:asientoNumero/checkout" element={<CheckoutPage />} /> {/* Usa el CheckoutPage del vendedor */}
                 </Route>
             </Route>
 
