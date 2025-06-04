@@ -43,7 +43,7 @@ import SeleccionAsientosPage from "./pages/vendedor/SeleccionAsientosPage"; // P
 import CheckoutPage from './pages/vendedor/CheckoutPage'; // Para VENDEDOR
 
 // Cliente Específico
-import ClienteSeleccionAsientos from "./components/cliente/ClienteSeleccionAsientos"; // Ajusta path
+import ClienteSeleccionAsientosPage from "./pages/cliente/ClienteSeleccionAsientosPage.css"; // Ajusta path
 import ClienteCheckoutPage from "./pages/cliente/ClienteCheckoutPage"; // <-- NUEVA IMPORTACIÓN, ajusta path
 
 // Página de Acceso Denegado
@@ -71,7 +71,7 @@ const AppRouter = () => {
 
             {/* --- RUTAS DEL FLUJO DE COMPRA DEL CLIENTE (SIN LAYOUT DE VENDEDOR) --- */}
             <Route element={<ProtectedRoute allowedRoles={['CLIENTE', 'cliente', 'VENDEDOR', 'vendedor', 'ADMINISTRADOR', 'administrador']} />}>
-                <Route path="/compra/viaje/:viajeId/seleccionar-asientos" element={<ClienteSeleccionAsientos />} />
+                <Route path="/compra/viaje/:viajeId/seleccionar-asientos" element={<ClienteSeleccionAsientosPage />} />
                 <Route path="/compra/viaje/:viajeId/asiento/:asientoNumero/checkout" element={<ClienteCheckoutPage />} /> {/* Usa ClienteCheckoutPage */}
             </Route>
 
