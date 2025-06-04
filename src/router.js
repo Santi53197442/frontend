@@ -43,7 +43,7 @@ import SeleccionAsientosPage from "./pages/vendedor/SeleccionAsientosPage"; // P
 import CheckoutPage from './pages/vendedor/CheckoutPage'; // Para VENDEDOR
 
 // Cliente Específico
-import ClienteSeleccionAsientosPage from "./pages/cliente/ClienteSeleccionAsientosPage.css"; // Ajusta path
+import ClienteSeleccionAsientosPage from "./pages/cliente/ClienteSeleccionAsientosPage"; // Ajusta path
 import ClienteCheckoutPage from "./pages/cliente/ClienteCheckoutPage"; // <-- NUEVA IMPORTACIÓN, ajusta path
 
 // Página de Acceso Denegado
