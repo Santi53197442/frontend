@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom'; // <--- 1. IMPORTAR useNavigate
-// Asegúrate que la ruta a tu apiService sea correcta
+import { useNavigate } from 'react-router-dom';
 import { buscarViajesConDisponibilidad, obtenerTodasLasLocalidades } from '../../services/api';
 import './ListadoViajes.css';
 
 const VendedorListadoViajesCompra = () => {
-    const navigate = useNavigate(); // <--- 2. INICIALIZAR useNavigate
+    const navigate = useNavigate();
 
     const [viajes, setViajes] = useState([]);
     const [localidades, setLocalidades] = useState([]);
@@ -15,7 +14,7 @@ const VendedorListadoViajesCompra = () => {
     const [filtros, setFiltros] = useState({
         origenId: '',
         destinoId: '',
-        fechaDesde: '',
+        fechaDesde: '', // Este filtro seguirá funcionando como antes
         minAsientosDisponibles: '',
         sortBy: 'fechaSalida',
         sortDir: 'asc',
@@ -45,18 +44,34 @@ const VendedorListadoViajesCompra = () => {
                 }
             }
             const response = await buscarViajesConDisponibilidad(criteriosActivos);
-            setViajes(response.data);
+
+            // --- INICIO DE LA MODIFICACIÓN ---
+            const hoy = new Date();
+            // Establecemos la hora a 00:00:00 para comparar solo la fecha
+            // Esto asegura que los viajes de hoy también se muestren
+            hoy.setHours(0, 0, 0, 0);
+
+            const viajesFiltrados = response.data.filter(viaje => {
+                const fechaViaje = new Date(viaje.fechaSalida);
+                // No es necesario ajustar la hora de fechaViaje si ya viene con hora,
+                // o si solo viene la fecha, new Date() la interpretará como medianoche.
+                return fechaViaje >= hoy;
+            });
+
+            setViajes(viajesFiltrados);
+            // --- FIN DE LA MODIFICACIÓN ---
+
         } catch (err) {
             setError(err.response?.data?.message || err.message || "Error al cargar viajes");
             setViajes([]);
         } finally {
             setLoading(false);
         }
-    }, [filtros]);
+    }, [filtros]); // fetchViajes depende de 'filtros'
 
     useEffect(() => {
         fetchViajes();
-    }, [fetchViajes]);
+    }, [fetchViajes]); // Este useEffect se ejecutará cuando fetchViajes cambie (es decir, cuando filtros cambie)
 
     const handleFiltroChange = (e) => {
         const { name, value } = e.target;
@@ -68,7 +83,7 @@ const VendedorListadoViajesCompra = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        fetchViajes();
+        fetchViajes(); // Llama a fetchViajes directamente, que ya tiene la lógica de filtrado
     };
 
     const handleSortChange = (newSortBy) => {
@@ -80,6 +95,7 @@ const VendedorListadoViajesCompra = () => {
                 sortDir: newSortDir,
             };
         });
+        // No es necesario llamar a fetchViajes aquí si el useEffect [fetchViajes] ya lo hace
     };
 
     const getSortIndicator = (columnName) => {
@@ -89,12 +105,7 @@ const VendedorListadoViajesCompra = () => {
         return '';
     };
 
-    // <--- 3. CREAR LA FUNCIÓN HANDLER PARA EL BOTÓN "COMPRAR" ---
     const handleSeleccionarAsientos = (viajeSeleccionado) => {
-        // Navega a la página de selección de asientos, pasando el objeto 'viaje'
-        // (que contiene id, precio, capacidadOmnibus, etc. del ViajeConDisponibilidadDTO)
-        // a través del estado de la ruta.
-        // La ruta debe coincidir con la que definiste en AppRouter.js
         navigate(`/vendedor/viaje/${viajeSeleccionado.id}/seleccionar-asientos`, {
             state: { viajeData: viajeSeleccionado }
         });
@@ -105,7 +116,6 @@ const VendedorListadoViajesCompra = () => {
             <h2>Buscar Viajes Disponibles</h2>
 
             <form onSubmit={handleSubmit} className="filtros-form">
-                {/* ... tus inputs de filtro ... */}
                 <div className="filtro-grupo">
                     <label htmlFor="origenId">Origen:</label>
                     <select name="origenId" id="origenId" value={filtros.origenId} onChange={handleFiltroChange}>
@@ -136,7 +146,7 @@ const VendedorListadoViajesCompra = () => {
             {error && <p className="error-mensaje">Error: {error}</p>}
             {loading && !error && <p className="loading-mensaje">Cargando viajes...</p>}
             {!loading && !error && viajes.length === 0 && (
-                <p className="no-viajes-mensaje">No se encontraron viajes con los criterios seleccionados.</p>
+                <p className="no-viajes-mensaje">No se encontraron viajes con los criterios seleccionados o todos los viajes disponibles ya han pasado.</p>
             )}
 
             {!loading && !error && viajes.length > 0 && (
@@ -164,7 +174,6 @@ const VendedorListadoViajesCompra = () => {
                             <td>${viaje.precio ? parseFloat(viaje.precio).toFixed(2) : 'N/A'}</td>
                             <td>{viaje.estado}</td>
                             <td>
-                                {/* <--- 4. MODIFICAR EL onClick DEL BOTÓN --- */}
                                 <button
                                     className="btn-comprar"
                                     onClick={() => handleSeleccionarAsientos(viaje)}
