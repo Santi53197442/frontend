@@ -13,10 +13,12 @@ const apiClient = axios.create({
 // Interceptor para añadir el token JWT a las cabeceras de las solicitudes
 apiClient.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem('authToken');
+        const token = localStorage.getItem('authToken'); // Asegúrate que 'authToken' es la clave correcta
         if (token) {
             config.headers['Authorization'] = `Bearer ${token}`;
         }
+        // Solo para depuración, puedes quitarlo después
+        // console.log("Enviando request a:", config.url, "con token:", token ? "Sí" : "No");
         return config;
     },
     (error) => {
@@ -32,21 +34,31 @@ apiClient.interceptors.response.use(
         if (error.response) {
             console.error("API Response Error Status:", error.response.status);
             console.error("API Response Error Data:", error.response.data);
+            // Manejo de 401 (No Autorizado - token inválido o expirado)
             if (error.response.status === 401) {
-                console.warn("Interceptor API: Error 401 - No autorizado.");
-                // Lógica de deslogueo y redirección
+                console.warn("Interceptor API: Error 401 - No autorizado (token inválido/expirado).");
+                // Aquí es donde deberías implementar la lógica de deslogueo real
+                // usando tu AuthContext o similar, en lugar de window.location.href directamente
+                // Ejemplo:
+                // authContext.logout(); // Si tienes un método logout en tu contexto
                 // localStorage.removeItem('authToken');
-                // localStorage.removeItem('userRole');
+                // localStorage.removeItem('userRole'); // y cualquier otro dato de sesión
                 // if (window.location.pathname !== '/login' && window.location.pathname !== '/register') {
-                //    window.location.href = '/login';
+                //    window.location.href = '/login'; // Redirección forzada
                 // }
             }
+            // Manejo de 403 (Prohibido - el usuario no tiene permisos para ESTE recurso)
+            // Si es 403, el token es válido, pero el rol no permite la acción.
+            // Aquí no se debería desloguear, solo informar o manejar el error en el componente.
+            if (error.response.status === 403) {
+                console.warn("Interceptor API: Error 403 - Prohibido (el rol del usuario no permite esta acción).");
+            }
         } else if (error.request) {
-            console.error("API No Response Error:", error.request);
+            console.error("API No Response Error:", error.request); // Problema de red, backend no responde
         } else {
-            console.error("API Request Setup Error:", error.message);
+            console.error("API Request Setup Error:", error.message); // Error en la configuración de la solicitud
         }
-        return Promise.reject(error);
+        return Promise.reject(error); // Muy importante propagar el error
     }
 );
 
@@ -64,6 +76,14 @@ export const registerUser = async (userData) => {
 export const loginUser = async (credentials) => {
     try {
         const response = await apiClient.post('/auth/login', credentials);
+        // Aquí es donde deberías guardar el token y el rol del usuario
+        // if (response.data && response.data.token) {
+        //     localStorage.setItem('authToken', response.data.token);
+        //     // Asumiendo que el backend devuelve el rol en response.data.usuario.rol o similar
+        //     if (response.data.usuario && response.data.usuario.rol) {
+        //         localStorage.setItem('userRole', response.data.usuario.rol);
+        //     }
+        // }
         return response;
     } catch (error) {
         console.error("Error en API al iniciar sesión:", error.response?.data || error.message);
@@ -104,7 +124,21 @@ export const changePassword = async (changePasswordDTO) => {
 
 
 // --- FUNCIONES PARA LOCALIDAD (VENDEDOR) ---
-export const crearLocalidad = async (localidadData) => {
+// ESTA FUNCIÓN SERÁ USADA TANTO POR VENDEDOR COMO POR CLIENTE (SEGÚN NUESTRO SUPUESTO)
+export const obtenerTodasLasLocalidades = async () => {
+    try {
+        const response = await apiClient.get('/vendedor/localidades-disponibles');
+        return response; // El backend debe permitir rol 'CLIENTE' aquí
+    } catch (error) {
+        // El console.error ya se maneja en el interceptor de respuesta, pero podemos ser más específicos.
+        const status = error.response?.status;
+        const errorMessage = error.response?.data?.message || error.message || "Error desconocido";
+        console.error(`Error en API (obtenerTodasLasLocalidades) - Status: ${status}, Mensaje: ${errorMessage}`);
+        throw error;
+    }
+};
+
+export const crearLocalidad = async (localidadData) => { // Solo para Vendedor/Admin
     try {
         const response = await apiClient.post('/vendedor/localidades', localidadData);
         return response;
@@ -114,7 +148,7 @@ export const crearLocalidad = async (localidadData) => {
     }
 };
 
-export const crearLocalidadesBatch = async (file) => {
+export const crearLocalidadesBatch = async (file) => { // Solo para Vendedor/Admin
     const formData = new FormData();
     formData.append('file', file);
     try {
@@ -128,17 +162,9 @@ export const crearLocalidadesBatch = async (file) => {
     }
 };
 
-export const obtenerTodasLasLocalidades = async () => {
-    try {
-        const response = await apiClient.get('/vendedor/localidades-disponibles');
-        return response;
-    } catch (error) {
-        console.error("Error en API al obtener todas las localidades:", error.response?.data || error.message);
-        throw error;
-    }
-};
 
 // --- FUNCIONES PARA ÓMNIBUS (VENDEDOR) ---
+// Estas funciones probablemente seguirán siendo solo para Vendedor/Admin
 export const crearOmnibus = async (omnibusData) => {
     try {
         const response = await apiClient.post('/vendedor/omnibus', omnibusData);
@@ -148,7 +174,7 @@ export const crearOmnibus = async (omnibusData) => {
         throw error;
     }
 };
-
+// ... (resto de funciones de ómnibus sin cambios, asumiendo que son solo para vendedor/admin)
 export const crearOmnibusBatch = async (file) => {
     const formData = new FormData();
     formData.append('file', file);
@@ -214,7 +240,24 @@ export const marcarOmnibusOperativo = async (omnibusId) => {
 };
 
 
-// --- FUNCIONES PARA VIAJE (VENDEDOR Y/O CLIENTE) ---
+// --- FUNCIONES PARA VIAJE ---
+
+// ESTA FUNCIÓN SERÁ USADA TANTO POR VENDEDOR COMO POR CLIENTE (SEGÚN NUESTRO SUPUESTO)
+export const buscarViajesConDisponibilidad = async (criterios = {}) => {
+    try {
+        const response = await apiClient.get('/vendedor/viajes/buscar-disponibles', {
+            params: criterios
+        });
+        return response; // El backend debe permitir rol 'CLIENTE' aquí
+    } catch (error) {
+        const status = error.response?.status;
+        const errorMessage = error.response?.data?.message || error.message || "Error desconocido";
+        console.error(`Error en API (buscarViajesConDisponibilidad) - Status: ${status}, Mensaje: ${errorMessage}`);
+        throw error;
+    }
+};
+
+// Estas funciones probablemente seguirán siendo solo para Vendedor/Admin
 export const crearViaje = async (viajeData) => {
     try {
         const response = await apiClient.post('/vendedor/viajes', viajeData);
@@ -235,7 +278,8 @@ export const finalizarViaje = async (viajeId) => {
         throw error;
     }
 };
-
+// ... (resto de funciones de viaje como reasignarViaje, obtenerViajesPorEstado, buscarViajesDeOmnibus,
+// asumiendo que son solo para VENDEDOR/ADMIN, se mantienen igual) ...
 export const reasignarViaje = async (viajeId, nuevoOmnibusId) => {
     try {
         const requestBody = {
@@ -278,98 +322,57 @@ export const buscarViajesDeOmnibus = async (omnibusId, params = {}) => {
     }
 };
 
-export const buscarViajesConDisponibilidad = async (criterios = {}) => {
+
+// ESTA FUNCIÓN TAMBIÉN SERÁ USADA POR CLIENTES Y VENDEDORES
+export const obtenerDetallesViajeConAsientos = async (viajeId) => {
     try {
-        const response = await apiClient.get('/vendedor/viajes/buscar-disponibles', {
-            params: criterios
-        });
-        return response;
+        const response = await apiClient.get(`/vendedor/viajes/${viajeId}/detalles-asientos`);
+        return response; // El backend debe permitir rol 'CLIENTE' aquí
     } catch (error) {
-        console.error(
-            "Error en API al buscar viajes con disponibilidad:",
-            error.response?.data || error.message
-        );
+        const status = error.response?.status;
+        const errorMessage = error.response?.data?.message || error.message || "Error desconocido";
+        console.error(`Error en API (obtenerDetallesViajeConAsientos para viaje ${viajeId}) - Status: ${status}, Mensaje: ${errorMessage}`);
         throw error;
     }
 };
 
-// --- NUEVA FUNCIÓN ---
-/**
- * Obtiene los detalles de un viaje específico, incluyendo la capacidad del ómnibus
- * y la lista de números de asiento que ya están ocupados.
- * @param {number|string} viajeId El ID del viaje a consultar.
- * @returns {Promise<axios.Response<object>>} La respuesta de la API con el ViajeDetalleConAsientosDTO.
- */
-export const obtenerDetallesViajeConAsientos = async (viajeId) => {
+// ESTA FUNCIÓN TAMBIÉN SERÁ USADA POR CLIENTES Y VENDEDORES
+export const obtenerAsientosOcupados = async (viajeId) => {
     try {
-        // El endpoint es /api/vendedor/viajes/{viajeId}/detalles-asientos
-        // Si tu baseURL ya es /api, entonces el path relativo es /vendedor/viajes/...
-        const response = await apiClient.get(`/vendedor/viajes/${viajeId}/detalles-asientos`);
-        return response; // response.data contendrá el ViajeDetalleConAsientosDTO
+        const response = await apiClient.get(`/vendedor/viajes/${viajeId}/asientos-ocupados`);
+        return response; // El backend debe permitir rol 'CLIENTE' aquí
     } catch (error) {
-        console.error(
-            `Error en API al obtener detalles y asientos para el viaje ID ${viajeId}:`,
-            error.response?.data || error.message
-        );
+        const status = error.response?.status;
+        const errorMessage = error.response?.data?.message || error.message || "Error desconocido";
+        console.error(`Error en API (obtenerAsientosOcupados para viaje ${viajeId}) - Status: ${status}, Mensaje: ${errorMessage}`);
         throw error;
     }
 };
 
 // --- FUNCIONES PARA PASAJES ---
 
-/**
- * Obtiene la lista de números de asientos que ya están ocupados para un viaje específico.
- * @param {number|string} viajeId El ID del viaje.
- * @returns {Promise<axios.Response<number[]>>} La respuesta de la API con un array de números de asiento.
- */
-export const obtenerAsientosOcupados = async (viajeId) => {
-    try {
-        const response = await apiClient.get(`/vendedor/viajes/${viajeId}/asientos-ocupados`);
-        // response.data será el array de números [1, 5, 10]
-        return response;
-    } catch (error) {
-        console.error(
-            `Error en API al obtener asientos ocupados para el viaje ID ${viajeId}:`,
-            error.response?.data || error.message
-        );
-        throw error;
-    }
-};
-
-/**
- * Realiza la compra de un pasaje.
- * @param {object} compraRequestDTO El DTO con los datos para la compra.
- * @param {number} compraRequestDTO.viajeId
- * @param {number} compraRequestDTO.clienteId
- * @param {number} compraRequestDTO.numeroAsiento
- * @returns {Promise<axios.Response<object>>} La respuesta de la API con el PasajeResponseDTO.
- */
+// ESTA FUNCIÓN PODRÍA SER USADA POR CLIENTES (para su propia compra) Y VENDEDORES (para comprar para un cliente)
+// El backend necesitará manejar la lógica de clienteId adecuadamente.
+// Si un cliente compra, el clienteId puede ser obtenido del token.
+// Si un vendedor compra, el clienteId se envía en el DTO.
 export const comprarPasaje = async (compraRequestDTO) => {
     try {
-        const response = await apiClient.post('/vendedor/pasajes/comprar', compraRequestDTO);
-        // response.data será el PasajeResponseDTO
+        // El endpoint podría ser más genérico si el backend lo maneja así,
+        // o podrías tener '/cliente/pasajes/comprar' y '/vendedor/pasajes/comprar'
+        const response = await apiClient.post('/vendedor/pasajes/comprar', compraRequestDTO); // Backend debe permitir rol 'CLIENTE' aquí
         return response;
     } catch (error) {
-        console.error(
-            "Error en API al comprar pasaje:",
-            error.response?.data || error.message
-        );
+        const status = error.response?.status;
+        const errorMessage = error.response?.data?.message || error.message || "Error desconocido";
+        console.error(`Error en API (comprarPasaje) - Status: ${status}, Mensaje: ${errorMessage}`);
         throw error;
     }
 };
 
-/**
- * Obtiene una lista de usuarios (clientes) para que el vendedor seleccione.
- * DEBES AJUSTAR EL ENDPOINT A TU IMPLEMENTACIÓN REAL.
- * @returns {Promise<axios.Response<object[]>>} La respuesta de la API con un array de usuarios.
- */
+// Esta función es más probable que sea solo para Vendedor/Admin
 export const obtenerUsuariosParaSeleccion = async () => {
     try {
-        // EJEMPLO DE ENDPOINT: Podría ser /admin/usuarios?rol=CLIENTE
-        // o /vendedor/clientes. Asegúrate que este endpoint exista y devuelva
-        // un array de objetos usuario, cada uno con al menos 'id' y 'nombre'.
-        const response = await apiClient.get('/admin/usuarios?rol=CLIENTE'); // <-- ¡¡AJUSTA ESTE ENDPOINT!!
-        // response.data será el array de usuarios
+        const response = await apiClient.get('/admin/usuarios?rol=CLIENTE');
         return response;
     } catch (error) {
         console.error(
@@ -380,27 +383,9 @@ export const obtenerUsuariosParaSeleccion = async () => {
     }
 };
 
-
-// Si vas a implementar la descarga de PDF:
-// export const descargarPasajePdf = async (pasajeId) => {
-//     try {
-//         const response = await apiClient.get(`/vendedor/pasajes/${pasajeId}/pdf`, {
-//             responseType: 'blob', // Importante para archivos
-//         });
-//         return response;
-//     } catch (error) {
-//         console.error(
-//             `Error en API al descargar PDF para pasaje ID ${pasajeId}:`,
-//             error.response?.data || error.message
-//         );
-//         throw error;
-//     }
-// };
 export const buscarClientePorCI = async (ci) => {
     try {
-        // ANTES: const response = await apiClient.get(`/usuarios/ci/${ci}`);
-        // CORREGIDO:
-        const response = await apiClient.get(`/user/ci/${ci}`); // Cambiar "usuarios" a "user"
+        const response = await apiClient.get(`/user/ci/${ci}`);
         return response;
     } catch (error) {
         console.error(`API Error: buscarClientePorCI para CI ${ci}:`, error.response?.data || error.message);
