@@ -163,3 +163,73 @@
     border: none;
     border-radius: 4px;
 }
+
+/* ... (tus estilos existentes de Checkout.css) ... */
+
+.checkout-buscar-cliente {
+    padding: 20px;
+    margin-bottom: 25px;
+    background-color: #f0f4f8; /* Un azul/gris claro diferente */
+    border: 1px solid #d1d9e6;
+    border-radius: 6px;
+}
+
+.checkout-buscar-cliente label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #333;
+    font-size: 1.1em;
+}
+
+.input-group-ci {
+    display: flex;
+    gap: 10px; /* Espacio entre input y botón */
+    margin-bottom: 10px;
+}
+
+.input-group-ci input[type="text"] {
+    flex-grow: 1; /* El input toma el espacio disponible */
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #bdc3c7;
+    font-size: 1em;
+}
+
+.input-group-ci button {
+    padding: 10px 15px;
+    background-color: #3498db; /* Azul */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.95em;
+}
+.input-group-ci button:disabled {
+    background-color: #a4c9e4;
+}
+
+.info-cliente-encontrado {
+    margin-top: 15px;
+    padding: 15px;
+    background-color: #e8f5e9; /* Verde claro */
+    border: 1px solid #a5d6a7;
+    border-radius: 4px;
+}
+.info-cliente-encontrado p {
+    margin: 5px 0;
+    color: #155724; /* Verde oscuro */
+}
+.cliente-confirmado-mensaje {
+    font-weight: bold;
+    color: green;
+}
+
+.error-mensaje.input-error { /* Para errores de input específicos */
+    font-size: 0.9em;
+    margin-top: 5px;
+    background-color: transparent;
+    border: none;
+    padding: 0;
+    text-align: left;
+}
