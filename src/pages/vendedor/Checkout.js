@@ -20,7 +20,6 @@ const Checkout = () => {
 
     const [viajeData, setViajeData] = useState(initialViajeData);
     const [asientoSeleccionado, setAsientoSeleccionado] = useState(initialAsiento);
-
     const [clientes, setClientes] = useState([]);
     const [clienteSeleccionadoId, setClienteSeleccionadoId] = useState(''); // Inicia como string vacío
 
@@ -42,6 +41,8 @@ const Checkout = () => {
         const cargarDatos = async () => {
             setLoadingInitialData(true);
             setError(null);
+            setCompraError(null); // Resetear errores de compra previos al recargar
+            setCompraExitosaInfo(null); // Resetear info de compra previa
 
             if (isNaN(parsedUrlViajeId) || isNaN(asientoSeleccionado)) {
                 setError("La información del viaje o el número de asiento no son válidos.");
@@ -53,15 +54,12 @@ const Checkout = () => {
 
             try {
                 if (!currentViajeData || currentViajeData.id !== parsedUrlViajeId) {
-                    console.log(`Checkout: Necesita cargar/recargar datos del viaje ID: ${parsedUrlViajeId}`);
                     const responseDetalles = await obtenerDetallesViajeConAsientos(parsedUrlViajeId);
                     if (!responseDetalles.data || typeof responseDetalles.data.id === 'undefined') {
                         throw new Error("La API no devolvió información válida para el viaje.");
                     }
                     currentViajeData = responseDetalles.data;
                     setViajeData(currentViajeData);
-                } else {
-                    console.log("Checkout: Usando viajeData existente:", currentViajeData);
                 }
 
                 if (currentViajeData && currentViajeData.capacidadOmnibus) {
@@ -75,8 +73,8 @@ const Checkout = () => {
                     setClientes(responseClientes.data || []);
                 } else if (userRole === 'CLIENTE') {
                     const clienteLogueadoId = localStorage.getItem('userId');
-                    if (clienteLogueadoId) {
-                        setClienteSeleccionadoId(clienteLogueadoId); // Se setea el ID del cliente logueado
+                    if (clienteLogueadoId && !isNaN(parseInt(clienteLogueadoId, 10))) {
+                        setClienteSeleccionadoId(clienteLogueadoId);
                     } else {
                         setError("No se pudo identificar al usuario cliente. Por favor, inicie sesión.");
                     }
@@ -94,15 +92,20 @@ const Checkout = () => {
 
 
     const handleConfirmarYComprar = async () => {
+        console.log("Checkout - handleConfirmarYComprar INVOCADO");
+        console.log("Valores para compra:", { viajeData, asientoSeleccionado, clienteSeleccionadoId, userRole });
+
         if (!viajeData || isNaN(asientoSeleccionado)) {
+            console.log("Checkout - Compra Fallida: viajeData o asientoSeleccionado inválido.");
             setCompraError("La información del viaje o del asiento no está completa para continuar.");
             return;
         }
 
-        // --- VALIDACIÓN MEJORADA PARA clienteSeleccionadoId ---
         const idClienteParseado = parseInt(clienteSeleccionadoId, 10);
+        console.log("Checkout - idClienteParseado para compra:", idClienteParseado);
 
-        if (isNaN(idClienteParseado) || idClienteParseado <= 0) { // Un ID válido debe ser un número positivo
+        if (isNaN(idClienteParseado) || idClienteParseado <= 0) {
+            console.log("Checkout - Compra Fallida: idClienteParseado inválido.");
             if (userRole === 'VENDEDOR' || userRole === 'ADMIN') {
                 setCompraError("Por favor, seleccione un cliente válido de la lista.");
             } else if (userRole === 'CLIENTE') {
@@ -110,8 +113,8 @@ const Checkout = () => {
             }
             return;
         }
-        // --- FIN DE VALIDACIÓN MEJORADA ---
 
+        console.log("Checkout - Validaciones para compra pasadas. Procediendo...");
         setLoadingPago(true);
         setCompraError(null);
         try {
@@ -120,20 +123,32 @@ const Checkout = () => {
 
             const datosCompra = {
                 viajeId: viajeData.id,
-                clienteId: idClienteParseado, // Usar el ID parseado y validado
+                clienteId: idClienteParseado,
                 numeroAsiento: asientoSeleccionado,
             };
-            console.log("Enviando a comprarPasaje:", datosCompra);
+            console.log("Enviando a comprarPasaje API:", datosCompra);
             const response = await comprarPasaje(datosCompra);
+            console.log("Respuesta de comprarPasaje API:", response.data);
             setCompraExitosaInfo(response.data);
         } catch (err) {
-            console.error("Checkout - Error durante la compra:", err);
+            console.error("Checkout - Error durante la compra API:", err);
             setCompraError(err.response?.data?.message || err.message || "Error al procesar la compra.");
         } finally {
             setLoadingPago(false);
         }
     };
 
+    // --- Condición para deshabilitar el botón de pagar ---
+    // El botón se deshabilita si:
+    // 1. Se está procesando el pago (loadingPago).
+    // 2. Si el rol es VENDEDOR o ADMIN y clienteSeleccionadoId es vacío (no se ha elegido cliente del dropdown).
+    // 3. Si el rol es CLIENTE y clienteSeleccionadoId es vacío (no se pudo obtener el ID del cliente logueado).
+    const isPagoDisabled = loadingPago ||
+        ((userRole === 'VENDEDOR' || userRole === 'ADMIN') && (!clienteSeleccionadoId || clienteSeleccionadoId === '')) ||
+        (userRole === 'CLIENTE' && (!clienteSeleccionadoId || clienteSeleccionadoId === ''));
+
+
+    // --- Renderizado Condicional ---
     if (loadingInitialData) {
         return <p className="loading-mensaje">Cargando información del checkout...</p>;
     }
@@ -164,12 +179,13 @@ const Checkout = () => {
         );
     }
 
+    // --- Renderizado Principal ---
     return (
         <div className="checkout-page-container">
             <button
                 onClick={() => navigate(`/vendedor/viaje/${viajeData.id}/seleccionar-asientos`, { state: { viajeData: viajeData } })}
                 className="btn-checkout-volver-atras"
-                disabled={loadingPago || !!compraExitosaInfo}
+                disabled={loadingPago || !!compraExitosaInfo} // Deshabilitar si ya se compró o está pagando
             >
                 ← Modificar Selección de Asiento
             </button>
@@ -186,15 +202,18 @@ const Checkout = () => {
             {!compraExitosaInfo && (userRole === 'VENDEDOR' || userRole === 'ADMIN') && (
                 <div className="checkout-selector-cliente">
                     <label htmlFor="cliente-checkout">Asignar Pasaje a Cliente:</label>
-                    {clientes.length === 0 && !loadingInitialData && !(userRole === 'CLIENTE') && <p>No hay clientes para seleccionar o no se pudieron cargar.</p>}
+                    {clientes.length === 0 && !loadingInitialData && <p>No hay clientes para seleccionar o no se pudieron cargar.</p>}
                     <select
                         id="cliente-checkout"
-                        value={clienteSeleccionadoId} // Sigue siendo el string aquí
-                        onChange={(e) => setClienteSeleccionadoId(e.target.value)}
+                        value={clienteSeleccionadoId}
+                        onChange={(e) => {
+                            setClienteSeleccionadoId(e.target.value);
+                            setCompraError(null); // Limpiar error de compra si se cambia el cliente
+                        }}
                         required
                         disabled={loadingPago || loadingInitialData}
                     >
-                        <option value="">-- Seleccionar Cliente --</option> {/* value es "" */}
+                        <option value="">-- Seleccionar Cliente --</option>
                         {clientes.map(cliente => (
                             <option key={cliente.id} value={String(cliente.id)}>{cliente.nombre} (ID: {cliente.id})</option>
                         ))}
@@ -210,7 +229,7 @@ const Checkout = () => {
                     <button
                         onClick={handleConfirmarYComprar}
                         className="btn-checkout-pagar"
-                        disabled={loadingPago || ((userRole === 'VENDEDOR' || userRole === 'ADMIN') && !clienteSeleccionadoId) || (userRole === 'CLIENTE' && !clienteSeleccionadoId)}
+                        disabled={isPagoDisabled} // Usar la variable de estado para deshabilitar
                     >
                         {loadingPago ? 'Procesando...' : `Confirmar y Pagar $${viajeData.precio ? parseFloat(viajeData.precio).toFixed(2) : 'N/A'}`}
                     </button>
