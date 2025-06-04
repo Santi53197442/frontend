@@ -1,0 +1,287 @@
+/*
+  Ubicación sugerida: src/components/vendedor/SeleccionAsientos.css
+  O si es más genérico: src/styles/SeleccionAsientos.css o src/assets/css/SeleccionAsientos.css
+  Este archivo sería importado tanto por SeleccionAsientosPage.js (vendedor)
+  como por ClienteSeleccionAsientos.js (cliente).
+*/
+
+.seleccion-asientos-container {
+    padding: 25px; /* Aumentar padding general */
+    max-width: 700px; /* Ancho máximo para el contenido central */
+    margin: 30px auto; /* Centrar y dar más margen superior/inferior */
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; /* Tipografía moderna */
+    background-color: #ffffff; /* Fondo blanco para el contenedor principal */
+    border-radius: 12px; /* Bordes más redondeados */
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1); /* Sombra más pronunciada */
+    border: 1px solid #e0e0e0; /* Borde sutil */
+}
+
+/* Botón para volver al listado o página anterior */
+.btn-volver-listado {
+    background-color: #6c757d; /* Gris estándar */
+    color: white;
+    border: none;
+    padding: 10px 18px; /* Padding ajustado */
+    border-radius: 6px;
+    cursor: pointer;
+    margin-bottom: 20px; /* Espacio antes del título */
+    font-size: 0.95em;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+}
+.btn-volver-listado:hover {
+    background-color: #5a6268; /* Gris más oscuro al pasar el mouse */
+}
+
+.seleccion-asientos-container h2 {
+    text-align: center;
+    color: #2c3e50; /* Azul oscuro/grisáceo para títulos */
+    margin-bottom: 25px; /* Más espacio después del título */
+    font-size: 1.8em; /* Tamaño del título */
+    font-weight: 600;
+}
+
+/* Información del Viaje */
+.info-viaje-seleccion {
+    background-color: #f8f9fa; /* Fondo gris muy claro */
+    padding: 20px;
+    margin-bottom: 25px;
+    border-radius: 8px;
+    text-align: center;
+    border: 1px solid #e9ecef; /* Borde sutil */
+}
+.info-viaje-seleccion p {
+    margin: 6px 0;
+    font-size: 1em; /* Tamaño de fuente base */
+    color: #495057; /* Gris oscuro para el texto */
+}
+.info-viaje-seleccion strong {
+    color: #0056b3; /* Azul para resaltar */
+}
+
+/* Leyenda de Asientos */
+.leyenda-asientos-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap; /* Para que se ajuste en móviles */
+    margin-bottom: 20px;
+    padding: 12px;
+    background-color: #ffffff;
+    border-radius: 6px;
+    border: 1px solid #e0e0e0;
+    font-size: 0.9em;
+    gap: 20px; /* Espacio entre elementos de la leyenda */
+}
+.leyenda-item {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Espacio entre el cuadrito y el texto */
+}
+.asiento-ejemplo {
+    width: 18px; /* Tamaño del cuadrito de ejemplo */
+    height: 18px;
+    border-radius: 4px; /* Bordes redondeados para el ejemplo */
+    border: 1px solid #bdbdbd; /* Borde gris para el ejemplo */
+}
+/* Colores para los ejemplos de la leyenda (deben coincidir con los asientos reales) */
+.asiento-ejemplo.asiento { background-color: #a7d7c5; border-color: #7FAE9B; } /* Libre - Verde */
+.asiento-ejemplo.ocupado { background-color: #f6a6a5; border-color: #D97A79; }   /* Ocupado - Rojo/Rosa */
+.asiento-ejemplo.seleccionado { background-color: #5c9ead; border-color: #327D8E;} /* Seleccionado - Azul */
+
+
+/* Mapa de Asientos */
+.mapa-asientos-render {
+    border: 1px solid #e0e0e0; /* Borde sutil para el contenedor del mapa */
+    padding: 25px; /* Padding interno */
+    margin-bottom: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centrar contenido (barra y filas) */
+    background-color: #ffffff;
+    border-radius: 8px; /* Bordes redondeados */
+}
+.frente-omnibus-barra {
+    background-color: #4a5568; /* Gris oscuro */
+    color: white;
+    padding: 10px 0; /* Padding vertical */
+    width: 70%; /* Ancho relativo */
+    max-width: 280px; /* Ancho máximo */
+    text-align: center;
+    margin-bottom: 25px; /* Espacio antes de los asientos */
+    font-weight: bold;
+    border-radius: 5px;
+    font-size: 0.95em;
+    letter-spacing: 0.5px; /* Ligero espaciado de letras */
+}
+
+.fila-asientos {
+    display: flex;
+    justify-content: center; /* Centrar asientos dentro de la fila */
+    margin-bottom: 6px; /* Espacio entre filas */
+    align-items: center;
+}
+
+/* Estilos para cada Asiento (Botón) */
+.asiento {
+    width: 40px; /* Tamaño del asiento */
+    height: 40px;
+    margin: 5px; /* Espacio alrededor de cada asiento */
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px; /* Bordes redondeados para los asientos */
+    font-size: 0.9em;
+    font-weight: 600; /* Un poco más de peso a la fuente */
+    transition: background-color 0.2s ease, transform 0.15s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+    box-sizing: border-box;
+    border: 1px solid #ccc; /* Borde base por si alguna clase específica no se aplica */
+}
+
+/* Asiento Disponible (Libre) - VERDE */
+.asiento.disponible, .asiento:not(.ocupado):not(.seleccionado) { /* .asiento solo también debería ser verde */
+    background-color: #a7d7c5; /* Verde claro */
+    border-color: #7FAE9B;
+    color: #2f5a4a; /* Texto oscuro para contraste */
+}
+.asiento.disponible:hover:not(:disabled),
+.asiento:not(.ocupado):not(.seleccionado):hover:not(:disabled) {
+    background-color: #8dc4b3; /* Verde un poco más oscuro al pasar el mouse */
+    transform: scale(1.08); /* Ligero efecto de zoom */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Asiento Ocupado - ROJO/ROSA */
+.asiento.ocupado {
+    background-color: #f6a6a5; /* Rojo claro */
+    border-color: #D97A79;
+    color: #8c3b3a; /* Texto rojo oscuro */
+    cursor: not-allowed;
+    opacity: 0.8; /* Un poco más tenue */
+}
+.asiento.ocupado:hover { /* Sin efecto hover para ocupados */
+    background-color: #f6a6a5;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Asiento Seleccionado por el usuario - AZUL */
+.asiento.seleccionado {
+    background-color: #5c9ead; /* Azul */
+    border-color: #327D8E;
+    color: white;
+    transform: scale(1.1); /* Más zoom para el seleccionado */
+    box-shadow: 0 0 0 3px rgba(42, 112, 130, 0.5), 0 4px 10px rgba(0,0,0,0.2); /* Resaltado más fuerte */
+}
+.asiento.seleccionado:hover:not(:disabled) {
+    background-color: #50919f; /* Azul un poco más oscuro al pasar el mouse */
+    border-color: #2a7081;
+}
+
+.pasillo {
+    width: 35px; /* Ancho del pasillo un poco mayor */
+    height: 40px; /* Misma altura que los asientos */
+    margin: 5px;  /* Mismos márgenes que los asientos */
+}
+
+/* Resumen de la Selección Actual */
+.resumen-seleccion-actual {
+    text-align: center;
+    padding: 25px;
+    background-color: #e9f5fd; /* Fondo azul muy claro */
+    border-radius: 8px;
+    margin-top: 20px;
+    border: 1px solid #b3e5fc; /* Borde azul claro */
+}
+.resumen-seleccion-actual h3 {
+    margin-top: 0;
+    margin-bottom: 18px; /* Más espacio */
+    color: #01579b; /* Azul oscuro para el título del resumen */
+    font-size: 1.3em;
+}
+.asiento-numero-grande {
+    font-size: 2.2em; /* Número de asiento más grande */
+    font-weight: bold;
+    color: #007bff; /* Azul primario */
+    background-color: #fff;
+    border: 2px solid #007bff;
+    border-radius: 50%;
+    width: 65px; /* Tamaño del círculo */
+    height: 65px;
+    line-height: 61px; /* Centrado vertical */
+    margin: 0 auto 18px auto;
+    display: inline-block;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.resumen-seleccion-actual p {
+    margin: 10px 0;
+    color: #333; /* Texto más oscuro para mejor lectura */
+    font-size: 1.05em;
+}
+
+/* Botón para Continuar al Checkout */
+.btn-continuar-checkout {
+    background-color: #28a745; /* Verde éxito */
+    color: white;
+    border: none;
+    padding: 14px 30px; /* Padding generoso */
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1.15em;
+    font-weight: bold;
+    margin-top: 20px;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+    letter-spacing: 0.5px;
+}
+.btn-continuar-checkout:hover:not(:disabled) {
+    background-color: #218838; /* Verde más oscuro */
+    transform: translateY(-2px); /* Ligero efecto de elevación */
+}
+.btn-continuar-checkout:disabled {
+    background-color: #a0aec0; /* Gris para deshabilitado */
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Mensaje cuando no hay asiento seleccionado */
+.mensaje-seleccionar-asiento {
+    text-align: center;
+    color: #555; /* Gris medio */
+    margin-top: 25px;
+    padding: 18px;
+    background-color: #fdfdfe; /* Fondo casi blanco */
+    border: 1px dashed #ced4da; /* Borde discontinuo */
+    border-radius: 6px;
+    font-style: italic;
+}
+
+/* Mensajes de Carga y Error */
+.loading-mensaje, .error-mensaje {
+    text-align: center;
+    padding: 20px;
+    margin: 20px 0;
+    border-radius: 6px;
+}
+.loading-mensaje {
+    color: #0056b3; /* Azul */
+    background-color: #e7f3ff;
+    border: 1px solid #cce0ff;
+}
+.error-mensaje {
+    color: #721c24; /* Rojo oscuro */
+    background-color: #f8d7da; /* Rosa claro */
+    border: 1px solid #f5c6cb;
+}
+.error-mensaje button { /* Estilo para el botón de volver en caso de error */
+    margin-left: 15px;
+    padding: 5px 10px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.error-mensaje button:hover {
+    background-color: #c82333;
+}
