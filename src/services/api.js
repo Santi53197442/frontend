@@ -396,15 +396,15 @@ export const obtenerUsuariosParaSeleccion = async () => {
 //         throw error;
 //     }
 // };
-// En apiService.js
 export const buscarClientePorCI = async (ci) => {
     try {
-        // Ajusta el endpoint si es diferente
-        const response = await apiClient.get(`/usuarios/ci/${ci}`);
-        return response; // response.data será ClienteEncontradoDTO
+        // ANTES: const response = await apiClient.get(`/usuarios/ci/${ci}`);
+        // CORREGIDO:
+        const response = await apiClient.get(`/user/ci/${ci}`); // Cambiar "usuarios" a "user"
+        return response;
     } catch (error) {
         console.error(`API Error: buscarClientePorCI para CI ${ci}:`, error.response?.data || error.message);
-        throw error; // Permite que el componente maneje el 404
+        throw error;
     }
 };
 
