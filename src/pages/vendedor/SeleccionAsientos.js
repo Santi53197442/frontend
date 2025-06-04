@@ -4,17 +4,17 @@ import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import {
     obtenerDetallesViajeConAsientos,
     obtenerAsientosOcupados
-} from '../../services/api'; // Ajusta la ruta a tu apiService.js
-import './SeleccionAsientos.css'; // Asegúrate de tener este archivo CSS
+} from '../../services/api';
+import './SeleccionAsientos.css';
 
 const SeleccionAsientos = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { viajeId: viajeIdFromParams } = useParams(); // 'viajeId' debe coincidir con tu ruta
+    const { viajeId: viajeIdFromParams } = useParams();
 
     const [viajeDetalles, setViajeDetalles] = useState(location.state?.viajeData || null);
     const [asientosOcupados, setAsientosOcupados] = useState([]);
-    const [asientoSeleccionado, setAsientoSeleccionado] = useState(null); // Inicia en null
+    const [asientoSeleccionado, setAsientoSeleccionado] = useState(null);
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -30,35 +30,27 @@ const SeleccionAsientos = () => {
         setLoading(true);
         setError(null);
         try {
-            // Si no tenemos los detalles del viaje desde el state, o el ID no coincide, los cargamos.
             if (!viajeDetalles || viajeDetalles.id !== parsedViajeId) {
-                console.log(`Cargando detalles para viaje ID: ${parsedViajeId}`);
                 const responseDetalles = await obtenerDetallesViajeConAsientos(parsedViajeId);
-                setViajeDetalles(responseDetalles.data); // Asume que response.data es ViajeDetalleConAsientosDTO
-            } else {
-                console.log(`Usando viajeData desde state para viaje ID: ${parsedViajeId}`);
+                setViajeDetalles(responseDetalles.data);
             }
-
             const responseOcupados = await obtenerAsientosOcupados(parsedViajeId);
             setAsientosOcupados(responseOcupados.data || []);
         } catch (err) {
-            console.error("Error al cargar datos del viaje o asientos:", err);
             const errorMessage = err.response?.data?.message || err.message || "Error al cargar datos.";
             setError(errorMessage);
-            setViajeDetalles(null); // Limpiar si falla la carga crítica
+            setViajeDetalles(null);
         } finally {
             setLoading(false);
         }
-    }, [parsedViajeId, viajeDetalles]); // Dependencia en viajeDetalles para re-evaluar si ya lo tenemos
+    }, [parsedViajeId, viajeDetalles]);
 
     useEffect(() => {
         cargarDatosViajeYAsientos();
     }, [cargarDatosViajeYAsientos]);
 
-
     const handleSeleccionarAsiento = (numeroAsiento) => {
-        if (asientosOcupados.includes(numeroAsiento)) return; // No seleccionar ocupados
-        // Si el asiento clickeado es el ya seleccionado, lo des-selecciona (null). Sino, lo selecciona.
+        if (asientosOcupados.includes(numeroAsiento)) return;
         setAsientoSeleccionado(prevSeleccionado => prevSeleccionado === numeroAsiento ? null : numeroAsiento);
     };
 
@@ -71,18 +63,16 @@ const SeleccionAsientos = () => {
             alert("No hay información del viaje disponible.");
             return;
         }
-        // Navegar a la página de checkout, pasando la información necesaria
         navigate(`/vendedor/viaje/${viajeDetalles.id}/asiento/${asientoSeleccionado}/checkout`, {
             state: {
-                viajeData: viajeDetalles,       // El objeto ViajeDetalleConAsientosDTO completo
-                asientoNumero: asientoSeleccionado // El número de asiento seleccionado
+                viajeData: viajeDetalles,
+                asientoNumero: asientoSeleccionado
             }
         });
     };
 
     const getCapacidadAsientos = () => {
         if (!viajeDetalles) return 0;
-        // Tu ViajeDetalleConAsientosDTO debe tener 'capacidadOmnibus' o 'omnibus.capacidadAsientos'
         return viajeDetalles.capacidadOmnibus || (viajeDetalles.omnibus && viajeDetalles.omnibus.capacidadAsientos) || 0;
     };
 
@@ -94,23 +84,23 @@ const SeleccionAsientos = () => {
         let asientosVisuales = [];
         for (let i = 1; i <= capacidad; i++) {
             const estaOcupado = asientosOcupados.includes(i);
-            const estaSeleccionado = asientoSeleccionado === i; // Compara con el estado
+            const estaSeleccionadoPorUsuario = asientoSeleccionado === i; // Renombrado para claridad
 
-            let claseAsiento = "asiento"; // Clase base para todos los asientos
+            let claseAsiento = "asiento"; // Clase base. Por CSS, esta ya debería ser 'disponible' (verde)
 
             if (estaOcupado) {
-                claseAsiento += " ocupado";
-            } else if (estaSeleccionado) { // Solo si NO está ocupado, puede estar seleccionado por el usuario
-                claseAsiento += " seleccionado";
-            } else { // Si no está ocupado NI seleccionado por el usuario, entonces está disponible
-                claseAsiento += " disponible";
+                claseAsiento += " ocupado"; // Ej: "asiento ocupado"
+            } else if (estaSeleccionadoPorUsuario) {
+                claseAsiento += " seleccionado"; // Ej: "asiento seleccionado"
             }
+            // Si no está ocupado ni seleccionado por el usuario, la clase será solo "asiento",
+            // y tomará los estilos verdes definidos para .asiento en el CSS.
 
             asientosVisuales.push(
                 <button
                     key={i}
                     className={claseAsiento}
-                    onClick={() => handleSeleccionarAsiento(i)} // Pasa el número de asiento correcto
+                    onClick={() => handleSeleccionarAsiento(i)}
                     disabled={estaOcupado}
                 >
                     {i}
@@ -118,11 +108,11 @@ const SeleccionAsientos = () => {
             );
         }
         const filas = [];
-        for (let i = 0; i < asientosVisuales.length; i += 4) { // Asumiendo diseño 2-pasillo-2
+        for (let i = 0; i < asientosVisuales.length; i += 4) {
             filas.push(
                 <div key={`fila-${i/4}`} className="fila-asientos">
                     {asientosVisuales.slice(i, i + 2)}
-                    <div className="pasillo"></div> {/* El pasillo entre el 2do y 3er asiento de cada grupo de 4 */}
+                    <div className="pasillo"></div>
                     {asientosVisuales.slice(i + 2, i + 4)}
                 </div>
             );
@@ -148,9 +138,10 @@ const SeleccionAsientos = () => {
             </div>
 
             <div className="leyenda-asientos-wrapper">
-                <span className="leyenda-item"><span className="asiento-ejemplo disponible"></span> Libre</span>
-                <span className="leyenda-item"><span className="asiento-ejemplo ocupado"></span> Ocupado</span>
-                <span className="leyenda-item"><span className="asiento-ejemplo seleccionado"></span> Seleccionado</span>
+                {/* Asegúrate que los ejemplos de leyenda usen las mismas clases que los asientos */}
+                <span className="leyenda-item"><span className="asiento-ejemplo asiento"></span> Libre</span>
+                <span className="leyenda-item"><span className="asiento-ejemplo asiento ocupado"></span> Ocupado</span>
+                <span className="leyenda-item"><span className="asiento-ejemplo asiento seleccionado"></span> Seleccionado</span>
             </div>
 
             <div className="mapa-asientos-render">

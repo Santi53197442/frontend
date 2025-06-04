@@ -1,7 +1,7 @@
 /* src/components/vendedor/SeleccionAsientos.css */
 .seleccion-asientos-container {
     padding: 20px;
-    max-width: 750px; /* Un poco más de ancho para el mapa */
+    max-width: 750px;
     margin: 20px auto;
     font-family: Arial, sans-serif;
     background-color: #f4f7f6;
@@ -37,14 +37,8 @@
     text-align: center;
     border: 1px solid #ced4da;
 }
-.info-viaje-seleccion p {
-    margin: 5px 0;
-    font-size: 0.95em;
-    color: #495057;
-}
-.info-viaje-seleccion strong {
-    color: #0056b3;
-}
+.info-viaje-seleccion p { margin: 5px 0; font-size: 0.95em; color: #495057; }
+.info-viaje-seleccion strong { color: #0056b3; }
 
 .leyenda-asientos-wrapper {
     display: flex;
@@ -56,22 +50,23 @@
     border-radius: 4px;
     border: 1px solid #eee;
     font-size: 0.9em;
-    gap: 20px; /* Espacio entre elementos de la leyenda */
+    gap: 20px;
 }
-.leyenda-item {
-    display: flex;
-    align-items: center;
-}
-.asiento-ejemplo {
+.leyenda-item { display: flex; align-items: center; }
+
+.asiento-ejemplo { /* Estilos base para los cuadrados de la leyenda */
     width: 20px;
     height: 20px;
     border-radius: 3px;
     margin-right: 5px;
-    /* Los colores se definen abajo para que coincidan con los asientos reales */
+    display: inline-block; /* Necesario para que se apliquen bien los estilos de .asiento */
 }
-.asiento-ejemplo.disponible { background-color: #a7d7c5; border-color: #7FAE9B; }
-.asiento-ejemplo.ocupado { background-color: #f6a6a5; border-color: #D97A79; }
-.asiento-ejemplo.seleccionado { background-color: #5c9ead; border-color: #327D8E;}
+
+/* Los ejemplos de la leyenda usan las mismas clases que los asientos reales */
+/* .asiento-ejemplo.asiento -> para el verde (disponible) */
+/* .asiento-ejemplo.asiento.ocupado -> para el rojo */
+/* .asiento-ejemplo.asiento.seleccionado -> para el azul */
+
 
 .mapa-asientos-render {
     border: 1px solid #ddd;
@@ -79,16 +74,16 @@
     margin-bottom: 25px;
     display: flex;
     flex-direction: column;
-    align-items: center; /* Centra las filas de asientos */
+    align-items: center;
     background-color: #ffffff;
     border-radius: 5px;
 }
 .frente-omnibus-barra {
-    background-color: #4a5568; /* Gris oscuro */
+    background-color: #4a5568;
     color: white;
     padding: 8px 0;
-    width: 80%; /* Relativo al contenedor .mapa-asientos-render */
-    max-width: 300px; /* Un máximo para que no sea demasiado ancho */
+    width: 80%;
+    max-width: 300px;
     text-align: center;
     margin-bottom: 20px;
     font-weight: bold;
@@ -99,16 +94,20 @@
 
 .fila-asientos {
     display: flex;
-    justify-content: center; /* Centra los elementos dentro de la fila */
     margin-bottom: 5px;
     align-items: center;
+    justify-content: center;
 }
 
-/* Estilos base comunes para todos los asientos */
+/* ESTILOS DE ASIENTOS */
+/* Por defecto, .asiento es DISPONIBLE (VERDE) */
 .asiento {
     width: 38px;
     height: 38px;
     margin: 4px;
+    border: 1px solid #7FAE9B; /* Borde verde */
+    background-color: #a7d7c5; /* Verde claro para disponible */
+    color: #2f5a4a;            /* Texto oscuro para contraste */
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -117,120 +116,78 @@
     font-size: 0.85em;
     font-weight: bold;
     transition: background-color 0.2s ease, transform 0.1s ease, border-color 0.2s ease, color 0.2s ease;
-    border: 1px solid #ccc; /* Borde base neutro */
-    background-color: #f0f0f0; /* Color base neutro por si alguna clase no se aplica */
-    color: #333; /* Color de texto base */
-    box-sizing: border-box; /* Importante para que padding y border no afecten el tamaño total */
+    box-sizing: border-box;
 }
-
-/* Asiento Disponible (Libre) - VERDE */
-.asiento.disponible {
-    background-color: #a7d7c5; /* Verde claro (el que tenías) */
-    border-color: #7FAE9B;     /* Borde verde */
-    color: #2f5a4a;            /* Texto oscuro para contraste */
-}
-.asiento.disponible:hover:not(:disabled) {
+.asiento:hover:not(:disabled) {
     background-color: #8dc4b3; /* Verde un poco más oscuro al pasar el mouse */
     transform: scale(1.05);
 }
 
-/* Asiento Ocupado - ROJO/ROSA */
+/* Sobrescribe para OCUPADO (ROJO) */
 .asiento.ocupado {
-    background-color: #f6a6a5; /* Rojo claro (el que tenías) */
+    background-color: #f6a6a5; /* Rojo claro */
     border-color: #D97A79;
     color: #8c3b3a;
     cursor: not-allowed;
 }
-.asiento.ocupado:hover { /* Evitar transform y cambio de color en hover para ocupados */
-    background-color: #f6a6a5; /* Mantiene el mismo color */
-    transform: none; /* Sin efecto de escala */
+.asiento.ocupado:hover { /* Evitar efecto hover en ocupados */
+    background-color: #f6a6a5;
+    transform: none;
 }
 
-/* Asiento Seleccionado por el usuario - AZUL/CELESTE */
+/* Sobrescribe para SELECCIONADO (AZUL) */
 .asiento.seleccionado {
-    background-color: #5c9ead; /* Azul (el que tenías) */
+    background-color: #5c9ead; /* Azul */
     border-color: #327D8E;
     color: white;
-    transform: scale(1.05); /* Efecto de escala para destacar */
-    box-shadow: 0 0 0 2px #327D8E; /* Resaltado adicional */
+    /* Opcional: un resaltado extra si lo deseas */
+    /* box-shadow: 0 0 0 2px #327D8E; */
+    /* transform: scale(1.05); ya está en el hover, pero puedes añadirlo aquí si quieres que sea permanente mientras está seleccionado */
 }
+/* Si quieres un hover diferente para el seleccionado: */
 .asiento.seleccionado:hover:not(:disabled) {
-    background-color: #50919f; /* Azul un poco más oscuro al pasar el mouse */
+    background-color: #50919f;
     border-color: #2a7081;
 }
 
 
 .pasillo {
-    width: 30px; /* Ancho del pasillo */
-    height: 38px; /* Misma altura que los asientos para alineación */
+    width: 30px;
+    height: 38px; /* Misma altura que los asientos */
     margin: 4px;  /* Mismos márgenes laterales que los asientos */
-    /* Puede ser transparente o tener un color de fondo muy sutil si se desea */
-    /* background-color: #f8f9fa; */
 }
 
 .resumen-seleccion-actual {
     text-align: center;
     padding: 20px;
-    background-color: #e2e8f0; /* Gris claro */
+    background-color: #e2e8f0;
     border-radius: 5px;
     margin-top: 10px;
     border: 1px solid #cbd5e0;
 }
-.resumen-seleccion-actual h3 {
-    margin-top: 0;
-    margin-bottom: 15px;
-    color: #2d3748; /* Gris más oscuro */
-}
+.resumen-seleccion-actual h3 { margin-top: 0; margin-bottom: 15px; color: #2d3748; }
 .asiento-numero-grande {
-    font-size: 2em;
-    font-weight: bold;
-    color: #2c5282; /* Azul oscuro */
-    background-color: #fff;
-    border: 2px solid #2c5282;
-    border-radius: 50%;
-    width: 60px;
-    height: 60px;
-    line-height: 56px; /* Ajustar para centrar verticalmente el texto */
-    margin: 0 auto 15px auto;
-    display: inline-block;
+    font-size: 2em; font-weight: bold; color: #2c5282; background-color: #fff;
+    border: 2px solid #2c5282; border-radius: 50%; width: 60px; height: 60px;
+    line-height: 56px; margin: 0 auto 15px auto; display: inline-block;
 }
-.resumen-seleccion-actual p {
-    margin: 8px 0;
-    color: #4a5568;
-}
+.resumen-seleccion-actual p { margin: 8px 0; color: #4a5568; }
+
 .btn-continuar-checkout {
-    background-color: #38a169; /* Verde */
-    color: white;
-    border: none;
-    padding: 12px 25px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1.1em;
-    font-weight: bold;
-    margin-top: 15px;
-    transition: background-color 0.2s ease;
+    background-color: #38a169; color: white; border: none; padding: 12px 25px;
+    border-radius: 5px; cursor: pointer; font-size: 1.1em; font-weight: bold;
+    margin-top: 15px; transition: background-color 0.2s ease;
 }
-.btn-continuar-checkout:hover:not(:disabled) {
-    background-color: #2f855a;
-}
-.btn-continuar-checkout:disabled {
-    background-color: #a0aec0;
-    cursor: not-allowed;
-}
+.btn-continuar-checkout:hover:not(:disabled) { background-color: #2f855a; }
+.btn-continuar-checkout:disabled { background-color: #a0aec0; cursor: not-allowed; }
 
 .mensaje-seleccionar-asiento {
-    text-align: center;
-    color: #718096; /* Gris medio */
-    margin-top: 20px;
-    padding: 15px;
-    background-color: #f7fafc;
-    border: 1px dashed #e2e8f0;
-    border-radius: 4px;
+    text-align: center; color: #718096; margin-top: 20px; padding: 15px;
+    background-color: #f7fafc; border: 1px dashed #e2e8f0; border-radius: 4px;
 }
 
-.loading-mensaje {
-    text-align: center; padding: 20px; color: #2c5282;
-}
+.loading-mensaje { text-align: center; padding: 20px; color: #2c5282; }
 .error-mensaje {
-    text-align: center; padding: 15px; color: #c53030; background-color: #fed7d7; border: 1px solid #f56565; border-radius: 4px; margin: 15px 0;
+    text-align: center; padding: 15px; color: #c53030; background-color: #fed7d7;
+    border: 1px solid #f56565; border-radius: 4px; margin: 15px 0;
 }
