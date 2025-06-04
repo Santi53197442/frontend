@@ -1,30 +1,28 @@
-// src/components/vendedor/Checkout.js (o src/pages/vendedor/Checkout.js si lo tienes ahí)
+// src/components/vendedor/Checkout.js
 import React, { useState, useEffect, useCallback } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import {
     comprarPasaje,
     obtenerUsuariosParaSeleccion,
     obtenerDetallesViajeConAsientos
-} from '../../services/api';
+} from '../../services/apiService';
 import './Checkout.css';
 
 const Checkout = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    // Los nombres aquí DEBEN COINCIDIR con los parámetros en la ruta de router.js
-    // Ruta: path="viaje/:viajeId/asiento/:asientoNumero/checkout"
     const { viajeId: viajeIdFromUrlParam, asientoNumero: asientoNumeroFromUrlParam } = useParams();
 
     const initialViajeData = location.state?.viajeData || null;
     const initialAsiento = location.state?.asientoNumero !== undefined
         ? parseInt(location.state.asientoNumero, 10)
-        : parseInt(asientoNumeroFromUrlParam, 10); // Usar el parámetro parseado de la URL
+        : parseInt(asientoNumeroFromUrlParam, 10);
 
     const [viajeData, setViajeData] = useState(initialViajeData);
     const [asientoSeleccionado, setAsientoSeleccionado] = useState(initialAsiento);
 
     const [clientes, setClientes] = useState([]);
-    const [clienteSeleccionadoId, setClienteSeleccionadoId] = useState('');
+    const [clienteSeleccionadoId, setClienteSeleccionadoId] = useState(''); // Inicia como string vacío
 
     const [loadingPago, setLoadingPago] = useState(false);
     const [loadingInitialData, setLoadingInitialData] = useState(true);
@@ -33,7 +31,6 @@ const Checkout = () => {
     const [compraExitosaInfo, setCompraExitosaInfo] = useState(null);
 
     const userRole = localStorage.getItem('userRole');
-    // Usar el parámetro parseado de la URL para la lógica de carga y como ID del viaje
     const parsedUrlViajeId = parseInt(viajeIdFromUrlParam, 10);
 
     useEffect(() => {
@@ -52,7 +49,7 @@ const Checkout = () => {
                 return;
             }
 
-            let currentViajeData = viajeData; // Usar el estado si ya tiene datos
+            let currentViajeData = viajeData;
 
             try {
                 if (!currentViajeData || currentViajeData.id !== parsedUrlViajeId) {
@@ -79,9 +76,9 @@ const Checkout = () => {
                 } else if (userRole === 'CLIENTE') {
                     const clienteLogueadoId = localStorage.getItem('userId');
                     if (clienteLogueadoId) {
-                        setClienteSeleccionadoId(clienteLogueadoId);
+                        setClienteSeleccionadoId(clienteLogueadoId); // Se setea el ID del cliente logueado
                     } else {
-                        setError("No se pudo identificar al usuario cliente.");
+                        setError("No se pudo identificar al usuario cliente. Por favor, inicie sesión.");
                     }
                 }
             } catch (err) {
@@ -93,37 +90,50 @@ const Checkout = () => {
             }
         };
         cargarDatos();
-        // Depender de los parámetros originales de la URL para decidir si recargar.
-    }, [viajeIdFromUrlParam, asientoNumeroFromUrlParam, userRole]);
+    }, [viajeIdFromUrlParam, asientoNumeroFromUrlParam, userRole]); // Dependencias correctas
 
 
     const handleConfirmarYComprar = async () => {
-        // ... (la lógica de handleConfirmarYComprar no necesita grandes cambios,
-        // solo asegúrate que use `viajeData.id` y `asientoSeleccionado` que ya están en el estado)
         if (!viajeData || isNaN(asientoSeleccionado)) {
             setCompraError("La información del viaje o del asiento no está completa para continuar.");
             return;
         }
-        // ... (resto de validaciones y lógica de compra)
+
+        // --- VALIDACIÓN MEJORADA PARA clienteSeleccionadoId ---
+        const idClienteParseado = parseInt(clienteSeleccionadoId, 10);
+
+        if (isNaN(idClienteParseado) || idClienteParseado <= 0) { // Un ID válido debe ser un número positivo
+            if (userRole === 'VENDEDOR' || userRole === 'ADMIN') {
+                setCompraError("Por favor, seleccione un cliente válido de la lista.");
+            } else if (userRole === 'CLIENTE') {
+                setCompraError("Información del cliente no disponible o inválida. Intente iniciar sesión de nuevo.");
+            }
+            return;
+        }
+        // --- FIN DE VALIDACIÓN MEJORADA ---
+
         setLoadingPago(true);
         setCompraError(null);
         try {
-            await new Promise(resolve => setTimeout(resolve, 1500)); // Simulación
+            console.log("Simulando proceso de pago...");
+            await new Promise(resolve => setTimeout(resolve, 1500));
+
             const datosCompra = {
-                viajeId: viajeData.id, // Usar el ID del viajeData actual
-                clienteId: parseInt(clienteSeleccionadoId, 10),
+                viajeId: viajeData.id,
+                clienteId: idClienteParseado, // Usar el ID parseado y validado
                 numeroAsiento: asientoSeleccionado,
             };
+            console.log("Enviando a comprarPasaje:", datosCompra);
             const response = await comprarPasaje(datosCompra);
             setCompraExitosaInfo(response.data);
         } catch (err) {
+            console.error("Checkout - Error durante la compra:", err);
             setCompraError(err.response?.data?.message || err.message || "Error al procesar la compra.");
         } finally {
             setLoadingPago(false);
         }
     };
 
-    // --- Renderizado Condicional (sin cambios mayores) ---
     if (loadingInitialData) {
         return <p className="loading-mensaje">Cargando información del checkout...</p>;
     }
@@ -131,8 +141,11 @@ const Checkout = () => {
         return (
             <div className="error-container-checkout">
                 <p className="error-mensaje">{error}</p>
-                <button onClick={() => navigate(`/vendedor/viaje/${viajeIdFromUrlParam}/seleccionar-asientos`)} className="btn-checkout-volver">
-                    Volver a Selección
+                <button
+                    onClick={() => navigate(`/vendedor/viaje/${parsedUrlViajeId}/seleccionar-asientos`)}
+                    className="btn-checkout-volver"
+                >
+                    Volver a Selección de Asientos
                 </button>
             </div>
         );
@@ -141,14 +154,16 @@ const Checkout = () => {
         return (
             <div className="error-container-checkout">
                 <p className="error-mensaje">Información de viaje o asiento no válida para el checkout.</p>
-                <button onClick={() => navigate(`/vendedor/viaje/${viajeIdFromUrlParam}/seleccionar-asientos`)} className="btn-checkout-volver">
-                    Volver a Selección
+                <button
+                    onClick={() => navigate(`/vendedor/viaje/${parsedUrlViajeId}/seleccionar-asientos`)}
+                    className="btn-checkout-volver"
+                >
+                    Volver a Selección de Asientos
                 </button>
             </div>
         );
     }
 
-    // --- Renderizado Principal (sin cambios mayores) ---
     return (
         <div className="checkout-page-container">
             <button
@@ -174,14 +189,14 @@ const Checkout = () => {
                     {clientes.length === 0 && !loadingInitialData && !(userRole === 'CLIENTE') && <p>No hay clientes para seleccionar o no se pudieron cargar.</p>}
                     <select
                         id="cliente-checkout"
-                        value={clienteSeleccionadoId}
+                        value={clienteSeleccionadoId} // Sigue siendo el string aquí
                         onChange={(e) => setClienteSeleccionadoId(e.target.value)}
                         required
                         disabled={loadingPago || loadingInitialData}
                     >
-                        <option value="">-- Seleccionar Cliente --</option>
+                        <option value="">-- Seleccionar Cliente --</option> {/* value es "" */}
                         {clientes.map(cliente => (
-                            <option key={cliente.id} value={cliente.id}>{cliente.nombre} (ID: {cliente.id})</option>
+                            <option key={cliente.id} value={String(cliente.id)}>{cliente.nombre} (ID: {cliente.id})</option>
                         ))}
                     </select>
                 </div>
@@ -205,7 +220,6 @@ const Checkout = () => {
                     <h4>¡Compra Realizada con Éxito!</h4>
                     <p><strong>ID del Pasaje:</strong> {compraExitosaInfo.id}</p>
                     <p><strong>Cliente:</strong> {compraExitosaInfo.clienteNombre}</p>
-                    {/* ... resto de la info de compraExitosaInfo ... */}
                     <p><strong>Viaje:</strong> {compraExitosaInfo.origenViaje} → {compraExitosaInfo.destinoViaje}</p>
                     <p><strong>Fecha:</strong> {new Date(compraExitosaInfo.fechaViaje + 'T' + compraExitosaInfo.horaSalidaViaje).toLocaleString()}</p>
                     <p><strong>Asiento:</strong> {String(compraExitosaInfo.numeroAsiento).padStart(2, '0')}</p>
