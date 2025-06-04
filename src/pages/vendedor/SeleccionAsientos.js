@@ -72,7 +72,6 @@ const SeleccionAsientos = () => {
             return;
         }
         // Navegar a la página de checkout, pasando la información necesaria
-        // El nombre del parámetro en la ruta para asientoNumero debe ser :asientoNumero
         navigate(`/vendedor/viaje/${viajeDetalles.id}/asiento/${asientoSeleccionado}/checkout`, {
             state: {
                 viajeData: viajeDetalles,       // El objeto ViajeDetalleConAsientosDTO completo
@@ -96,9 +95,16 @@ const SeleccionAsientos = () => {
         for (let i = 1; i <= capacidad; i++) {
             const estaOcupado = asientosOcupados.includes(i);
             const estaSeleccionado = asientoSeleccionado === i; // Compara con el estado
-            let claseAsiento = "asiento";
-            if (estaOcupado) claseAsiento += " ocupado";
-            if (estaSeleccionado) claseAsiento += " seleccionado";
+
+            let claseAsiento = "asiento"; // Clase base para todos los asientos
+
+            if (estaOcupado) {
+                claseAsiento += " ocupado";
+            } else if (estaSeleccionado) { // Solo si NO está ocupado, puede estar seleccionado por el usuario
+                claseAsiento += " seleccionado";
+            } else { // Si no está ocupado NI seleccionado por el usuario, entonces está disponible
+                claseAsiento += " disponible";
+            }
 
             asientosVisuales.push(
                 <button
@@ -116,7 +122,7 @@ const SeleccionAsientos = () => {
             filas.push(
                 <div key={`fila-${i/4}`} className="fila-asientos">
                     {asientosVisuales.slice(i, i + 2)}
-                    <div className="pasillo"></div>
+                    <div className="pasillo"></div> {/* El pasillo entre el 2do y 3er asiento de cada grupo de 4 */}
                     {asientosVisuales.slice(i + 2, i + 4)}
                 </div>
             );
@@ -155,7 +161,7 @@ const SeleccionAsientos = () => {
             {asientoSeleccionado ? (
                 <div className="resumen-seleccion-actual">
                     <h3>Asiento Seleccionado:</h3>
-                    <div className="asiento-numero-grande">{asientoSeleccionado}</div> {/* Muestra el asiento del estado */}
+                    <div className="asiento-numero-grande">{asientoSeleccionado}</div>
                     <p>Cantidad: 1</p>
                     <p>Total a Pagar: ${viajeDetalles.precio ? parseFloat(viajeDetalles.precio).toFixed(2) : '0.00'}</p>
                     <button

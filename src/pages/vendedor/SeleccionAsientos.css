@@ -56,7 +56,7 @@
     border-radius: 4px;
     border: 1px solid #eee;
     font-size: 0.9em;
-    gap: 20px;
+    gap: 20px; /* Espacio entre elementos de la leyenda */
 }
 .leyenda-item {
     display: flex;
@@ -67,11 +67,11 @@
     height: 20px;
     border-radius: 3px;
     margin-right: 5px;
-    border: 1px solid #ccc;
+    /* Los colores se definen abajo para que coincidan con los asientos reales */
 }
-.asiento-ejemplo.disponible { background-color: #a7d7c5; border-color: #7FAE9B; } /* Verde claro */
-.asiento-ejemplo.ocupado { background-color: #f6a6a5; border-color: #D97A79; }   /* Rojo claro */
-.asiento-ejemplo.seleccionado { background-color: #5c9ead; border-color: #327D8E;} /* Azul */
+.asiento-ejemplo.disponible { background-color: #a7d7c5; border-color: #7FAE9B; }
+.asiento-ejemplo.ocupado { background-color: #f6a6a5; border-color: #D97A79; }
+.asiento-ejemplo.seleccionado { background-color: #5c9ead; border-color: #327D8E;}
 
 .mapa-asientos-render {
     border: 1px solid #ddd;
@@ -79,7 +79,7 @@
     margin-bottom: 25px;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: center; /* Centra las filas de asientos */
     background-color: #ffffff;
     border-radius: 5px;
 }
@@ -87,8 +87,8 @@
     background-color: #4a5568; /* Gris oscuro */
     color: white;
     padding: 8px 0;
-    width: 80%;
-    max-width: 300px;
+    width: 80%; /* Relativo al contenedor .mapa-asientos-render */
+    max-width: 300px; /* Un máximo para que no sea demasiado ancho */
     text-align: center;
     margin-bottom: 20px;
     font-weight: bold;
@@ -99,16 +99,16 @@
 
 .fila-asientos {
     display: flex;
+    justify-content: center; /* Centra los elementos dentro de la fila */
     margin-bottom: 5px;
     align-items: center;
 }
+
+/* Estilos base comunes para todos los asientos */
 .asiento {
     width: 38px;
     height: 38px;
-    margin: 4px; /* Espacio reducido */
-    border: 1px solid #7FAE9B; /* Borde verde */
-    background-color: #a7d7c5; /* Verde claro para disponible */
-    color: #2f5a4a; /* Texto oscuro para contraste */
+    margin: 4px;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -116,29 +116,56 @@
     border-radius: 4px;
     font-size: 0.85em;
     font-weight: bold;
-    transition: background-color 0.2s ease, transform 0.1s ease;
+    transition: background-color 0.2s ease, transform 0.1s ease, border-color 0.2s ease, color 0.2s ease;
+    border: 1px solid #ccc; /* Borde base neutro */
+    background-color: #f0f0f0; /* Color base neutro por si alguna clase no se aplica */
+    color: #333; /* Color de texto base */
+    box-sizing: border-box; /* Importante para que padding y border no afecten el tamaño total */
 }
-.asiento:hover:not(:disabled) {
+
+/* Asiento Disponible (Libre) - VERDE */
+.asiento.disponible {
+    background-color: #a7d7c5; /* Verde claro (el que tenías) */
+    border-color: #7FAE9B;     /* Borde verde */
+    color: #2f5a4a;            /* Texto oscuro para contraste */
+}
+.asiento.disponible:hover:not(:disabled) {
     background-color: #8dc4b3; /* Verde un poco más oscuro al pasar el mouse */
     transform: scale(1.05);
 }
+
+/* Asiento Ocupado - ROJO/ROSA */
 .asiento.ocupado {
-    background-color: #f6a6a5; /* Rojo claro */
+    background-color: #f6a6a5; /* Rojo claro (el que tenías) */
     border-color: #D97A79;
     color: #8c3b3a;
     cursor: not-allowed;
 }
-.asiento.ocupado:hover {
-    background-color: #f6a6a5;
-    transform: none;
+.asiento.ocupado:hover { /* Evitar transform y cambio de color en hover para ocupados */
+    background-color: #f6a6a5; /* Mantiene el mismo color */
+    transform: none; /* Sin efecto de escala */
 }
+
+/* Asiento Seleccionado por el usuario - AZUL/CELESTE */
 .asiento.seleccionado {
-    background-color: #5c9ead; /* Azul */
+    background-color: #5c9ead; /* Azul (el que tenías) */
     border-color: #327D8E;
     color: white;
+    transform: scale(1.05); /* Efecto de escala para destacar */
+    box-shadow: 0 0 0 2px #327D8E; /* Resaltado adicional */
 }
+.asiento.seleccionado:hover:not(:disabled) {
+    background-color: #50919f; /* Azul un poco más oscuro al pasar el mouse */
+    border-color: #2a7081;
+}
+
+
 .pasillo {
-    width: 30px; /* Aumentar el pasillo */
+    width: 30px; /* Ancho del pasillo */
+    height: 38px; /* Misma altura que los asientos para alineación */
+    margin: 4px;  /* Mismos márgenes laterales que los asientos */
+    /* Puede ser transparente o tener un color de fondo muy sutil si se desea */
+    /* background-color: #f8f9fa; */
 }
 
 .resumen-seleccion-actual {
@@ -163,9 +190,9 @@
     border-radius: 50%;
     width: 60px;
     height: 60px;
-    line-height: 56px; /* Ajustar para centrar verticalmente */
+    line-height: 56px; /* Ajustar para centrar verticalmente el texto */
     margin: 0 auto 15px auto;
-    display: inline-block; /* Para que el fondo no ocupe todo el ancho */
+    display: inline-block;
 }
 .resumen-seleccion-actual p {
     margin: 8px 0;
