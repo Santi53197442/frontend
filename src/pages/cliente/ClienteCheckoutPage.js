@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { comprarPasaje, obtenerDetallesViajeConAsientos } from '../../services/api';
 import { useAuth } from '../../AuthContext';
-import '../vendedor/CheckoutPage.css'; // Reutilizando CSS del VENDEDOR (o tu CSS de cliente)
+import './CheckoutPage.css'; // Reutilizando CSS del VENDEDOR (o tu CSS de cliente)
 
 const ClienteCheckoutPage = () => {
     const navigate = useNavigate();
