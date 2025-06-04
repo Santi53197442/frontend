@@ -1,10 +1,14 @@
+// src/pages/vendedor/VendedorListadoViajesCompra.js (o donde esté tu archivo)
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { buscarViajesConDisponibilidad, obtenerTodasLasLocalidades } from '../../services/api';
-import './ListadoViajes.css';
+import { useNavigate, useLocation } from 'react-router-dom'; // IMPORTA useLocation
+import { buscarViajesConDisponibilidad, obtenerTodasLasLocalidades } from '../../services/api'; // Ajusta el path si es necesario
+import './ListadoViajes.css'; // Asegúrate que el path a tu CSS es correcto
+import { useAuth } from '../../AuthContext'; // IMPORTA useAuth y asegúrate que el path sea correcto
 
 const VendedorListadoViajesCompra = () => {
     const navigate = useNavigate();
+    const location = useLocation(); // Hook para obtener la ubicación actual
+    const { user } = useAuth();     // Hook para obtener el usuario actual y su rol
 
     const [viajes, setViajes] = useState([]);
     const [localidades, setLocalidades] = useState([]);
@@ -14,7 +18,7 @@ const VendedorListadoViajesCompra = () => {
     const [filtros, setFiltros] = useState({
         origenId: '',
         destinoId: '',
-        fechaDesde: '', // Este filtro seguirá funcionando como antes
+        fechaDesde: '',
         minAsientosDisponibles: '',
         sortBy: 'fechaSalida',
         sortDir: 'asc',
@@ -27,6 +31,7 @@ const VendedorListadoViajesCompra = () => {
                 setLocalidades(response.data || []);
             } catch (err) {
                 console.error("Error al cargar localidades:", err);
+                // Podrías setear un error específico para localidades si quieres mostrarlo
             }
         };
         cargarLocalidades();
@@ -39,39 +44,35 @@ const VendedorListadoViajesCompra = () => {
             const criteriosActivos = {};
             for (const key in filtros) {
                 if (filtros[key] !== null && filtros[key] !== '') {
-                    if (key === 'minAsientosDisponibles' && filtros[key] < 0) continue;
+                    if (key === 'minAsientosDisponibles' && Number(filtros[key]) < 0) continue; // Asegurar que sea número
                     criteriosActivos[key] = filtros[key];
                 }
             }
             const response = await buscarViajesConDisponibilidad(criteriosActivos);
 
-            // --- INICIO DE LA MODIFICACIÓN ---
             const hoy = new Date();
-            // Establecemos la hora a 00:00:00 para comparar solo la fecha
-            // Esto asegura que los viajes de hoy también se muestren
             hoy.setHours(0, 0, 0, 0);
 
-            const viajesFiltrados = response.data.filter(viaje => {
+            // Asegurarse que response.data sea un array antes de filtrar
+            const data = Array.isArray(response.data) ? response.data : [];
+            const viajesFiltrados = data.filter(viaje => {
                 const fechaViaje = new Date(viaje.fechaSalida);
-                // No es necesario ajustar la hora de fechaViaje si ya viene con hora,
-                // o si solo viene la fecha, new Date() la interpretará como medianoche.
                 return fechaViaje >= hoy;
             });
 
             setViajes(viajesFiltrados);
-            // --- FIN DE LA MODIFICACIÓN ---
 
         } catch (err) {
             setError(err.response?.data?.message || err.message || "Error al cargar viajes");
-            setViajes([]);
+            setViajes([]); // Limpiar viajes en caso de error
         } finally {
             setLoading(false);
         }
-    }, [filtros]); // fetchViajes depende de 'filtros'
+    }, [filtros]);
 
     useEffect(() => {
         fetchViajes();
-    }, [fetchViajes]); // Este useEffect se ejecutará cuando fetchViajes cambie (es decir, cuando filtros cambie)
+    }, [fetchViajes]);
 
     const handleFiltroChange = (e) => {
         const { name, value } = e.target;
@@ -83,7 +84,7 @@ const VendedorListadoViajesCompra = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        fetchViajes(); // Llama a fetchViajes directamente, que ya tiene la lógica de filtrado
+        fetchViajes();
     };
 
     const handleSortChange = (newSortBy) => {
@@ -95,7 +96,6 @@ const VendedorListadoViajesCompra = () => {
                 sortDir: newSortDir,
             };
         });
-        // No es necesario llamar a fetchViajes aquí si el useEffect [fetchViajes] ya lo hace
     };
 
     const getSortIndicator = (columnName) => {
@@ -105,14 +105,40 @@ const VendedorListadoViajesCompra = () => {
         return '';
     };
 
+    // --- FUNCIÓN MODIFICADA ---
     const handleSeleccionarAsientos = (viajeSeleccionado) => {
-        navigate(`/vendedor/viaje/${viajeSeleccionado.id}/seleccionar-asientos`, {
+        let basePath = '/vendedor'; // Ruta base por defecto (para vendedores)
+
+        // Determina si el usuario actual es un cliente Y si está en la ruta pública /viajes
+        const esCliente = user && user.rol && user.rol.toLowerCase() === 'cliente';
+        const estaEnRutaDeViajesPublica = location.pathname === '/viajes';
+
+        if (esCliente && estaEnRutaDeViajesPublica) {
+            // Si es un cliente y está en /viajes, el flujo de compra va por /compra/...
+            basePath = '/compra';
+            console.log("Redirigiendo cliente a ruta de compra:", basePath); // Para depuración
+        } else {
+            // Si es vendedor, o cliente en otra ruta (no debería si la lógica es correcta), o sin rol
+            // usa el flujo de vendedor.
+            // Esto cubre cuando un VENDEDOR usa este componente desde /vendedor/listar-viajes-compra
+            console.log("Redirigiendo a ruta de vendedor:", basePath); // Para depuración
+        }
+
+        if (!viajeSeleccionado || viajeSeleccionado.id == null) {
+            console.error("handleSeleccionarAsientos: viajeSeleccionado o su ID es nulo.", viajeSeleccionado);
+            alert("Hubo un problema al seleccionar el viaje. Por favor, intente de nuevo.");
+            return;
+        }
+
+        navigate(`${basePath}/viaje/${viajeSeleccionado.id}/seleccionar-asientos`, {
             state: { viajeData: viajeSeleccionado }
         });
     };
+    // --- FIN DE FUNCIÓN MODIFICADA ---
 
     return (
         <div className="listado-viajes-container">
+            {/* Este título es genérico y sirve para ambos contextos (cliente en /viajes y vendedor en su panel) */}
             <h2>Buscar Viajes Disponibles</h2>
 
             <form onSubmit={handleSubmit} className="filtros-form">
