@@ -5,7 +5,7 @@ import {
     comprarPasaje,
     obtenerUsuariosParaSeleccion,
     obtenerDetallesViajeConAsientos // Para recargar si es necesario
-} from '../../services/apiService'; // Ajusta la ruta a tu apiService
+} from '../../services/api'; // Ajusta la ruta a tu apiService
 import './Checkout.css'; // Asegúrate de que el CSS exista en esta ruta
 
 const Checkout = () => {

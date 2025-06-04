@@ -4,7 +4,7 @@ import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import {
     obtenerDetallesViajeConAsientos,
     obtenerAsientosOcupados
-} from '../../services/apiService'; // Ajusta la ruta a tu apiService.js
+} from '../../services/api'; // Ajusta la ruta a tu apiService.js
 import './SeleccionAsientos.css'; // Asegúrate de tener este archivo CSS
 
 const SeleccionAsientos = () => {
