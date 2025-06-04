@@ -3,28 +3,30 @@ import React from 'react';
 import { Routes, Route, Navigate } from "react-router-dom";
 
 // --- IMPORTACIONES DE COMPONENTES Y PÁGINAS ---
-// Asegúrate que todas estas rutas de importación sean correctas para tu estructura de proyecto
+// Públicas
 import Home from "./pages/Home";
-import Login from "./components/Login";
+import Login from "./components/Login"; // Ajusta paths según tu estructura
 import Register from "./components/Register";
 import ForgotPasswordPage from './components/ForgotPassword';
 import ResetPasswordPage from './components/ResetPassword';
+
+// Layouts
+import AdminLayout from './layouts/AdminLayout';
+import VendedorLayout from './layouts/VendedorLayout';
+
+// Protegidas y Usuario General
 import ProtectedRoute from "./components/ProtectedRoute";
 import EditProfile from "./components/EditProfile";
 import CambiarContraseña from "./components/CambiarContraseña";
 
-// --- LAYOUTS ---
-import AdminLayout from './layouts/AdminLayout';
-import VendedorLayout from './layouts/VendedorLayout';
-
-// --- PÁGINAS DE ADMIN ---
+// Admin
 import AdminCreateUserPage from './pages/admin/AdminCreateUserPage';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminUserBatchUploadPage from './pages/admin/AdminUserBatchUploadPage';
 import AdminUserListPage from "./pages/admin/AdminUserListPage";
 import AdminUserListDeletePage from './pages/admin/AdminUserListDeletePage';
 
-// --- PÁGINAS DE VENDEDOR ---
+// Vendedor y Comunes
 import VendedorDashboard from './pages/vendedor/VendedorDashboard';
 import VendedorAltaLocalidadPage from './pages/vendedor/VendedorAltaLocalidadPage';
 import VendedorLocalidadMasivo from './pages/vendedor/VendedorLocalidadMasivo';
@@ -36,11 +38,23 @@ import VendedorCambiarEstadoOmnibus from './pages/vendedor/VendedorCambiarEstado
 import VendedorCambiarOmnibusaOperativo from './pages/vendedor/VendedorCambiarOmnibusaOperativo';
 import VendedorReasignarViaje from './pages/vendedor/VendedorReasignarViaje';
 import VendedorListarViajes from './pages/vendedor/VendedorListarViajes';
-// El componente VendedorListadoViajesCompra se usa tanto para la ruta /viajes (cliente)
-// como para /vendedor/listar-viajes-compra (vendedor)
 import VendedorListadoViajesCompra from "./pages/vendedor/VendedorListadoViajesCompra";
-import SeleccionAsientosPage from "./pages/vendedor/SeleccionAsientosPage";
-import CheckoutPage from './pages/vendedor/CheckoutPage';
+import SeleccionAsientosPage from "./pages/vendedor/SeleccionAsientosPage"; // Para VENDEDOR
+import CheckoutPage from './pages/vendedor/CheckoutPage'; // Para VENDEDOR (puedes duplicarlo para cliente)
+
+// Cliente Específico (NUEVO)
+import ClienteSeleccionAsientos from "./components/cliente/ClienteSeleccionAsientos"; // <-- NUEVO, ajusta path
+// import ClienteCheckoutPage from "./pages/cliente/ClienteCheckoutPage"; // <-- Opcional, si duplicas checkout
+
+// Página de Acceso Denegado (NUEVO)
+const UnauthorizedPage = () => (
+    <div style={{ padding: '50px', textAlign: 'center' }}>
+        <h1>Acceso Denegado</h1>
+        <p>No tienes los permisos necesarios para acceder a esta página.</p>
+        <button onClick={() => window.history.back()} style={{padding: '10px 20px', marginTop: '20px'}}>Volver</button>
+    </div>
+);
+
 
 const AppRouter = () => {
     return (
@@ -51,13 +65,22 @@ const AppRouter = () => {
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
+            <Route path="/unauthorized" element={<UnauthorizedPage />} /> {/* Ruta para acceso denegado */}
 
             {/* --- RUTA PARA VER LISTADO DE VIAJES (usada por clientes desde Home) --- */}
-            {/* Esta ruta renderiza VendedorListadoViajesCompra SIN el VendedorLayout */}
             <Route path="/viajes" element={<VendedorListadoViajesCompra />} />
 
+
+            {/* --- RUTAS DEL FLUJO DE COMPRA DEL CLIENTE (SIN LAYOUT DE VENDEDOR) --- */}
+            <Route element={<ProtectedRoute allowedRoles={['CLIENTE', 'cliente', 'VENDEDOR', 'vendedor', 'ADMINISTRADOR', 'administrador']} />}>
+                <Route path="/compra/viaje/:viajeId/seleccionar-asientos" element={<ClienteSeleccionAsientos />} />
+                {/* Si tienes ClienteCheckoutPage, úsalo aquí: */}
+                {/* <Route path="/compra/viaje/:viajeId/asiento/:asientoNumero/checkout" element={<ClienteCheckoutPage />} /> */}
+                <Route path="/compra/viaje/:viajeId/asiento/:asientoNumero/checkout" element={<CheckoutPage />} /> {/* Reutilizando CheckoutPage por ahora */}
+            </Route>
+
+
             {/* --- Rutas Protegidas (Autenticación General Requerida) --- */}
-            {/* Estas rutas no tienen un layout específico de rol, podrían tener un layout general o ninguno */}
             <Route element={<ProtectedRoute />}>
                 <Route path="/editar-perfil" element={<EditProfile />} />
                 <Route path="/cambiar-contraseña" element={<CambiarContraseña />} />
@@ -75,13 +98,9 @@ const AppRouter = () => {
                 </Route>
             </Route>
 
-            {/* --- Rutas de Vendedor (con VendedorLayout) --- */}
-            {/* El VendedorLayout decidirá si muestra su menú lateral basado en el rol del usuario */}
-            {/* ProtectedRoute aquí permite a CLIENTES, VENDEDORES, y ADMINS acceder a estas rutas. */}
-            {/* El layout se encargará de la apariencia. */}
-            <Route element={<ProtectedRoute allowedRoles={['CLIENTE', 'cliente', 'VENDEDOR', 'vendedor', 'ADMINISTRADOR', 'administrador']} />}>
+            {/* --- RUTAS DE GESTIÓN DEL VENDEDOR (con VendedorLayout) --- */}
+            <Route element={<ProtectedRoute allowedRoles={['VENDEDOR', 'vendedor', 'ADMINISTRADOR', 'administrador']} />}>
                 <Route path="/vendedor" element={<VendedorLayout />}>
-                    {/* Rutas solo para Vendedor/Admin (el layout mostrará el menú) */}
                     <Route index element={<VendedorDashboard />} />
                     <Route path="dashboard" element={<VendedorDashboard />} />
                     <Route path="alta-localidad" element={<VendedorAltaLocalidadPage />} />
@@ -94,15 +113,14 @@ const AppRouter = () => {
                     <Route path="cambiar-a-activo" element={<VendedorCambiarOmnibusaOperativo />} />
                     <Route path="reasignar-viaje" element={<VendedorReasignarViaje />} />
                     <Route path="listar-viajes" element={<VendedorListarViajes />} />
-                    <Route path="listar-viajes-compra" element={<VendedorListadoViajesCompra />} />
+                    <Route path="listar-viajes-compra" element={<VendedorListadoViajesCompra />} /> {/* Vendedor accede a su listado */}
 
-                    {/* Flujo de compra que puede ser usado por Vendedor (con menú) o Cliente (sin menú gracias al layout condicional) */}
-                    <Route path="viaje/:viajeId/seleccionar-asientos" element={<SeleccionAsientosPage />} />
+                    {/* Flujo de compra para el VENDEDOR (con el VendedorLayout) */}
+                    <Route path="viaje/:viajeId/seleccionar-asientos" element={<SeleccionAsientosPage />} /> {/* Usa el original del vendedor */}
                     <Route path="viaje/:viajeId/asiento/:asientoNumero/checkout" element={<CheckoutPage />} />
                 </Route>
             </Route>
 
-            {/* Ruta Catch-all */}
             <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
     );

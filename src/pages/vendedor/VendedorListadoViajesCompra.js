@@ -1,9 +1,9 @@
-// src/pages/vendedor/VendedorListadoViajesCompra.js (o donde esté tu archivo)
+// src/pages/vendedor/VendedorListadoViajesCompra.js
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { buscarViajesConDisponibilidad, obtenerTodasLasLocalidades } from '../../services/api';
 import './ListadoViajes.css';
-import { useAuth } from '../../AuthContext'; // Asegúrate que la ruta a AuthContext sea correcta
+import { useAuth } from '../../AuthContext';
 
 const VendedorListadoViajesCompra = () => {
     const navigate = useNavigate();
@@ -93,33 +93,34 @@ const VendedorListadoViajesCompra = () => {
     };
 
     const handleSeleccionarAsientos = (viajeSeleccionado) => {
-        let basePath = '/vendedor'; // Por defecto para el vendedor
+        let targetPathBase = '/vendedor'; // Por defecto para el vendedor
 
         // Logs para depuración
-        console.log("--- handleSeleccionarAsientos DEBUG ---");
-        console.log("Usuario:", user);
+        console.log("--- VendedorListadoViajesCompra: handleSeleccionarAsientos DEBUG ---");
+        console.log("Usuario actual:", user);
+        console.log("Rol del usuario:", user?.rol);
         console.log("Ruta actual (location.pathname):", location.pathname);
-        console.log("Viaje seleccionado:", viajeSeleccionado);
+        console.log("Viaje seleccionado (objeto completo):", viajeSeleccionado);
 
         const esCliente = user && user.rol && user.rol.toLowerCase() === 'cliente';
         const estaEnRutaDeViajesPublica = location.pathname === '/viajes';
 
-        console.log("Es cliente:", esCliente);
-        console.log("Está en ruta de viajes pública:", estaEnRutaDeViajesPublica);
+        console.log("Condición (esCliente):", esCliente);
+        console.log("Condición (estaEnRutaDeViajesPublica):", estaEnRutaDeViajesPublica);
 
         if (esCliente && estaEnRutaDeViajesPublica) {
-            basePath = '/compra';
+            targetPathBase = '/compra';
         }
-        console.log("BasePath decidido:", basePath);
+        console.log("BasePath decidido para la navegación:", targetPathBase);
 
         if (!viajeSeleccionado || typeof viajeSeleccionado.id === 'undefined' || viajeSeleccionado.id === null) {
-            console.error("ID del viaje no válido o no encontrado en el objeto viaje:", viajeSeleccionado);
-            alert("Error: No se pudo obtener la información del viaje para continuar.");
+            console.error("Error crítico: El ID del viaje seleccionado es nulo o indefinido. No se puede navegar.");
+            alert("Se produjo un error al seleccionar el viaje. Falta información del viaje.");
             return;
         }
 
-        const targetPath = `${basePath}/viaje/${viajeSeleccionado.id}/seleccionar-asientos`;
-        console.log("Navegando a:", targetPath);
+        const targetPath = `${targetPathBase}/viaje/${viajeSeleccionado.id}/seleccionar-asientos`;
+        console.log("Intentando navegar a la ruta final:", targetPath);
 
         navigate(targetPath, {
             state: { viajeData: viajeSeleccionado }
