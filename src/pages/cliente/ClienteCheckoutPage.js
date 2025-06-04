@@ -1,187 +1,225 @@
 // src/pages/cliente/ClienteCheckoutPage.js
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { comprarPasaje, obtenerDetallesViajeConAsientos } from '../../services/api'; // Ajusta la ruta a tu apiService
-import { useAuth } from '../../AuthContext'; // Ajusta la ruta a tu AuthContext
-import './CheckoutPage.css'; // REUTILIZANDO CSS DEL VENDEDOR - Ajusta ruta si es diferente o crea uno nuevo
+import { comprarPasaje, obtenerDetallesViajeConAsientos } from '../../services/api';
+import { useAuth } from '../../AuthContext'; // Para obtener el usuario cliente logueado
+import './CheckoutPage.css'; // Reutilizando CSS del Vendedor - Ajusta si es necesario
 
 const ClienteCheckoutPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { user, isAuthenticated, loading: authLoading } = useAuth(); // Obtener el estado de carga del AuthContext si existe
+    const { user, isAuthenticated, loading: authLoading } = useAuth(); // 'user' DEBE tener la propiedad 'ci'
     const { viajeId: viajeIdFromParams, asientoNumero: asientoNumeroFromParams } = useParams();
 
-    // Intenta obtener viajeData y asientoNumero del state pasado por el Link/navigate,
-    // sino, usa los parámetros de la URL (asientoNumeroFromParams)
     const [viajeData, setViajeData] = useState(location.state?.viajeData || null);
     const [numeroAsientoSeleccionado, setNumeroAsientoSeleccionado] = useState(
         location.state?.asientoNumero || asientoNumeroFromParams
     );
 
-    const [isLoading, setIsLoading] = useState(false); // Loading para acciones de esta página (compra, carga de viaje si es necesario)
-    const [error, setError] = useState(null);
-    const [mensajeExito, setMensajeExito] = useState('');
+    // Estados para la lógica de esta página
+    const [isLoadingViaje, setIsLoadingViaje] = useState(true); // Para la carga inicial de datos del viaje
+    const [errorCarga, setErrorCarga] = useState(null);
+    const [isLoadingCompra, setIsLoadingCompra] = useState(false); // Para el proceso de compra
+    const [errorCompra, setErrorCompra] = useState(null);
+    const [mensajeExitoCompra, setMensajeExitoCompra] = useState(null);
 
     const parsedViajeId = parseInt(viajeIdFromParams, 10);
+    const parsedAsientoNumero = parseInt(numeroAsientoSeleccionado, 10);
 
-    // Efecto para cargar datos del viaje si no se pasaron por state
+
     useEffect(() => {
-        const cargarViajeSiEsNecesario = async () => {
-            // Solo cargar si no hay viajeData y parsedViajeId es un número válido
-            // y si la autenticación no está cargando (para evitar llamadas prematuras si depende del user)
-            if (!viajeData && !isNaN(parsedViajeId) && !authLoading) {
-                console.log("ClienteCheckoutPage: viajeData no encontrado en state o no coincide, cargando detalles del viaje ID:", parsedViajeId);
-                setIsLoading(true); // Loading de esta página
-                setError(null);
-                try {
-                    const response = await obtenerDetallesViajeConAsientos(parsedViajeId);
-                    setViajeData(response.data);
-                } catch (err) {
-                    console.error("ClienteCheckoutPage: Error cargando detalles del viaje:", err);
-                    setError("No se pudo cargar la información completa del viaje. Intente de nuevo.");
-                } finally {
-                    setIsLoading(false);
+        console.log("ClienteCheckoutPage - AuthContext al montar:", { isAuthenticated, user, authLoading });
+
+        const cargarDatosIniciales = async () => {
+            if (authLoading) return; // Esperar a que el AuthContext termine de cargar
+
+            setIsLoadingViaje(true);
+            setErrorCarga(null);
+
+            if (isNaN(parsedViajeId) || isNaN(parsedAsientoNumero)) {
+                setErrorCarga("Información de viaje o asiento no válida.");
+                setIsLoadingViaje(false);
+                return;
+            }
+
+            let currentViajeData = viajeData; // Usar el que vino del state si existe
+
+            try {
+                if (!currentViajeData || currentViajeData.id !== parsedViajeId) {
+                    console.log("ClienteCheckoutPage: Cargando detalles del viaje ID:", parsedViajeId);
+                    const responseDetalles = await obtenerDetallesViajeConAsientos(parsedViajeId);
+                    if (!responseDetalles.data || typeof responseDetalles.data.id === 'undefined') {
+                        throw new Error("La API no devolvió información válida para el viaje.");
+                    }
+                    currentViajeData = responseDetalles.data;
+                    setViajeData(currentViajeData); // Actualizar con los datos frescos
                 }
+
+                // Validaciones del asiento (copiadas de tu lógica de vendedor)
+                if (currentViajeData && currentViajeData.capacidadOmnibus) {
+                    if (parsedAsientoNumero < 1 || parsedAsientoNumero > currentViajeData.capacidadOmnibus) {
+                        throw new Error(`El asiento ${parsedAsientoNumero} no es válido para este ómnibus.`);
+                    }
+                    // Asumimos que `numerosAsientoOcupados` viene en `currentViajeData.detallesAsientos` o similar
+                    // Necesitarías la función obtenerAsientosOcupados si no viene con obtenerDetallesViajeConAsientos
+                    // Por ahora, esta validación podría necesitar ajuste dependiendo de tu DTO ViajeDetalleConAsientosDTO
+                    // if (currentViajeData.numerosAsientoOcupados && currentViajeData.numerosAsientoOcupados.includes(parsedAsientoNumero)) {
+                    //     throw new Error(`El asiento ${parsedAsientoNumero} ya se encuentra ocupado.`);
+                    // }
+                }
+
+                if (!isAuthenticated || !user || !user.ci) { // Verificar CI aquí también
+                    throw new Error("Debe iniciar sesión y tener una CI registrada para continuar.");
+                }
+
+            } catch (err) {
+                console.error("ClienteCheckoutPage - Error en cargarDatosIniciales:", err);
+                setErrorCarga(err.message || "Error al preparar la información del checkout.");
+                setViajeData(null); // Limpiar si hay error
+            } finally {
+                setIsLoadingViaje(false);
             }
         };
 
-        // No ejecutar si authLoading es true, esperar a que se resuelva la autenticación
-        if (!authLoading) {
-            cargarViajeSiEsNecesario();
-        }
-    }, [viajeData, parsedViajeId, authLoading]); // Dependencias
+        cargarDatosIniciales();
+    }, [viajeIdFromParams, asientoNumeroFromParams, authLoading, isAuthenticated, user]); // Dependencias actualizadas
 
 
-    // Loguear estado de autenticación al montar o cuando cambie
-    useEffect(() => {
-        console.log("ClienteCheckoutPage - Estado de AuthContext (useEffect):");
-        console.log("authLoading:", authLoading);
-        console.log("isAuthenticated:", isAuthenticated);
-        console.log("user:", user);
-    }, [authLoading, isAuthenticated, user]);
-
-
-    const handleConfirmarCompra = async () => {
-        console.log("ClienteCheckoutPage - handleConfirmarCompra - Verificando autenticación:");
-        console.log("authLoading:", authLoading);
-        console.log("isAuthenticated:", isAuthenticated);
-        console.log("user:", user);
-        console.log("user.id:", user?.id);
+    const handleConfirmarYComprar = async () => {
+        console.log("ClienteCheckoutPage - handleConfirmarYComprar - Verificando Auth y Datos:");
+        console.log({ isAuthenticated, user, viajeData, parsedAsientoNumero });
 
         if (authLoading) {
-            setError("Verificando su sesión, por favor espere un momento...");
+            setErrorCompra("Verificando sesión, por favor espere...");
             return;
         }
 
-        if (!isAuthenticated || !user || !user.id) {
-            setError("Debe iniciar sesión para realizar la compra. Redirigiendo al login...");
-            console.log("Redirección a login gatillada por: !isAuthenticated O !user O !user.id");
-            setTimeout(() => {
-                navigate('/login', { state: { from: location } });
-            }, 2000); // Pequeña demora para que el usuario vea el mensaje
+        if (!isAuthenticated || !user || !user.ci) { // La CI es crucial
+            setErrorCompra("Debe iniciar sesión y tener una CI válida para comprar. Redirigiendo...");
+            setTimeout(() => navigate('/login', { state: { from: location } }), 2000);
             return;
         }
 
-        if (!viajeData || !numeroAsientoSeleccionado || isNaN(parsedViajeId)) {
-            setError("Falta información del viaje o del asiento, o el ID del viaje es inválido. Por favor, vuelva a intentarlo.");
+        if (!viajeData || isNaN(parsedAsientoNumero) || isNaN(parsedViajeId)) {
+            setErrorCompra("La información del viaje o del asiento no está completa o es inválida.");
             return;
         }
 
-        setIsLoading(true);
-        setError(null);
-        setMensajeExito('');
+        setIsLoadingCompra(true);
+        setErrorCompra(null);
+        setMensajeExitoCompra(null);
 
-        const compraRequestDTO = {
+        const datosCompraDTO = {
             viajeId: parsedViajeId,
-            clienteId: user.id, // ID del cliente es el del usuario logueado
-            numeroAsiento: parseInt(numeroAsientoSeleccionado, 10),
+            clienteCi: user.ci, // Usar la CI del usuario logueado
+            numeroAsiento: parsedAsientoNumero,
         };
 
-        console.log("ClienteCheckoutPage: Enviando DTO de compra:", compraRequestDTO);
+        console.log("ClienteCheckoutPage: Enviando DTO de compra:", datosCompraDTO);
 
         try {
-            const response = await comprarPasaje(compraRequestDTO);
+            // Simulación de pago (opcional)
+            // await new Promise(resolve => setTimeout(resolve, 1500));
+
+            const response = await comprarPasaje(datosCompraDTO);
             console.log("ClienteCheckoutPage: Respuesta de compra exitosa:", response.data);
-            setMensajeExito(`¡Pasaje comprado con éxito! ID de Pasaje: ${response.data.id}. En breve recibirá una confirmación.`);
-            // Considera deshabilitar el botón o limpiar el formulario aquí
-            setTimeout(() => {
-                navigate('/'); // O a una página de "Mis Compras" o "Gracias"
-            }, 5000);
+            setMensajeExitoCompra(response.data); // Guardar el objeto PasajeResponseDTO completo
         } catch (err) {
-            const apiError = err.response?.data?.message || err.message || "Ocurrió un error al procesar la compra.";
-            console.error("ClienteCheckoutPage: Error en API comprarPasaje:", err.response || err);
-            setError(`Error al realizar la compra: ${apiError}`);
+            console.error("ClienteCheckoutPage - Error en API comprarPasaje:", err.response || err);
+            setErrorCompra(err.response?.data?.message || err.message || "Error al procesar la compra.");
         } finally {
-            setIsLoading(false);
+            setIsLoadingCompra(false);
         }
     };
 
-    // Si el estado de autenticación del AuthContext aún está cargando
-    if (authLoading) {
+    const isBotonPagarDisabled = isLoadingCompra || !!mensajeExitoCompra || authLoading || !isAuthenticated || !user?.ci || !viajeData;
+
+
+    if (authLoading || isLoadingViaje) {
         return (
-            <div className="checkout-container cliente-checkout-page">
-                <p className="loading-mensaje">Verificando sesión...</p>
+            <div className="checkout-page-container cliente-checkout-page">
+                <p className="loading-mensaje">{authLoading ? "Verificando sesión..." : "Cargando información del checkout..."}</p>
             </div>
         );
     }
 
-    // Si estamos cargando datos del viaje (y no es el authLoading)
-    if (isLoading && !viajeData && !error) {
+    if (errorCarga) {
         return (
-            <div className="checkout-container cliente-checkout-page">
-                <p className="loading-mensaje">Cargando información del checkout...</p>
+            <div className="checkout-page-container cliente-checkout-page error-container-checkout">
+                <p className="error-mensaje">{errorCarga}</p>
+                <button onClick={() => navigate(-1)} className="btn-checkout-volver">Volver</button>
             </div>
         );
     }
 
-    // Si hay un error general o no se pudieron cargar los datos necesarios
-    if (error || !viajeData || !numeroAsientoSeleccionado) {
+    if (!viajeData || isNaN(parsedAsientoNumero)) {
         return (
-            <div className="checkout-container cliente-checkout-page">
-                <h2>Error en Checkout</h2>
-                <p className="error-mensaje">
-                    {error || "No se pudo cargar la información necesaria para el checkout. Por favor, intente seleccionar su viaje y asiento nuevamente."}
-                </p>
-                <button onClick={() => navigate('/viajes')} className="btn-volver">Volver a Viajes</button>
+            <div className="checkout-page-container cliente-checkout-page error-container-checkout">
+                <p className="error-mensaje">No se pudo cargar la información del viaje o el asiento no es válido.</p>
+                <button onClick={() => navigate('/viajes')} className="btn-checkout-volver">Ir a Viajes</button>
             </div>
         );
     }
 
-    // Si todo está listo, mostrar el resumen y el botón de compra
     return (
-        <div className="checkout-container cliente-checkout-page">
-            <h2>Confirmar Compra de Pasaje</h2>
+        <div className="checkout-page-container cliente-checkout-page">
+            <button
+                onClick={() => navigate(-1)} // Vuelve a la página anterior (selección de asientos)
+                className="btn-checkout-volver-atras"
+                disabled={isLoadingCompra || !!mensajeExitoCompra}
+            >
+                ← Modificar Selección de Asiento
+            </button>
+            <h2>Confirmación y Pago (Cliente)</h2>
 
-            <div className="resumen-compra">
-                <h3>Detalles del Viaje</h3>
-                <p><strong>Origen:</strong> {viajeData.origenNombre}</p>
-                <p><strong>Destino:</strong> {viajeData.destinoNombre}</p>
-                <p><strong>Fecha Salida:</strong> {new Date(viajeData.fechaSalida).toLocaleString('es-ES', { dateStyle: 'full', timeStyle: 'short' })}</p>
-                <p><strong>Ómnibus:</strong> {viajeData.omnibusMatricula}</p>
-                <p><strong>Asiento Seleccionado:</strong> N° {numeroAsientoSeleccionado}</p>
-                <p className="precio-total"><strong>Total a Pagar:</strong> ${viajeData.precio ? parseFloat(viajeData.precio).toFixed(2) : 'N/A'}</p>
+            <div className="checkout-resumen-viaje">
+                <h3>Detalles de tu Selección</h3>
+                <p><strong>Viaje:</strong> {viajeData.origenNombre} → {viajeData.destinoNombre}</p>
+                <p><strong>Fecha:</strong> {new Date(viajeData.fechaSalida).toLocaleString('es-ES', { dateStyle: 'full', timeStyle: 'short' })}</p>
+                <p><strong>Asiento:</strong> <span className="checkout-asiento-num">{String(parsedAsientoNumero).padStart(2, '0')}</span></p>
+                <p><strong>Precio:</strong> <span className="checkout-precio-val">${viajeData.precio ? parseFloat(viajeData.precio).toFixed(2) : 'N/A'}</span></p>
             </div>
 
-            {/* Aquí podrían ir los métodos de pago */}
-            {/* <MetodoDePagoForm /> */}
+            {/* Información del cliente (ya logueado) */}
+            {user && (
+                <div className="checkout-info-cliente-logueado">
+                    <h4>Comprando como:</h4>
+                    <p>Nombre: {user.nombre} {user.apellido}</p>
+                    <p>CI: {user.ci}</p>
+                    <p>Email: {user.email}</p>
+                </div>
+            )}
 
-            {error && <p className="error-mensaje" role="alert">{error}</p>}
-            {mensajeExito && <p className="mensaje-exito" role="alert">{mensajeExito}</p>}
 
-            <div className="acciones-checkout">
-                <button
-                    onClick={handleConfirmarCompra}
-                    disabled={isLoading || !!mensajeExito} // Deshabilitar si está cargando o si ya fue exitoso
-                    className="btn-confirmar-compra"
-                >
-                    {isLoading ? 'Procesando...' : (mensajeExito ? 'Compra Realizada' : 'Confirmar y Pagar')}
-                </button>
-                {!mensajeExito && ( // Solo mostrar cancelar si la compra no fue exitosa
-                    <button onClick={() => navigate(-1)} className="btn-cancelar" disabled={isLoading}>
-                        Cancelar y Volver
+            {errorCompra && <p className="error-mensaje checkout-error">{errorCompra}</p>}
+
+            {!mensajeExitoCompra ? (
+                <div className="checkout-acciones">
+                    <p className="checkout-aviso-pago">Verifique los datos antes de confirmar.</p>
+                    <button
+                        onClick={handleConfirmarYComprar}
+                        className="btn-checkout-pagar"
+                        disabled={isBotonPagarDisabled}
+                    >
+                        {isLoadingCompra ? 'Procesando...' : `Confirmar y Pagar $${viajeData.precio ? parseFloat(viajeData.precio).toFixed(2) : 'N/A'}`}
                     </button>
-                )}
-            </div>
+                </div>
+            ) : (
+                <div className="checkout-confirmacion-exitosa">
+                    <h4>¡Compra Realizada con Éxito!</h4>
+                    <p><strong>ID del Pasaje:</strong> {mensajeExitoCompra.id}</p>
+                    <p><strong>Cliente:</strong> {mensajeExitoCompra.clienteNombre} (CI: {user.ci})</p>
+                    <p><strong>Viaje:</strong> {mensajeExitoCompra.origenViaje} → {mensajeExitoCompra.destinoViaje}</p>
+                    <p><strong>Fecha:</strong> {new Date(mensajeExitoCompra.fechaViaje + 'T' + mensajeExitoCompra.horaSalidaViaje).toLocaleString('es-ES', { dateStyle: 'full', timeStyle: 'short' })}</p>
+                    <p><strong>Asiento:</strong> {String(mensajeExitoCompra.numeroAsiento).padStart(2, '0')}</p>
+                    <p><strong>Monto Pagado:</strong> ${parseFloat(mensajeExitoCompra.precio).toFixed(2)}</p>
+                    <div className="checkout-acciones-post">
+                        <button onClick={() => navigate('/')}>Volver al Inicio</button>
+                        {/* Podrías tener un enlace a "Mis Compras" si existe */}
+                        {/* <button onClick={() => navigate('/cliente/mis-compras')}>Ver Mis Compras</button> */}
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
