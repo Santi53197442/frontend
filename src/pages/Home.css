@@ -25,6 +25,9 @@
 .hero-content {
     max-width: 800px;
     margin: 0 auto;
+    display: flex; /* Para alinear el título, subtítulo y botón de cliente */
+    flex-direction: column;
+    align-items: center; /* Centra el contenido del hero */
 }
 
 .hero-section h1 {
@@ -37,37 +40,14 @@
 
 .hero-section .hero-subtitle {
     font-size: 1.25rem;
-    margin-bottom: 30px;
+    margin-bottom: 30px; /* Espacio antes del botón CTA del cliente */
     line-height: 1.7;
     color: #555c66;
     /* color: #f0f0f0; Si usas imagen de fondo oscura */
 }
 
-.admin-home-actions {
-    margin-top: 25px;
-    margin-bottom: 20px; /* Espacio si hay un CTA principal después */
-}
-
-.admin-dashboard-button {
-    display: inline-block;
-    padding: 12px 28px;
-    background-color: #e67e22; /* Naranja, o el color de tu marca para acciones de admin */
-    color: white;
-    text-decoration: none;
-    border-radius: 6px;
-    font-weight: bold;
-    font-size: 1.05em;
-    transition: background-color 0.2s ease, transform 0.2s ease;
-    box-shadow: 0 3px 6px rgba(0,0,0,0.1);
-}
-
-.admin-dashboard-button:hover {
-    background-color: #d35400; /* Naranja más oscuro */
-    transform: translateY(-2px);
-    box-shadow: 0 5px 10px rgba(0,0,0,0.15);
-}
-
-.cta-button { /* Estilo para un botón Call to Action principal si lo añades */
+/* Estilo para un botón Call to Action principal (usado por el cliente) */
+.cta-button {
     display: inline-block;
     padding: 14px 35px;
     background-color: #3498db; /* Color primario de tu marca */
@@ -77,11 +57,53 @@
     font-weight: bold;
     font-size: 1.1em;
     transition: background-color 0.2s ease, transform 0.2s ease;
+    border: none; /* Para que parezca más botón */
+    cursor: pointer;
 }
 
 .cta-button:hover {
     background-color: #2980b9;
     transform: translateY(-2px);
+}
+
+/* Botón específico para "Ver Viajes Disponibles" del cliente si necesitas diferenciarlo de cta-button general */
+/* Hereda estilos de cta-button. Puedes añadir o sobrescribir aquí */
+.cliente-ver-viajes-button {
+    /* Por ejemplo, un color diferente si lo deseas: */
+    /* background-color: #17a2b8; */ /* Un color cian o informativo */
+    /* margin-top: 10px; */ /* Ajustar si es necesario después del subtítulo */
+}
+
+
+/* Contenedor para botones de admin/vendedor */
+.user-specific-actions {
+    margin-top: 30px; /* Espacio desde el hero-content */
+    margin-bottom: 20px;
+    display: flex; /* Para alinear botones si hay más de uno */
+    justify-content: center; /* Centra los botones */
+    gap: 15px; /* Espacio entre botones de admin y vendedor si ambos aparecen */
+    flex-wrap: wrap; /* Para que los botones se ajusten en pantallas pequeñas */
+}
+
+.admin-dashboard-button {
+    display: inline-block;
+    padding: 12px 28px;
+    background-color: #e67e22; /* Naranja, o el color de tu marca para acciones de admin/vendedor */
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 1.05em;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+    border: none; /* Para que parezca más botón */
+    cursor: pointer;
+}
+
+.admin-dashboard-button:hover {
+    background-color: #d35400; /* Naranja más oscuro */
+    transform: translateY(-2px);
+    box-shadow: 0 5px 10px rgba(0,0,0,0.15);
 }
 
 

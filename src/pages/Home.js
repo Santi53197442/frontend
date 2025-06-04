@@ -1,8 +1,8 @@
 // src/pages/Home.js
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../AuthContext';
-import './Home.css'; // Asegúrate que esta importación exista y sea correcta
+import { useAuth } from '../AuthContext'; // Asegúrate que esta ruta sea correcta
+import './Home.css';
 
 const lugaresTuristicos = [
     {
@@ -46,22 +46,39 @@ const lugaresTuristicos = [
 const Home = () => {
     const { user, isAuthenticated } = useAuth();
 
+    // Asegúrate que 'cliente' (o el rol que uses) sea el string correcto
+    const esCliente = isAuthenticated && user && user.rol && user.rol.toLowerCase() === 'cliente';
+    const esAdmin = isAuthenticated && user && user.rol && user.rol.toLowerCase() === 'administrador';
+    const esVendedor = isAuthenticated && user && user.rol && user.rol.toLowerCase() === 'vendedor';
+
     return (
-        <main className="home-page-container">
+        // <main className="home-page-wrapper"> Si tienes esta clase definida úsala
+        <main className="home-page-main-content"> {/* Usando una clase existente de tu CSS */}
             <section className="hero-section">
                 <div className="hero-content">
                     <h1>Descubre Uruguay con Carpibus</h1>
+                    <p className="hero-subtitle">
+                        Tu aventura por los rincones más bellos del país comienza aquí.
+                        Encuentra tu próximo destino y viaja con nosotros.
+                    </p>
+                    {/* Botón para clientes */}
+                    {esCliente && (
+                        <Link to="/viajes" className="cta-button cliente-ver-viajes-button">
+                            Ver Viajes Disponibles
+                        </Link>
+                    )}
                 </div>
-                {isAuthenticated && user && (
-                    <div className="admin-home-actions"> {/* Puedes renombrar esta clase si es más general */}
-                        {user.rol === 'administrador' && (
+                {/* Botones para Admin y Vendedor (si están logueados) */}
+                {(esAdmin || esVendedor) && (
+                    <div className="user-specific-actions"> {/* Clase más genérica */}
+                        {esAdmin && (
                             <Link to="/admin/dashboard" className="admin-dashboard-button">
-                                Ir al Panel de Administración
+                                Panel de Administración
                             </Link>
                         )}
-                        {user.rol === 'vendedor' && (
-                            <Link to="/vendedor/dashboard" className="admin-dashboard-button"> {/* Puedes usar la misma clase o crear una nueva si el estilo es diferente */}
-                                Ir al Panel de Vendedor
+                        {esVendedor && (
+                            <Link to="/vendedor/dashboard" className="admin-dashboard-button"> {/* Puedes usar la misma clase */}
+                                Panel de Vendedor
                             </Link>
                         )}
                     </div>
