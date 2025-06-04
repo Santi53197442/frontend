@@ -39,14 +39,6 @@ import VendedorListadoViajesCompra from "./pages/vendedor/VendedorListadoViajesC
 import SeleccionAsientosPage from "./pages/vendedor/SeleccionAsientosPage";
 import CheckoutPage from './pages/vendedor/CheckoutPage';
 
-
-
-// import VendedorMisLocalidadesPage from './pages/vendedor/VendedorMisLocalidadesPage'; // Si la creas
-
-// --- PÁGINAS ADICIONALES (Ejemplos, descomenta e importa si los creas) ---
-// import UnauthorizedPage from './pages/UnauthorizedPage';
-// import NotFoundPage from './pages/NotFoundPage';
-
 const AppRouter = () => {
     return (
         <Routes>
@@ -56,18 +48,14 @@ const AppRouter = () => {
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
-            {/* <Route path="/unauthorized" element={<UnauthorizedPage />} /> */}
 
             {/* --- Rutas Protegidas (Autenticación General Requerida) --- */}
-            {/* Si ProtectedRoute sin allowedRoles solo verifica si está autenticado */}
             <Route element={<ProtectedRoute />}>
                 <Route path="/editar-perfil" element={<EditProfile />} />
                 <Route path="/cambiar-contraseña" element={<CambiarContraseña />} />
-                {/* <Route path="/mis-reservas" element={<ClienteMisReservas />} /> */}
             </Route>
 
-            {/* --- Rutas de Administración (Layout de Admin y Protección por Rol) --- */}
-            {/* Asumo que tu backend devuelve 'administrador' como rol */}
+            {/* --- Rutas de Administración --- */}
             <Route element={<ProtectedRoute allowedRoles={['ADMINISTRADOR', 'administrador']} />}>
                 <Route path="/admin" element={<AdminLayout />}>
                     <Route index element={<AdminDashboard />} />
@@ -80,8 +68,7 @@ const AppRouter = () => {
             </Route>
 
             {/* --- Rutas de Vendedor --- */}
-            {/* Asumo que tu backend devuelve 'vendedor' como rol. Ajusta si es 'VENDEDOR' */}
-            <Route element={<ProtectedRoute allowedRoles={['VENDEDOR', 'vendedor']} />}>
+            <Route element={<ProtectedRoute allowedRoles={['VENDEDOR', 'vendedor', 'ADMINISTRADOR', 'administrador']} />}> {/* Ajusta roles si ADMIN también usa estas rutas */}
                 <Route path="/vendedor" element={<VendedorLayout />}>
                     <Route index element={<VendedorDashboard />} />
                     <Route path="dashboard" element={<VendedorDashboard />} />
@@ -96,15 +83,19 @@ const AppRouter = () => {
                     <Route path="reasignar-viaje" element={<VendedorReasignarViaje />} />
                     <Route path="listar-viajes" element={<VendedorListarViajes />} />
                     <Route path="listar-viajes-compra" element={<VendedorListadoViajesCompra />} />
+
+                    {/* Parámetro :viajeId para SeleccionAsientosPage */}
                     <Route path="viaje/:viajeId/seleccionar-asientos" element={<SeleccionAsientosPage />} />
-                    <Route path="viaje/:viajeId/seleccionar-asientos" element={<SeleccionAsientosPage />} />
-                    <Route path="viaje/:viajeIdFromParams/asiento/:asientoFromParams/checkout" element={<CheckoutPage />} />
-                    {/* <Route path="mis-localidades" element={<VendedorMisLocalidadesPage />} /> */}
+
+                    {/* ¡¡Ruta de Checkout CORREGIDA!! */}
+                    {/* Los parámetros se llamarán :viajeId y :asientoNumero */}
+                    <Route
+                        path="viaje/:viajeId/asiento/:asientoNumero/checkout"
+                        element={<CheckoutPage />}
+                    />
                 </Route>
             </Route>
 
-            {/* Ruta Catch-all */}
-            {/* <Route path="*" element={<NotFoundPage />} /> */}
             <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
     );

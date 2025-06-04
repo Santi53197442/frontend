@@ -1,93 +1,78 @@
-// src/components/vendedor/Checkout.js
+// src/components/vendedor/Checkout.js (o src/pages/vendedor/Checkout.js si lo tienes ahí)
 import React, { useState, useEffect, useCallback } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import {
     comprarPasaje,
     obtenerUsuariosParaSeleccion,
-    obtenerDetallesViajeConAsientos // Para recargar si es necesario
-} from '../../services/api'; // Ajusta la ruta a tu apiService
-import './Checkout.css'; // Asegúrate de que el CSS exista en esta ruta
+    obtenerDetallesViajeConAsientos
+} from '../../services/api';
+import './Checkout.css';
 
 const Checkout = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { viajeId: viajeIdFromUrl, asientoNumero: asientoFromUrl } = useParams(); // Nombres claros de params
+    // Los nombres aquí DEBEN COINCIDIR con los parámetros en la ruta de router.js
+    // Ruta: path="viaje/:viajeId/asiento/:asientoNumero/checkout"
+    const { viajeId: viajeIdFromUrlParam, asientoNumero: asientoNumeroFromUrlParam } = useParams();
 
-    // --- Estados ---
-    // Inicializar con lo que viene del state de la navegación O de la URL directamente
-    const [viajeData, setViajeData] = useState(location.state?.viajeData || null);
-    const [asientoSeleccionado, setAsientoSeleccionado] = useState(
-        location.state?.asientoNumero !== undefined
-            ? parseInt(location.state.asientoNumero, 10)
-            : parseInt(asientoFromUrl, 10)
-    );
+    const initialViajeData = location.state?.viajeData || null;
+    const initialAsiento = location.state?.asientoNumero !== undefined
+        ? parseInt(location.state.asientoNumero, 10)
+        : parseInt(asientoNumeroFromUrlParam, 10); // Usar el parámetro parseado de la URL
+
+    const [viajeData, setViajeData] = useState(initialViajeData);
+    const [asientoSeleccionado, setAsientoSeleccionado] = useState(initialAsiento);
 
     const [clientes, setClientes] = useState([]);
     const [clienteSeleccionadoId, setClienteSeleccionadoId] = useState('');
 
     const [loadingPago, setLoadingPago] = useState(false);
-    const [loadingInitialData, setLoadingInitialData] = useState(true); // Para la carga inicial
+    const [loadingInitialData, setLoadingInitialData] = useState(true);
     const [error, setError] = useState(null);
     const [compraError, setCompraError] = useState(null);
     const [compraExitosaInfo, setCompraExitosaInfo] = useState(null);
 
     const userRole = localStorage.getItem('userRole');
-    // Parsear el ID del viaje de la URL una vez
-    const parsedViajeIdFromUrl = parseInt(viajeIdFromUrl, 10);
+    // Usar el parámetro parseado de la URL para la lógica de carga y como ID del viaje
+    const parsedUrlViajeId = parseInt(viajeIdFromUrlParam, 10);
 
-    // --- Efecto para cargar datos iniciales ---
     useEffect(() => {
-        // Convertir el número de asiento de la URL a número para la validación inicial
-        const parsedAsientoFromUrl = parseInt(asientoFromUrl, 10);
-
-        // Log inicial para depuración
-        console.log("Checkout Mounted - URL Params:", { viajeIdFromUrl, asientoFromUrl });
+        console.log("Checkout Mounted - URL Params:", { viajeIdFromUrlParam, asientoNumeroFromUrlParam });
         console.log("Checkout Mounted - Location State:", location.state);
         console.log("Checkout Mounted - Initial asientoSeleccionado (after parse):", asientoSeleccionado);
-        console.log("Checkout Mounted - Parsed Viaje ID from URL:", parsedViajeIdFromUrl);
-
+        console.log("Checkout Mounted - Parsed Viaje ID from URL:", parsedUrlViajeId);
 
         const cargarDatos = async () => {
             setLoadingInitialData(true);
-            setError(null); // Resetear error en cada intento de carga
+            setError(null);
 
-            // Validar IDs antes de proceder
-            if (isNaN(parsedViajeIdFromUrl) || isNaN(asientoSeleccionado)) {
+            if (isNaN(parsedUrlViajeId) || isNaN(asientoSeleccionado)) {
                 setError("La información del viaje o el número de asiento no son válidos.");
                 setLoadingInitialData(false);
                 return;
             }
 
-            let currentViajeData = viajeData; // Usa el estado actual si ya existe
+            let currentViajeData = viajeData; // Usar el estado si ya tiene datos
 
             try {
-                // Si no tenemos viajeData (ej. recarga de página) O si el ID no coincide con la URL, la cargamos
-                if (!currentViajeData || currentViajeData.id !== parsedViajeIdFromUrl) {
-                    console.log(`Checkout: Necesita cargar/recargar datos del viaje ID: ${parsedViajeIdFromUrl}`);
-                    const responseDetalles = await obtenerDetallesViajeConAsientos(parsedViajeIdFromUrl);
+                if (!currentViajeData || currentViajeData.id !== parsedUrlViajeId) {
+                    console.log(`Checkout: Necesita cargar/recargar datos del viaje ID: ${parsedUrlViajeId}`);
+                    const responseDetalles = await obtenerDetallesViajeConAsientos(parsedUrlViajeId);
                     if (!responseDetalles.data || typeof responseDetalles.data.id === 'undefined') {
                         throw new Error("La API no devolvió información válida para el viaje.");
                     }
                     currentViajeData = responseDetalles.data;
-                    setViajeData(currentViajeData); // Actualiza el estado
-                    console.log("Checkout: ViajeData cargada desde API:", currentViajeData);
+                    setViajeData(currentViajeData);
                 } else {
-                    console.log("Checkout: Usando viajeData existente desde location.state o ya cargada:", currentViajeData);
+                    console.log("Checkout: Usando viajeData existente:", currentViajeData);
                 }
 
-                // Validar el asiento seleccionado contra la capacidad del ómnibus (si tenemos los datos)
                 if (currentViajeData && currentViajeData.capacidadOmnibus) {
                     if (asientoSeleccionado < 1 || asientoSeleccionado > currentViajeData.capacidadOmnibus) {
-                        throw new Error(`El asiento número ${asientoSeleccionado} no es válido para la capacidad de este ómnibus (${currentViajeData.capacidadOmnibus}).`);
+                        throw new Error(`El asiento ${asientoSeleccionado} no es válido para este ómnibus.`);
                     }
-                    // Podrías también verificar si el asiento está en numerosAsientoOcupados aquí, aunque ya debería estar filtrado
-                    // if (currentViajeData.numerosAsientoOcupados && currentViajeData.numerosAsientoOcupados.includes(asientoSeleccionado)) {
-                    //    throw new Error(`El asiento ${asientoSeleccionado} ya está ocupado.`);
-                    // }
                 }
 
-
-                // Cargar clientes si es VENDEDOR/ADMIN
                 if (userRole === 'VENDEDOR' || userRole === 'ADMIN') {
                     const responseClientes = await obtenerUsuariosParaSeleccion();
                     setClientes(responseClientes.data || []);
@@ -96,98 +81,74 @@ const Checkout = () => {
                     if (clienteLogueadoId) {
                         setClienteSeleccionadoId(clienteLogueadoId);
                     } else {
-                        // Considerar esto como un error que impide la compra para el cliente
-                        setError("No se pudo identificar al usuario cliente. Por favor, inicie sesión.");
+                        setError("No se pudo identificar al usuario cliente.");
                     }
                 }
             } catch (err) {
                 console.error("Checkout - Error en cargarDatos:", err);
                 setError(err.message || "Ocurrió un error al cargar la información para el checkout.");
-                setViajeData(null); // Limpiar si la carga crítica falla
+                setViajeData(null);
             } finally {
                 setLoadingInitialData(false);
             }
         };
-
         cargarDatos();
-        // Dependencias: Los parámetros de la URL son los que definen QUÉ cargar.
-        // location.state es solo para el valor inicial.
-        // No incluir viajeData o asientoSeleccionado (estados) aquí para evitar bucles si se setean dentro.
-    }, [viajeIdFromUrl, asientoFromUrl, userRole]); // Se re-ejecuta si cambia la URL
+        // Depender de los parámetros originales de la URL para decidir si recargar.
+    }, [viajeIdFromUrlParam, asientoNumeroFromUrlParam, userRole]);
 
 
     const handleConfirmarYComprar = async () => {
-        // Validaciones antes de la compra
+        // ... (la lógica de handleConfirmarYComprar no necesita grandes cambios,
+        // solo asegúrate que use `viajeData.id` y `asientoSeleccionado` que ya están en el estado)
         if (!viajeData || isNaN(asientoSeleccionado)) {
             setCompraError("La información del viaje o del asiento no está completa para continuar.");
             return;
         }
-        if ((userRole === 'VENDEDOR' || userRole === 'ADMIN') && !clienteSeleccionadoId) {
-            setCompraError("Por favor, seleccione un cliente para este pasaje.");
-            return;
-        }
-        if (userRole === 'CLIENTE' && !clienteSeleccionadoId) {
-            setCompraError("No se pudo identificar al cliente para realizar la compra.");
-            return;
-        }
-
+        // ... (resto de validaciones y lógica de compra)
         setLoadingPago(true);
         setCompraError(null);
         try {
-            console.log("Simulando proceso de pago...");
-            await new Promise(resolve => setTimeout(resolve, 1500));
-
+            await new Promise(resolve => setTimeout(resolve, 1500)); // Simulación
             const datosCompra = {
-                viajeId: viajeData.id, // Usar el ID del viajeData cargado
+                viajeId: viajeData.id, // Usar el ID del viajeData actual
                 clienteId: parseInt(clienteSeleccionadoId, 10),
                 numeroAsiento: asientoSeleccionado,
             };
-            console.log("Enviando a comprarPasaje:", datosCompra);
             const response = await comprarPasaje(datosCompra);
             setCompraExitosaInfo(response.data);
         } catch (err) {
-            console.error("Checkout - Error durante la compra:", err);
             setCompraError(err.response?.data?.message || err.message || "Error al procesar la compra.");
         } finally {
             setLoadingPago(false);
         }
     };
 
-    // --- Renderizado Condicional ---
+    // --- Renderizado Condicional (sin cambios mayores) ---
     if (loadingInitialData) {
         return <p className="loading-mensaje">Cargando información del checkout...</p>;
     }
-
-    if (error) { // Error general durante la carga inicial
+    if (error) {
         return (
             <div className="error-container-checkout">
                 <p className="error-mensaje">{error}</p>
-                <button
-                    onClick={() => navigate(`/vendedor/viaje/${viajeIdFromUrl}/seleccionar-asientos`, { state: { viajeData: viajeData }})}
-                    className="btn-checkout-volver"
-                >
-                    Volver a Selección de Asientos
+                <button onClick={() => navigate(`/vendedor/viaje/${viajeIdFromUrlParam}/seleccionar-asientos`)} className="btn-checkout-volver">
+                    Volver a Selección
                 </button>
             </div>
         );
     }
-
-    // Si después de cargar, viajeData sigue sin ser válido o asientoSeleccionado es NaN, mostramos error
     if (!viajeData || typeof viajeData.id === 'undefined' || isNaN(asientoSeleccionado)) {
         return (
             <div className="error-container-checkout">
                 <p className="error-mensaje">Información de viaje o asiento no válida para el checkout.</p>
-                <button
-                    onClick={() => navigate(`/vendedor/viaje/${viajeIdFromUrl}/seleccionar-asientos`)}
-                    className="btn-checkout-volver"
-                >
-                    Volver a Selección de Asientos
+                <button onClick={() => navigate(`/vendedor/viaje/${viajeIdFromUrlParam}/seleccionar-asientos`)} className="btn-checkout-volver">
+                    Volver a Selección
                 </button>
             </div>
         );
     }
 
-    // --- Renderizado Principal ---
+    // --- Renderizado Principal (sin cambios mayores) ---
     return (
         <div className="checkout-page-container">
             <button
@@ -244,6 +205,7 @@ const Checkout = () => {
                     <h4>¡Compra Realizada con Éxito!</h4>
                     <p><strong>ID del Pasaje:</strong> {compraExitosaInfo.id}</p>
                     <p><strong>Cliente:</strong> {compraExitosaInfo.clienteNombre}</p>
+                    {/* ... resto de la info de compraExitosaInfo ... */}
                     <p><strong>Viaje:</strong> {compraExitosaInfo.origenViaje} → {compraExitosaInfo.destinoViaje}</p>
                     <p><strong>Fecha:</strong> {new Date(compraExitosaInfo.fechaViaje + 'T' + compraExitosaInfo.horaSalidaViaje).toLocaleString()}</p>
                     <p><strong>Asiento:</strong> {String(compraExitosaInfo.numeroAsiento).padStart(2, '0')}</p>

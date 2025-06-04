@@ -1,23 +1,25 @@
 // src/pages/vendedor/SeleccionAsientosPage.js
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
-import { obtenerDetallesViajeConAsientos } from '../../services/api'; // Correcta importación
-import './SeleccionAsientosPage.css'; // Tu CSS
+import { obtenerDetallesViajeConAsientos } from '../../services/api';
+import './SeleccionAsientosPage.css';
 
 const SeleccionAsientosPage = () => {
-    const { viajeId: viajeIdFromParams } = useParams();
+    // El parámetro en la ruta es :viajeId
+    const { viajeId } = useParams(); // <--- AJUSTADO para tomar 'viajeId' directamente
     const location = useLocation();
     const navigate = useNavigate();
 
-    const [viajeInfo, setViajeInfo] = useState(null); // ViajeDetalleConAsientosDTO
+    const [viajeInfo, setViajeInfo] = useState(null);
     const [asientosOcupados, setAsientosOcupados] = useState([]);
     const [capacidadOmnibus, setCapacidadOmnibus] = useState(0);
-    const [asientoSeleccionado, setAsientoSeleccionado] = useState(null); // Para UN solo asiento
+    const [asientoSeleccionado, setAsientoSeleccionado] = useState(null);
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    const parsedViajeId = parseInt(viajeIdFromParams, 10);
+    // Parsear el ID del viaje de la URL una vez
+    const parsedViajeId = parseInt(viajeId, 10); // <--- Usa 'viajeId' de useParams
 
     useEffect(() => {
         const fetchViajeData = async () => {
@@ -28,7 +30,7 @@ const SeleccionAsientosPage = () => {
             }
             setLoading(true);
             setError(null);
-            setAsientoSeleccionado(null); // Resetear asiento en cada carga de viaje
+            setAsientoSeleccionado(null);
             try {
                 const response = await obtenerDetallesViajeConAsientos(parsedViajeId);
                 const dataAPI = response.data;
@@ -36,40 +38,38 @@ const SeleccionAsientosPage = () => {
                 if (!dataAPI || typeof dataAPI !== 'object') {
                     throw new Error("La respuesta de la API no contiene datos válidos del viaje.");
                 }
-                setViajeInfo(dataAPI); // dataAPI es ViajeDetalleConAsientosDTO
+                setViajeInfo(dataAPI);
                 setAsientosOcupados(dataAPI.numerosAsientoOcupados || []);
                 const capacidad = dataAPI.capacidadOmnibus || (dataAPI.omnibus && dataAPI.omnibus.capacidadAsientos) || 0;
                 setCapacidadOmnibus(capacidad);
-
             } catch (err) {
                 console.error("Error cargando detalles del viaje:", err);
                 setError(err.response?.data?.message || err.message || "No se pudo cargar la información del viaje.");
-                setViajeInfo(null); // Limpiar en caso de error
+                setViajeInfo(null);
             } finally {
                 setLoading(false);
             }
         };
         fetchViajeData();
-    }, [parsedViajeId]);
+    }, [parsedViajeId]); // Dependencia: parsedViajeId
 
     const handleSeleccionarAsiento = (numeroAsiento) => {
-        if (asientosOcupados.includes(numeroAsiento)) return; // No se puede seleccionar un asiento ocupado
-
-        // Si se hace clic en el asiento ya seleccionado, se deselecciona. Sino, se selecciona el nuevo.
+        if (asientosOcupados.includes(numeroAsiento)) return;
         setAsientoSeleccionado(prev => prev === numeroAsiento ? null : numeroAsiento);
     };
 
     const renderAsientos = () => {
+        // ... (sin cambios en la lógica interna de renderAsientos) ...
         if (!viajeInfo || capacidadOmnibus === 0) {
             return <p className="info-text">Configurando mapa de asientos...</p>;
         }
         const layout = [];
         let currentSeat = 1;
-        const rows = Math.ceil(capacidadOmnibus / 4); // Asumiendo 2-pasillo-2
+        const rows = Math.ceil(capacidadOmnibus / 4);
 
         for (let i = 0; i < rows; i++) {
             const rowSeats = [];
-            for (let j = 0; j < 4; j++) { // Para las 4 posiciones de asiento por fila visual (2 + pasillo + 2)
+            for (let j = 0; j < 4; j++) {
                 if (currentSeat <= capacidadOmnibus) {
                     const seatNumber = currentSeat;
                     const isOccupied = asientosOcupados.includes(seatNumber);
@@ -91,9 +91,9 @@ const SeleccionAsientosPage = () => {
                     );
                     currentSeat++;
                 } else {
-                    rowSeats.push(<div key={`empty-${i}-${j}`} className="asiento-btn placeholder"></div>); // Espacio vacío
+                    rowSeats.push(<div key={`empty-${i}-${j}`} className="asiento-btn placeholder"></div>);
                 }
-                if (j === 1) { // Añadir pasillo después del segundo asiento de la fila
+                if (j === 1) {
                     rowSeats.push(<div key={`pasillo-${i}`} className="pasillo-div"></div>);
                 }
             }
@@ -111,11 +111,14 @@ const SeleccionAsientosPage = () => {
             alert("La información del viaje no está disponible.");
             return;
         }
-        // Navega a la página de checkout, pasando los datos del viaje y el asiento seleccionado
-        navigate(`/vendedor/viaje/${viajeInfo.id}/asiento/${asientoSeleccionado}/checkout`, {
+        // La URL se construye con viajeInfo.id y asientoSeleccionado.
+        // Estos valores se mapearán a :viajeId y :asientoNumero en la ruta de checkout.
+        const targetUrl = `/vendedor/viaje/${viajeInfo.id}/asiento/${asientoSeleccionado}/checkout`;
+        console.log("SeleccionAsientosPage: Navegando a Checkout:", targetUrl, "con state:", { viajeData: viajeInfo, asientoNumero: asientoSeleccionado });
+        navigate(targetUrl, {
             state: {
-                viajeData: viajeInfo,           // El objeto ViajeDetalleConAsientosDTO
-                asientoNumero: asientoSeleccionado // El número del asiento seleccionado
+                viajeData: viajeInfo,
+                asientoNumero: asientoSeleccionado
             }
         });
     };
@@ -124,10 +127,10 @@ const SeleccionAsientosPage = () => {
     if (error) return <div className="error-container"><p className="error-mensaje">Error: {error}</p><button onClick={() => navigate('/vendedor/listar-viajes-compra')} className="btn-volver">Volver al Listado</button></div>;
     if (!viajeInfo) return <div className="error-container"><p className="error-mensaje">No se encontró información para este viaje.</p><button onClick={() => navigate('/vendedor/listar-viajes-compra')} className="btn-volver">Volver al Listado</button></div>;
 
-    const precioTotal = asientoSeleccionado && viajeInfo.precio ? viajeInfo.precio.toFixed(2) : '0.00';
+    const precioTotal = asientoSeleccionado && viajeInfo.precio ? parseFloat(viajeInfo.precio).toFixed(2) : '0.00';
 
     return (
-        <div className="sp-container"> {/* sp = SeleccionPasajes */}
+        <div className="sp-container">
             <button onClick={() => navigate(location.state?.from || '/vendedor/listar-viajes-compra')} className="sp-btn-volver">
                 ← Volver
             </button>
