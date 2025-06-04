@@ -43,7 +43,7 @@ import SeleccionAsientosPage from "./pages/vendedor/SeleccionAsientosPage"; // P
 import CheckoutPage from './pages/vendedor/CheckoutPage'; // Para VENDEDOR (puedes duplicarlo para cliente)
 
 // Cliente Específico (NUEVO)
-import ClienteSeleccionAsientos from "./components/cliente/ClienteSeleccionAsientos"; // <-- NUEVO, ajusta path
+import ClienteSeleccionAsientos from "./pages/cliente/ClienteSeleccionAsientosPage"; // <-- NUEVO, ajusta path
 // import ClienteCheckoutPage from "./pages/cliente/ClienteCheckoutPage"; // <-- Opcional, si duplicas checkout
 
 // Página de Acceso Denegado (NUEVO)
