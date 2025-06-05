@@ -34,13 +34,6 @@ apiClient.interceptors.response.use(
             console.error("API Response Error Data:", error.response.data);
             if (error.response.status === 401) {
                 console.warn("Interceptor API: Error 401 - No autorizado (token inválido/expirado).");
-                // Lógica de deslogueo (ejemplo comentado)
-                // localStorage.removeItem('authToken');
-                // localStorage.removeItem('userRole');
-                // localStorage.removeItem('userId'); // Si guardas el ID del usuario
-                // if (window.location.pathname !== '/login' && window.location.pathname !== '/register') {
-                //    window.location.href = '/login';
-                // }
             }
             if (error.response.status === 403) {
                 console.warn("Interceptor API: Error 403 - Prohibido (el rol del usuario no permite esta acción).");
@@ -55,6 +48,7 @@ apiClient.interceptors.response.use(
 );
 
 // --- FUNCIONES DE AUTENTICACIÓN ---
+// ... (tus funciones de autenticación existentes)
 export const registerUser = async (userData) => {
     try {
         const response = await apiClient.post('/auth/register', userData);
@@ -76,6 +70,7 @@ export const loginUser = async (credentials) => {
 };
 
 // --- FUNCIONES DE USUARIO ---
+// ... (tus funciones de usuario existentes)
 export const getCurrentUserProfile = async () => {
     try {
         const response = await apiClient.get('/user/profile');
@@ -116,8 +111,8 @@ export const buscarClientePorCI = async (ci) => {
     }
 };
 
-
 // --- FUNCIONES PARA LOCALIDAD (VENDEDOR Y CLIENTE) ---
+// ... (tus funciones de localidad existentes)
 export const obtenerTodasLasLocalidades = async () => {
     try {
         const response = await apiClient.get('/vendedor/localidades-disponibles');
@@ -155,8 +150,8 @@ export const crearLocalidadesBatch = async (file) => {
     }
 };
 
-
 // --- FUNCIONES PARA ÓMNIBUS (SOLO VENDEDOR/ADMIN) ---
+// ... (tus funciones de ómnibus existentes)
 export const crearOmnibus = async (omnibusData) => {
     try {
         const response = await apiClient.post('/vendedor/omnibus', omnibusData);
@@ -193,7 +188,7 @@ export const obtenerTodosLosOmnibus = async () => {
 
 export const obtenerOmnibusPorId = async (id) => {
     try {
-        const response = await apiClient.get(`/vendedor/omnibus/${id}`); // Asumo que este endpoint existe o lo crearás
+        const response = await apiClient.get(`/vendedor/omnibus/${id}`);
         return response;
     } catch (error) {
         console.error(`Error en API al obtener ómnibus con ID ${id}:`, error.response?.data || error.message);
@@ -231,8 +226,8 @@ export const marcarOmnibusOperativo = async (omnibusId) => {
     }
 };
 
-
 // --- FUNCIONES PARA VIAJE (VENDEDOR Y CLIENTE) ---
+// ... (tus funciones de viaje existentes)
 export const buscarViajesConDisponibilidad = async (criterios = {}) => {
     try {
         const response = await apiClient.get('/vendedor/viajes/buscar-disponibles', {
@@ -272,6 +267,7 @@ export const obtenerAsientosOcupados = async (viajeId) => {
 };
 
 // --- FUNCIONES PARA VIAJE (SOLO VENDEDOR/ADMIN) ---
+// ... (tus funciones de viaje solo para vendedor existentes)
 export const crearViaje = async (viajeData) => {
     try {
         const response = await apiClient.post('/vendedor/viajes', viajeData);
@@ -335,7 +331,7 @@ export const buscarViajesDeOmnibus = async (omnibusId, params = {}) => {
     }
 };
 
-// --- FUNCIONES PARA PASAJES (VENDEDOR Y CLIENTE) ---
+// --- FUNCIONES PARA PASAJES ---
 export const comprarPasaje = async (compraRequestDTO) => {
     try {
         const response = await apiClient.post('/vendedor/pasajes/comprar', compraRequestDTO);
@@ -348,32 +344,45 @@ export const comprarPasaje = async (compraRequestDTO) => {
     }
 };
 
-// --- NUEVA FUNCIÓN PARA HISTORIAL DE PASAJES DEL CLIENTE ---
-/**
- * Obtiene el historial de pasajes para un cliente específico.
- * @param {number|string} clienteId El ID del cliente.
- * @returns {Promise<Object>} La respuesta de la API con la lista de pasajes.
- */
 export const obtenerHistorialPasajesCliente = async (clienteId) => {
     try {
-        // El endpoint es /api/cliente/{clienteId}/historial-pasajes
         const response = await apiClient.get(`/cliente/${clienteId}/historial-pasajes`);
-        return response; // Devuelve la respuesta completa, el componente extraerá response.data
+        return response;
     } catch (error) {
         const status = error.response?.status;
         const errorMessage = error.response?.data?.message || error.message || "Error desconocido";
         console.error(`Error en API (obtenerHistorialPasajesCliente para cliente ${clienteId}) - Status: ${status}, Mensaje: ${errorMessage}`);
-        throw error; // Propaga el error para que el componente lo maneje (ej. mostrar un mensaje al usuario)
+        throw error;
+    }
+};
+
+// --- NUEVA FUNCIÓN PARA LISTAR PASAJES DE UN VIAJE (VENDEDOR) ---
+/**
+ * Obtiene la lista de pasajes para un viaje específico, con filtros y ordenamiento.
+ * @param {number|string} viajeId El ID del viaje.
+ * @param {object} params Objeto con los parámetros de filtro y ordenamiento.
+ *                        Ej: { clienteNombre: 'Juan', numeroAsiento: 5, estadoPasaje: 'VENDIDO', sortBy: 'clienteNombre', sortDir: 'asc' }
+ * @returns {Promise<Object>} La respuesta de la API con la lista de pasajes.
+ */
+export const obtenerPasajesDeViajeParaVendedor = async (viajeId, params = {}) => {
+    try {
+        // El endpoint es /api/vendedor/viajes/{viajeId}/pasajes
+        // Los parámetros de filtro se pasarán como query params
+        const response = await apiClient.get(`/vendedor/viajes/${viajeId}/pasajes`, { params });
+        return response;
+    } catch (error) {
+        const status = error.response?.status;
+        const errorMessage = error.response?.data?.message || error.message || "Error desconocido";
+        console.error(`Error en API (obtenerPasajesDeViajeParaVendedor para viaje ${viajeId}) - Status: ${status}, Mensaje: ${errorMessage}, Params: ${JSON.stringify(params)}`);
+        throw error;
     }
 };
 
 
 // --- FUNCIONES PARA VENDEDOR/ADMIN (relacionadas a la selección de usuarios) ---
-export const obtenerUsuariosParaSeleccion = async () => { // Usado por Vendedor para seleccionar cliente al comprar pasaje
+// ... (tus funciones de selección de usuarios existentes)
+export const obtenerUsuariosParaSeleccion = async () => {
     try {
-        // Asumiendo que quieres una lista de todos los usuarios con rol CLIENTE
-        // El endpoint /admin/usuarios?rol=CLIENTE podría ser mejor si solo necesitas nombres e IDs.
-        // Si /admin/usuarios es muy pesado o devuelve demasiada info, considera un endpoint específico.
         const response = await apiClient.get('/admin/usuarios', { params: { rol: 'CLIENTE' } });
         return response;
     } catch (error) {
@@ -384,6 +393,5 @@ export const obtenerUsuariosParaSeleccion = async () => { // Usado por Vendedor 
         throw error;
     }
 };
-
 
 export default apiClient;

@@ -41,6 +41,7 @@ import VendedorListarViajes from './pages/vendedor/VendedorListarViajes';
 import VendedorListadoViajesCompra from "./pages/vendedor/VendedorListadoViajesCompra";
 import SeleccionAsientosPage from "./pages/vendedor/SeleccionAsientosPage"; // Para VENDEDOR
 import CheckoutPage from './pages/vendedor/CheckoutPage'; // Para VENDEDOR
+import VendedorListadoPasajesViaje from "./pages/vendedor/VendedorListadoPasajesViaje";
 
 // Cliente Específico
 import ClienteSeleccionAsientosPage from "./pages/cliente/ClienteSeleccionAsientosPage";
@@ -131,6 +132,7 @@ const AppRouter = () => {
                     <Route path="listar-viajes-compra" element={<VendedorListadoViajesCompra />} />
                     <Route path="viaje/:viajeId/seleccionar-asientos" element={<SeleccionAsientosPage />} />
                     <Route path="viaje/:viajeId/asiento/:asientoNumero/checkout" element={<CheckoutPage />} />
+                    <Route path="viajes/:viajeId/pasajes" element={<VendedorListadoPasajesViaje />} />
                 </Route>
             </Route>
 
