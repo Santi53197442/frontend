@@ -195,3 +195,75 @@
     text-align: center;
     margin-top: 30px;
 }
+.filtros-form-pasajes {
+    display: grid; /* Usamos grid para un mejor control */
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); /* Columnas responsivas */
+    gap: 20px; /* Espacio entre elementos del grid */
+    align-items: end; /* Alinea los elementos al final de su celda (útil si tienen alturas diferentes) */
+    margin-bottom: 35px;
+    padding: 25px;
+    background-color: #ffffff; /* Fondo más claro */
+    border-radius: 8px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.07); /* Sombra más sutil */
+    border: 1px solid #e7e7e7;
+}
+
+.filtro-grupo-pasajes {
+    display: flex;
+    flex-direction: column;
+    /* flex: 1 1 200px; No es tan necesario con grid */
+}
+
+.filtro-grupo-pasajes label {
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #4A5568; /* Un gris más oscuro y moderno */
+    font-size: 0.9em;
+    text-transform: uppercase; /* Opcional: para un look más formal */
+    letter-spacing: 0.5px; /* Opcional */
+}
+
+.filtro-grupo-pasajes input[type="text"],
+.filtro-grupo-pasajes input[type="date"],
+.filtro-grupo-pasajes select { /* Aunque ya no usamos select, lo dejamos por si se añade en el futuro */
+    padding: 12px 15px; /* Más padding */
+    border: 1px solid #CBD5E0; /* Borde más suave */
+    border-radius: 6px; /* Bordes más redondeados */
+    font-size: 1em; /* Tamaño de fuente estándar */
+    background-color: #F7FAFC; /* Fondo muy claro para el input */
+    color: #2D3748; /* Color de texto del input */
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.filtro-grupo-pasajes input::placeholder {
+    color: #A0AEC0; /* Color del placeholder */
+}
+
+.filtro-grupo-pasajes input:focus,
+.filtro-grupo-pasajes select:focus {
+    outline: none;
+    border-color: #3182CE; /* Un azul estándar para el foco */
+    box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.25); /* Sombra de foco sutil */
+    background-color: #fff;
+}
+
+/* Si quieres un botón de "Limpiar Filtros" o "Aplicar" (aunque ahora es automático) */
+.filtros-form-pasajes button {
+    padding: 12px 20px;
+    background-color: #3182CE;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+    grid-column: span 1; /* Para que ocupe una celda del grid */
+    /* Si quieres que el botón ocupe todo el ancho disponible en la última fila si es el único: */
+    /* Si solo hay 1 o 2 elementos en la última fila, puede que quieras esto:
+    /* &:last-child:nth-child(odd), &:last-child:nth-child(even) { grid-column: 1 / -1; } */
+}
+
+.filtros-form-pasajes button:hover {
+    background-color: #2B6CB0;
+}
