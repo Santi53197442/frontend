@@ -5,6 +5,7 @@ import { useAuth } from '../AuthContext'; // Asegúrate que esta ruta sea correc
 import './Home.css';
 
 const lugaresTuristicos = [
+    // ... (tu array de lugaresTuristicos se mantiene igual)
     {
         id: 1,
         nombre: "Colonia del Sacramento",
@@ -43,17 +44,16 @@ const lugaresTuristicos = [
     }
 ];
 
+
 const Home = () => {
     const { user, isAuthenticated } = useAuth();
 
-    // Asegúrate que 'cliente' (o el rol que uses) sea el string correcto
     const esCliente = isAuthenticated && user && user.rol && user.rol.toLowerCase() === 'cliente';
     const esAdmin = isAuthenticated && user && user.rol && user.rol.toLowerCase() === 'administrador';
     const esVendedor = isAuthenticated && user && user.rol && user.rol.toLowerCase() === 'vendedor';
 
     return (
-        // <main className="home-page-wrapper"> Si tienes esta clase definida úsala
-        <main className="home-page-main-content"> {/* Usando una clase existente de tu CSS */}
+        <main className="home-page-main-content">
             <section className="hero-section">
                 <div className="hero-content">
                     <h1>Descubre Uruguay con Carpibus</h1>
@@ -61,23 +61,29 @@ const Home = () => {
                         Tu aventura por los rincones más bellos del país comienza aquí.
                         Encuentra tu próximo destino y viaja con nosotros.
                     </p>
-                    {/* Botón para clientes */}
+                    {/* Botones para clientes */}
                     {esCliente && (
-                        <Link to="/viajes" className="cta-button cliente-ver-viajes-button">
-                            Ver Viajes Disponibles
-                        </Link>
+                        <div className="cliente-actions-home"> {/* Contenedor para los botones del cliente */}
+                            <Link to="/viajes" className="cta-button cliente-ver-viajes-button">
+                                Ver Viajes Disponibles
+                            </Link>
+                            {/* NUEVO BOTÓN PARA HISTORIAL DE PASAJES */}
+                            <Link to="/mis-pasajes" className="cta-button cliente-mis-pasajes-button">
+                                Mis Pasajes
+                            </Link>
+                        </div>
                     )}
                 </div>
                 {/* Botones para Admin y Vendedor (si están logueados) */}
                 {(esAdmin || esVendedor) && (
-                    <div className="user-specific-actions"> {/* Clase más genérica */}
+                    <div className="user-specific-actions">
                         {esAdmin && (
                             <Link to="/admin/dashboard" className="admin-dashboard-button">
                                 Panel de Administración
                             </Link>
                         )}
                         {esVendedor && (
-                            <Link to="/vendedor/dashboard" className="admin-dashboard-button"> {/* Puedes usar la misma clase */}
+                            <Link to="/vendedor/dashboard" className="admin-dashboard-button">
                                 Panel de Vendedor
                             </Link>
                         )}

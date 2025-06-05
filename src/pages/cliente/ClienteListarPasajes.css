@@ -1,0 +1,197 @@
+/* src/pages/ClienteListarPasajes.css */
+.listar-pasajes-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.page-title {
+    text-align: center;
+    color: #333;
+    margin-bottom: 30px;
+    font-size: 2.5em;
+    font-weight: 600;
+}
+
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    color: #555;
+    font-size: 1.2em;
+}
+
+.loading-spinner {
+    border: 6px solid #f3f3f3; /* Light grey */
+    border-top: 6px solid #007bff; /* Blue */
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+    margin-bottom: 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.error-message {
+    background-color: #ffebee;
+    color: #c62828;
+    padding: 15px;
+    border-radius: 4px;
+    text-align: center;
+    margin-bottom: 20px;
+    border-left: 5px solid #c62828;
+}
+
+.no-pasajes-message {
+    text-align: center;
+    padding: 40px 20px;
+    background-color: #fff;
+    border: 1px dashed #ccc;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+.no-pasajes-message p {
+    font-size: 1.2em;
+    color: #555;
+    margin-bottom: 20px;
+}
+
+.pasajes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 25px;
+}
+
+.pasaje-card {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.pasaje-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.12);
+}
+
+.pasaje-card-header {
+    background-color: #007bff;
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.pasaje-card-header h3 {
+    margin: 0;
+    font-size: 1.3em;
+    font-weight: 500;
+}
+
+.pasaje-estado {
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 0.85em;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.pasaje-estado-vendido { /* Asegúrate que los estados coincidan con los de tu backend (en minúsculas) */
+    background-color: #28a745; /* Verde */
+    color: white;
+}
+.pasaje-estado-cancelado {
+    background-color: #dc3545; /* Rojo */
+    color: white;
+}
+.pasaje-estado-reservado {
+    background-color: #ffc107; /* Amarillo */
+    color: #333;
+}
+.pasaje-estado-utilizado {
+    background-color: #6c757d; /* Gris */
+    color: white;
+}
+/* Añade más estados si los tienes */
+
+
+.pasaje-card-body {
+    padding: 20px;
+    font-size: 0.95em;
+    line-height: 1.6;
+}
+
+.pasaje-card-body p {
+    margin-bottom: 10px;
+    color: #555;
+}
+
+.pasaje-card-body p strong {
+    color: #333;
+    margin-right: 5px;
+}
+
+.pasaje-card-footer {
+    padding: 15px 20px;
+    background-color: #f8f9fa;
+    border-top: 1px solid #e0e0e0;
+    text-align: right;
+}
+
+/* Botones genéricos (reutiliza si tienes uno global) */
+.cta-button, .info-button, .back-button {
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.cta-button {
+    background-color: #007bff;
+    color: white;
+}
+.cta-button:hover {
+    background-color: #0056b3;
+    transform: translateY(-1px);
+}
+
+.info-button {
+    background-color: #17a2b8;
+    color: white;
+    margin-left: 10px;
+}
+.info-button:hover {
+    background-color: #138496;
+}
+
+.back-button {
+    background-color: #6c757d;
+    color: white;
+}
+.back-button:hover {
+    background-color: #5a6268;
+}
+
+.actions-container.bottom-actions {
+    text-align: center;
+    margin-top: 30px;
+}
