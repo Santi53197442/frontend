@@ -119,6 +119,15 @@ const VendedorLayout = () => {
                                 <span>Listar Viajes Compra</span>
                             </NavLink>
                         </li>
+                        <li>
+                            <NavLink
+                                to="/vendedor/pasajes-por-viaje" // Nueva ruta para el componente unificado
+                                className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
+                                onClick={handleNavLinkClick}
+                            >
+                                <span>Pasajes por Viaje</span>
+                            </NavLink>
+                        </li>
                     </ul>
                 </nav>
 
