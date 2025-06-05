@@ -46,7 +46,7 @@ import CheckoutPage from './pages/vendedor/CheckoutPage'; // Para VENDEDOR
 import ClienteSeleccionAsientosPage from "./pages/cliente/ClienteSeleccionAsientosPage";
 import ClienteCheckoutPage from "./pages/cliente/ClienteCheckoutPage";
 // *** NUEVA IMPORTACIÓN PARA LA PÁGINA DE HISTORIAL DE PASAJES DEL CLIENTE ***
-import ClienteListarPasajes from './pages/ClienteListarPasajes'; // Asegúrate que la ruta sea correcta
+import ClienteListarPasajes from './pages/cliente/ClienteListarPasajes'; // Asegúrate que la ruta sea correcta
 
 // Página de Acceso Denegado
 const UnauthorizedPage = () => (
