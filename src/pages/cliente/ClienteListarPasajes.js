@@ -1,7 +1,7 @@
 // src/pages/ClienteListarPasajes.js
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../AuthContext'; // Asegúrate que la ruta sea correcta
-import { obtenerHistorialPasajesCliente } from '../services/apiService'; // Asegúrate que la ruta sea correcta
+import { useAuth } from '../../AuthContext';
+import { obtenerHistorialPasajesCliente } from '../../services/api'; // Asegúrate que la ruta sea correcta
 import './ClienteListarPasajes.css'; // Crearemos este archivo CSS
 import { Link } from 'react-router-dom'; // Para el botón de volver
 
