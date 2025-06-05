@@ -1,40 +1,39 @@
 // src/pages/cliente/ClienteListarPasajes.js
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../../AuthContext';
-import { obtenerHistorialPasajesCliente, obtenerTodasLasLocalidades } from '../../services/api'; // Asegúrate de exportar obtenerTodasLasLocalidades
+// Asegúrate que la ruta a apiService (o api) sea correcta
+import { obtenerHistorialPasajesCliente, obtenerTodasLasLocalidades } from '../../services/api';
 import './ClienteListarPasajes.css';
 import { Link } from 'react-router-dom';
 
 const ClienteListarPasajes = () => {
     const { user } = useAuth();
-    const [todosLosPasajes, setTodosLosPasajes] = useState([]); // Guarda todos los pasajes originales
-    const [localidades, setLocalidades] = useState([]); // Para filtros de origen/destino
+    const [todosLosPasajes, setTodosLosPasajes] = useState([]);
+    const [localidades, setLocalidades] = useState([]); // Opcional, si decides usar dropdowns de origen/destino en el futuro
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
     const [filtros, setFiltros] = useState({
-        origenNombre: '', // Filtro por texto
-        destinoNombre: '', // Filtro por texto
+        origenNombre: '',
+        destinoNombre: '',
         fechaDesde: '',
         fechaHasta: '',
-        estadoPasaje: '', // VENDIDO, CANCELADO, etc.
-        sortBy: 'fechaViaje', // Campo por defecto para ordenar
-        sortDir: 'desc',      // Dirección por defecto
+        // estadoPasaje: '', // ELIMINADO
+        sortBy: 'fechaViaje',
+        sortDir: 'desc',
     });
 
-    // Cargar localidades para los dropdowns (opcional, pero mejora UX)
     useEffect(() => {
-        const cargarLocalidadesYPasajes = async () => {
+        const cargarDatosIniciales = async () => {
             setLoading(true);
             setError('');
             try {
-                // Cargar localidades
+                // Cargar localidades (opcional)
                 try {
                     const locResponse = await obtenerTodasLasLocalidades();
                     setLocalidades(locResponse.data || []);
                 } catch (locErr) {
                     console.warn("Advertencia: No se pudieron cargar las localidades para los filtros.", locErr);
-                    // Continuar sin localidades si falla, los filtros de texto seguirán funcionando
                 }
 
                 // Cargar pasajes
@@ -53,7 +52,7 @@ const ClienteListarPasajes = () => {
                 setLoading(false);
             }
         };
-        cargarLocalidadesYPasajes();
+        cargarDatosIniciales();
     }, [user]);
 
     const handleFiltroChange = (e) => {
@@ -68,12 +67,12 @@ const ClienteListarPasajes = () => {
         pasajesProcesados = pasajesProcesados.filter(pasaje => {
             const origenMatch = filtros.origenNombre ? pasaje.origenViaje?.toLowerCase().includes(filtros.origenNombre.toLowerCase()) : true;
             const destinoMatch = filtros.destinoNombre ? pasaje.destinoViaje?.toLowerCase().includes(filtros.destinoNombre.toLowerCase()) : true;
-            const estadoMatch = filtros.estadoPasaje ? pasaje.estado === filtros.estadoPasaje : true;
+            // const estadoMatch = filtros.estadoPasaje ? pasaje.estado === filtros.estadoPasaje : true; // ELIMINADO
 
             let fechaMatch = true;
-            if (pasaje.fechaViaje) { // Asegurarse que hay fecha de viaje
+            if (pasaje.fechaViaje) {
                 const fechaPasaje = new Date(pasaje.fechaViaje);
-                fechaPasaje.setHours(0,0,0,0); // Normalizar para comparar solo fechas
+                fechaPasaje.setHours(0,0,0,0);
 
                 if (filtros.fechaDesde) {
                     const fechaDesdeFiltro = new Date(filtros.fechaDesde);
@@ -85,12 +84,12 @@ const ClienteListarPasajes = () => {
                     fechaHastaFiltro.setHours(0,0,0,0);
                     if (fechaPasaje > fechaHastaFiltro) fechaMatch = false;
                 }
-            } else if (filtros.fechaDesde || filtros.fechaHasta) { // Si hay filtro de fecha pero el pasaje no tiene fecha
+            } else if (filtros.fechaDesde || filtros.fechaHasta) {
                 fechaMatch = false;
             }
 
-
-            return origenMatch && destinoMatch && estadoMatch && fechaMatch;
+            // return origenMatch && destinoMatch && estadoMatch && fechaMatch; // ANTES
+            return origenMatch && destinoMatch && fechaMatch; // AHORA
         });
 
         // Aplicar ordenación
@@ -99,7 +98,6 @@ const ClienteListarPasajes = () => {
                 let valA = a[filtros.sortBy];
                 let valB = b[filtros.sortBy];
 
-                // Manejo especial para fechas
                 if (filtros.sortBy === 'fechaViaje') {
                     valA = a.fechaViaje ? new Date(a.fechaViaje) : null;
                     valB = b.fechaViaje ? new Date(b.fechaViaje) : null;
@@ -131,14 +129,9 @@ const ClienteListarPasajes = () => {
         return '';
     };
 
-    // Obtener estados únicos de los pasajes para el dropdown de filtro
-    const estadosUnicos = useMemo(() => {
-        const estados = new Set(todosLosPasajes.map(p => p.estado).filter(Boolean));
-        return Array.from(estados);
-    }, [todosLosPasajes]);
+    // const estadosUnicos = useMemo(() => { ... }); // ELIMINADO
 
-
-    if (loading && todosLosPasajes.length === 0) { // Mostrar spinner solo si no hay datos previos
+    if (loading && todosLosPasajes.length === 0) {
         return <div className="loading-container"><div className="loading-spinner"></div><p>Cargando historial de pasajes...</p></div>;
     }
 
@@ -163,14 +156,7 @@ const ClienteListarPasajes = () => {
                     <label htmlFor="fechaHasta">Fecha Hasta:</label>
                     <input type="date" name="fechaHasta" id="fechaHasta" value={filtros.fechaHasta} onChange={handleFiltroChange} />
                 </div>
-                <div className="filtro-grupo-pasajes">
-                    <label htmlFor="estadoPasaje">Estado:</label>
-                    <select name="estadoPasaje" id="estadoPasaje" value={filtros.estadoPasaje} onChange={handleFiltroChange}>
-                        <option value="">Todos</option>
-                        {estadosUnicos.map(estado => <option key={estado} value={estado}>{estado}</option>)}
-                    </select>
-                </div>
-                {/* No necesitamos botón de submit, los filtros se aplican al cambiar gracias a useMemo */}
+                {/* El filtro de estado ha sido eliminado del JSX */}
             </form>
 
             {error && <div className="error-message">{error}</div>}
@@ -188,13 +174,7 @@ const ClienteListarPasajes = () => {
             )}
 
             {pasajesFiltradosYOrdenados.length > 0 && (
-                <div className="pasajes-grid"> {/* O usa una tabla si prefieres */}
-                    {/* Encabezados para ordenar (si usas grid, esto es más conceptual) */}
-                    {/* Para una tabla, serían los <th> */}
-                    {/* <div className="pasaje-card-header-sortable" onClick={() => handleSortChange('destinoViaje')}>
-                        Destino {getSortIndicator('destinoViaje')}
-                    </div> */}
-
+                <div className="pasajes-grid">
                     {pasajesFiltradosYOrdenados.map((pasaje) => (
                         <div key={pasaje.id} className="pasaje-card">
                             <div className="pasaje-card-header">
@@ -203,7 +183,7 @@ const ClienteListarPasajes = () => {
                                     {filtros.sortBy === 'destinoViaje' ? getSortIndicator('destinoViaje') : ''}
                                 </h3>
                                 <span className={`pasaje-estado pasaje-estado-${pasaje.estado?.toLowerCase()}`}>
-                                    {pasaje.estado || 'ESTADO DESCONOCIDO'}
+                                    {pasaje.estado || 'ESTADO DESCONOCIDO'} {/* Mantenemos la visualización del estado del pasaje */}
                                 </span>
                             </div>
                             <div className="pasaje-card-body">
