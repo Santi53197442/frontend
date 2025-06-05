@@ -1,7 +1,7 @@
 // src/pages/cliente/ClienteListarPasajes.js
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../../AuthContext';
-import { obtenerHistorialPasajesCliente, obtenerTodasLasLocalidades } from '../../services/apiService'; // Asegúrate de exportar obtenerTodasLasLocalidades
+import { obtenerHistorialPasajesCliente, obtenerTodasLasLocalidades } from '../../services/api'; // Asegúrate de exportar obtenerTodasLasLocalidades
 import './ClienteListarPasajes.css';
 import { Link } from 'react-router-dom';
 
