@@ -16,6 +16,7 @@ const initialOptions = {
     "client-id": "AclKeFueUT6hu_vNmKjHR4MEfn7vyF3J3mzk8DxkkM0y_Gc9DyD2250fCktw_Tt8h3Qu8--U8EDWEc7u",
     currency: "USD",
     intent: "capture",
+    debug: "true",
 };
 
 function App() {
