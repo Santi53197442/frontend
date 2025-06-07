@@ -1,16 +1,13 @@
-// src/pages/cliente/ClienteCheckoutPage.js - MODIFICADO CON PAYPAL
-
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { comprarPasaje, obtenerDetallesViajeConAsientos } from '../../services/api'; // Seguimos usando comprarPasaje
+import { comprarPasaje, obtenerDetallesViajeConAsientos } from '../../services/api';
 import { useAuth } from '../../AuthContext';
 import './CheckoutPage.css';
 
-// 1. --- IMPORTACIONES DE PAYPAL ---
+// --- IMPORTACIONES DE PAYPAL ---
 import { PayPalButtons, usePayPalScriptReducer } from "@paypal/react-paypal-js";
 
-// --- URL del Backend (leída desde variables de entorno) ---
-// Asegúrate de que tu .env tenga REACT_APP_API_URL
+// --- URL del Backend ---
 const API_URL = process.env.REACT_APP_API_URL || "https://web-production-2443c.up.railway.app";
 
 const ClienteCheckoutPage = () => {
@@ -26,31 +23,28 @@ const ClienteCheckoutPage = () => {
 
     const [isLoadingViaje, setIsLoadingViaje] = useState(true);
     const [errorCarga, setErrorCarga] = useState(null);
-    const [isLoadingCompra, setIsLoadingCompra] = useState(false); // Reutilizamos este estado
+    const [isLoadingCompra, setIsLoadingCompra] = useState(false);
     const [errorCompra, setErrorCompra] = useState(null);
     const [mensajeExitoCompra, setMensajeExitoCompra] = useState(null);
 
-    // 2. --- HOOK DE PAYPAL para saber si el script está cargando ---
     const [{ isPending }] = usePayPalScriptReducer();
 
     const parsedViajeId = parseInt(viajeIdFromParams, 10);
     const parsedAsientoNumero = parseInt(numeroAsientoSeleccionado, 10);
 
-    // El useEffect para cargar datos no necesita cambios, está perfecto.
     useEffect(() => {
-        // ... tu lógica de carga de datos existente ...
-        // Esta parte está bien, no la pegamos aquí para no alargar el código.
         const cargarDatosIniciales = async () => {
             if (authLoading) return;
             setIsLoadingViaje(true);
             setErrorCarga(null);
             if (isNaN(parsedViajeId) || isNaN(parsedAsientoNumero)) {
-                setErrorCarga("Información inválida.");
+                setErrorCarga("Información del viaje o asiento inválida.");
                 setIsLoadingViaje(false);
                 return;
             }
             if (!isAuthenticated || !user?.id) {
-                setErrorCarga("Debe iniciar sesión para continuar.");
+                // No establecemos un error aquí, simplemente el botón de pago estará deshabilitado.
+                // Podrías redirigir si prefieres: navigate('/login');
                 setIsLoadingViaje(false);
                 return;
             }
@@ -60,31 +54,32 @@ const ClienteCheckoutPage = () => {
                     setViajeData(response.data);
                 }
             } catch (err) {
-                setErrorCarga(err.message || "Error al cargar datos.");
+                setErrorCarga(err.message || "Error al cargar los datos del viaje.");
             } finally {
                 setIsLoadingViaje(false);
             }
         };
         cargarDatosIniciales();
-    }, [viajeData, parsedViajeId, parsedAsientoNumero, authLoading, isAuthenticated, user]);
+    }, [viajeData, parsedViajeId, parsedAsientoNumero, authLoading, isAuthenticated, user?.id, navigate]);
 
-    // 3. --- LÓGICA DE PAYPAL ---
 
-    // Esta función llama a nuestro backend para crear una orden en PayPal
-    // Reemplaza la función createOrder en ClienteCheckoutPage.js por esta
+    // --- LÓGICA DE PAYPAL ---
 
-    const createOrder = async () => {
+    /**
+     * Esta función se comunica con el backend para crear una orden en PayPal.
+     * Es llamada cuando el usuario hace clic en el botón de PayPal.
+     */
+    const createOrder = async (data, actions) => { // <-- CORRECCIÓN: Se añaden (data, actions)
         console.log("--- INICIANDO createOrder ---");
         setIsLoadingCompra(true);
         setErrorCompra(null);
 
-        // Asegurémonos de que el precio es válido
         if (!viajeData || typeof viajeData.precio !== 'number' || viajeData.precio <= 0) {
             const errorMsg = "Precio del viaje inválido o no disponible.";
             console.error(errorMsg, viajeData);
             setErrorCompra(errorMsg);
             setIsLoadingCompra(false);
-            return Promise.reject(new Error(errorMsg)); // Rechazamos la promesa para que PayPal sepa que falló
+            return Promise.reject(new Error(errorMsg));
         }
 
         const precioDelViaje = viajeData.precio;
@@ -94,7 +89,7 @@ const ClienteCheckoutPage = () => {
             const response = await fetch(`${API_URL}/api/paypal/orders`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ amount: precioDelViaje })
+                body: JSON.stringify({ amount: precioDelViaje.toFixed(2) }) // Es bueno enviar el precio como string con 2 decimales
             });
 
             console.log("Respuesta del backend recibida. Status:", response.status);
@@ -102,26 +97,26 @@ const ClienteCheckoutPage = () => {
 
             if (response.ok) {
                 console.log("¡Éxito! Orden de PayPal creada. ID:", order.id);
-                setIsLoadingCompra(false);
+                // No es necesario cambiar el estado isLoadingCompra a false aquí, PayPal maneja el flujo.
                 return order.id; // DEVOLVEMOS EL ID A PAYPAL
             } else {
-                // El backend respondió con un error (4xx, 5xx)
                 const errorMsg = `El backend respondió con error ${response.status}: ${order.message || 'Error desconocido'}`;
-                console.error(errorMsg, order);
                 throw new Error(errorMsg);
             }
         } catch (error) {
             console.error("--- ERROR CAPTURADO en createOrder ---", error);
             setErrorCompra(error.message || "Error al iniciar el pago. Revise la consola.");
             setIsLoadingCompra(false);
-            // Es crucial rechazar la promesa para que el onError de PayPal se active
             return Promise.reject(error);
         }
     };
 
-    // Esta función se ejecuta DESPUÉS de que el usuario aprueba el pago en la ventana de PayPal
-    const onApprove = async (data) => {
-        // 'data' contiene el orderID de PayPal
+    /**
+     * Esta función se ejecuta DESPUÉS de que el usuario aprueba el pago en la ventana de PayPal.
+     * Captura el pago y registra la compra en nuestro sistema.
+     */
+    const onApprove = async (data, actions) => { // <-- CORRECCIÓN: Se añaden (data, actions)
+        setIsLoadingCompra(true);
         try {
             // Paso A: Capturamos el pago en PayPal a través de nuestro backend.
             const captureResponse = await fetch(`${API_URL}/api/paypal/orders/${data.orderID}/capture`, {
@@ -133,19 +128,19 @@ const ClienteCheckoutPage = () => {
                 throw new Error(details.message || "El pago no pudo ser completado en PayPal.");
             }
 
+            console.log("Pago capturado con éxito:", details);
+
             // Paso B: ¡PAGO EXITOSO! Ahora registramos la compra en NUESTRO sistema.
-            // Reutilizamos la lógica que ya tenías en handleConfirmarYComprar.
             const datosCompraDTO = {
                 viajeId: parsedViajeId,
-                clienteId: user.id, // ID numérico del cliente logueado
+                clienteId: user.id,
                 numeroAsiento: parsedAsientoNumero,
-                // Opcional pero recomendado: guardar el ID de la transacción de PayPal
-                paypalTransactionId: details.id
+                paypalTransactionId: details.id // Guardamos el ID de la transacción de PayPal
             };
 
-            // Llamamos a nuestro endpoint seguro para guardar el pasaje
             const responsePasaje = await comprarPasaje(datosCompraDTO);
             setMensajeExitoCompra(responsePasaje.data);
+            setErrorCompra(null); // Limpiamos cualquier error previo
 
         } catch (error) {
             console.error("Error al finalizar la compra:", error);
@@ -155,20 +150,20 @@ const ClienteCheckoutPage = () => {
         }
     };
 
-    // Maneja errores que ocurran en la ventana de PayPal
+    /**
+     * Maneja errores que ocurran en el flujo de PayPal (ej. cierre de ventana, fallo de la tarjeta).
+     */
     const onError = (err) => {
         console.error("Error de PayPal:", err);
-        setErrorCompra("Ocurrió un error con el pago. Por favor, verifique sus datos o intente más tarde.");
+        setErrorCompra("Ocurrió un error con el pago o la operación fue cancelada. Por favor, intente de nuevo.");
         setIsLoadingCompra(false);
     };
 
-    // Condición para deshabilitar los botones (ahora de PayPal)
     const isBotonPagarDisabled = isLoadingCompra || !!mensajeExitoCompra || authLoading || isLoadingViaje || !isAuthenticated || !user?.id || !viajeData;
 
-    // Renderizado de Carga y Errores (sin cambios)
-    if (authLoading || isLoadingViaje) { return <p>Cargando información...</p>; }
-    if (errorCarga) { return <p>Error: {errorCarga}</p>; }
-    if (!viajeData || isNaN(parsedAsientoNumero)) { return <p>No se encontró la información del viaje.</p>; }
+    if (authLoading || isLoadingViaje) { return <div className="checkout-page-container"><p>Cargando información...</p></div>; }
+    if (errorCarga) { return <div className="checkout-page-container"><p className="error-mensaje">Error: {errorCarga}</p></div>; }
+    if (!viajeData || isNaN(parsedAsientoNumero)) { return <div className="checkout-page-container"><p>No se encontró la información del viaje.</p></div>; }
 
     return (
         <div className="checkout-page-container cliente-checkout-page">
@@ -178,14 +173,12 @@ const ClienteCheckoutPage = () => {
             <h2>Confirmación y Pago</h2>
 
             <div className="checkout-resumen-viaje">
-                {/* ... tu JSX de resumen de viaje no cambia ... */}
                 <p><strong>Viaje:</strong> {viajeData.origenNombre} → {viajeData.destinoNombre}</p>
                 <p><strong>Fecha:</strong> {new Date(viajeData.fechaSalida).toLocaleString('es-ES', { dateStyle: 'full', timeStyle: 'short' })}</p>
                 <p><strong>Asiento:</strong> <span className="checkout-asiento-num">{String(parsedAsientoNumero).padStart(2, '0')}</span></p>
                 <p><strong>Precio:</strong> <span className="checkout-precio-val">${viajeData.precio ? parseFloat(viajeData.precio).toFixed(2) : 'N/A'}</span></p>
             </div>
 
-            {/* ... tu JSX de info de cliente no cambia ... */}
             {user && (
                 <div className="checkout-info-cliente-logueado">
                     <h4>Comprando como:</h4>
@@ -197,27 +190,26 @@ const ClienteCheckoutPage = () => {
 
             {!mensajeExitoCompra ? (
                 <div className="checkout-acciones">
-                    {/* 4. --- REEMPLAZO DEL BOTÓN ANTIGUO POR EL DE PAYPAL --- */}
-                    {isPending || isLoadingCompra ? (
-                        <p>Cargando opciones de pago...</p>
+                    {isPending ? (
+                        <div className="spinner-paypal"></div>
                     ) : (
                         <PayPalButtons
                             style={{ layout: "vertical", label: "pay" }}
                             disabled={isBotonPagarDisabled}
-                            forceReRender={[viajeData.precio]} // Importante si el precio pudiera cambiar
+                            forceReRender={[viajeData.precio]}
                             createOrder={createOrder}
                             onApprove={onApprove}
                             onError={onError}
                         />
                     )}
+                    {isLoadingCompra && !isPending && <p>Procesando pago, por favor espere...</p>}
                 </div>
             ) : (
                 <div className="checkout-confirmacion-exitosa">
-                    {/* ... tu JSX de éxito de compra no cambia ... */}
                     <h4>¡Compra Realizada con Éxito!</h4>
                     <p><strong>ID del Pasaje:</strong> {mensajeExitoCompra.id}</p>
                     <p><strong>Cliente:</strong> {mensajeExitoCompra.clienteNombre}</p>
-                    <p>Recibirás una confirmación por correo electrónico.</p>
+                    <p>Recibirás una confirmación por correo electrónico en breve.</p>
                     <button onClick={() => navigate('/mis-viajes')}>Ver Mis Viajes</button>
                 </div>
             )}
