@@ -71,11 +71,24 @@ const ClienteCheckoutPage = () => {
     // 3. --- LÓGICA DE PAYPAL ---
 
     // Esta función llama a nuestro backend para crear una orden en PayPal
+    // Reemplaza la función createOrder en ClienteCheckoutPage.js por esta
+
     const createOrder = async () => {
-        setIsLoadingCompra(true); // Mostramos un spinner
+        console.log("--- INICIANDO createOrder ---");
+        setIsLoadingCompra(true);
         setErrorCompra(null);
 
+        // Asegurémonos de que el precio es válido
+        if (!viajeData || typeof viajeData.precio !== 'number' || viajeData.precio <= 0) {
+            const errorMsg = "Precio del viaje inválido o no disponible.";
+            console.error(errorMsg, viajeData);
+            setErrorCompra(errorMsg);
+            setIsLoadingCompra(false);
+            return Promise.reject(new Error(errorMsg)); // Rechazamos la promesa para que PayPal sepa que falló
+        }
+
         const precioDelViaje = viajeData.precio;
+        console.log("Intentando crear orden para el monto:", precioDelViaje);
 
         try {
             const response = await fetch(`${API_URL}/api/paypal/orders`, {
@@ -84,16 +97,25 @@ const ClienteCheckoutPage = () => {
                 body: JSON.stringify({ amount: precioDelViaje })
             });
 
+            console.log("Respuesta del backend recibida. Status:", response.status);
             const order = await response.json();
+
             if (response.ok) {
-                return order.id;
+                console.log("¡Éxito! Orden de PayPal creada. ID:", order.id);
+                setIsLoadingCompra(false);
+                return order.id; // DEVOLVEMOS EL ID A PAYPAL
             } else {
-                throw new Error(order.message || "El backend no pudo crear la orden.");
+                // El backend respondió con un error (4xx, 5xx)
+                const errorMsg = `El backend respondió con error ${response.status}: ${order.message || 'Error desconocido'}`;
+                console.error(errorMsg, order);
+                throw new Error(errorMsg);
             }
         } catch (error) {
-            console.error("Error al crear la orden de PayPal:", error);
-            setErrorCompra("Error al iniciar el pago. Inténtelo de nuevo.");
+            console.error("--- ERROR CAPTURADO en createOrder ---", error);
+            setErrorCompra(error.message || "Error al iniciar el pago. Revise la consola.");
             setIsLoadingCompra(false);
+            // Es crucial rechazar la promesa para que el onError de PayPal se active
+            return Promise.reject(error);
         }
     };
 
