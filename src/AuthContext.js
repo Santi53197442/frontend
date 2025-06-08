@@ -1,8 +1,6 @@
 // src/AuthContext.js
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-// Asegúrate que getCurrentUserProfile esté exportado de tu apiService.js
-// y que esa API de backend devuelva un objeto usuario con 'id', 'email', 'rol', etc.
 import apiClient, { getCurrentUserProfile } from './services/api';
 
 const AuthContext = createContext(null);
@@ -10,7 +8,7 @@ const AuthContext = createContext(null);
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [loading, setLoading] = useState(true); // Para la carga inicial del contexto
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const navigate = useNavigate();
 
@@ -25,15 +23,17 @@ export const AuthProvider = ({ children }) => {
                 apiClient.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
                 try {
                     console.log("AuthContext (initializeAuth): Obteniendo perfil de usuario...");
-                    const response = await getCurrentUserProfile(); // ESTA API DEBE DEVOLVER EL 'id' NUMÉRICO
+                    const response = await getCurrentUserProfile();
                     const userDataFromApi = response.data;
                     console.log("AuthContext (initializeAuth): Perfil obtenido de API:", userDataFromApi);
 
-                    if (userDataFromApi && typeof userDataFromApi.id !== 'undefined' && userDataFromApi.id !== null) {
+                    // === CAMBIO CLAVE AQUÍ: Condición más robusta y simple ===
+                    // Usamos "optional chaining" (?.) para evitar errores y solo comprobamos si 'id' existe.
+                    if (userDataFromApi?.id) {
                         const rolLowerCase = userDataFromApi.rol?.toLowerCase() || '';
                         setUser({
                             token: storedToken,
-                            id: userDataFromApi.id, // ID NUMÉRICO DEL USUARIO
+                            id: userDataFromApi.id,
                             email: userDataFromApi.email,
                             rol: rolLowerCase,
                             nombre: userDataFromApi.nombre,
@@ -48,8 +48,8 @@ export const AuthProvider = ({ children }) => {
                         localStorage.setItem('userEmail', userDataFromApi.email || '');
                         console.log("AuthContext (initializeAuth): Usuario autenticado y contexto establecido desde perfil.");
                     } else {
-                        console.warn("AuthContext (initializeAuth): Perfil de API incompleto o ID numérico faltante. Deslogueando. Perfil recibido:", userDataFromApi);
-                        // Limpiar si el perfil no es válido o falta el ID
+                        // Este bloque ahora solo se ejecutará si la API no devuelve un objeto con la propiedad 'id' válida.
+                        console.warn("AuthContext (initializeAuth): El perfil recibido de la API no contiene una propiedad 'id' válida. Deslogueando. Perfil recibido:", userDataFromApi);
                         ['authToken', 'userId', 'userEmail', 'userRol'].forEach(item => localStorage.removeItem(item));
                         setUser(null);
                         setIsAuthenticated(false);
@@ -80,7 +80,6 @@ export const AuthProvider = ({ children }) => {
             const response = await apiClient.post('/auth/login', credentials);
             console.log("AuthContext (login): Respuesta COMPLETA de API /auth/login:", JSON.stringify(response.data, null, 2));
 
-            // Desestructurar ESPERANDO 'id' numérico
             const { token, id, email, rol, nombre, apellido, ci, telefono, fechaNac } = response.data;
 
             if (!token) {
@@ -88,12 +87,12 @@ export const AuthProvider = ({ children }) => {
                 throw new Error("No se recibió token del servidor.");
             }
             if (typeof id === 'undefined' || id === null) {
-                console.error("AuthContext (login): ID de usuario (numérico) no recibido o es nulo en la respuesta del login.");
-                throw new Error("Información de usuario incompleta recibida del servidor (falta ID numérico).");
+                console.error("AuthContext (login): ID de usuario no recibido o es nulo en la respuesta del login.");
+                throw new Error("Información de usuario incompleta recibida del servidor (falta ID).");
             }
 
             localStorage.setItem('authToken', token);
-            localStorage.setItem('userId', String(id)); // Guardar ID numérico
+            localStorage.setItem('userId', String(id));
             localStorage.setItem('userEmail', email || '');
             const rolLowerCase = rol?.toLowerCase() || '';
             localStorage.setItem('userRol', rolLowerCase);
@@ -137,7 +136,7 @@ export const AuthProvider = ({ children }) => {
     const updateUserContext = (backendResponseData) => {
         console.log("AuthContext (updateUserContext): Actualizando contexto con:", backendResponseData);
         const currentUserToken = user?.token || localStorage.getItem('authToken');
-        const userIdFromResponse = backendResponseData.id; // Asumir que la API de perfil devuelve 'id'
+        const userIdFromResponse = backendResponseData.id;
 
         if (!currentUserToken || typeof userIdFromResponse === 'undefined' || userIdFromResponse === null) {
             console.error("AuthContext (updateUserContext): Token o ID de usuario faltante en datos de respuesta para actualizar.", backendResponseData);
@@ -151,7 +150,6 @@ export const AuthProvider = ({ children }) => {
             email: backendResponseData.email,
             rol: rolLowerCase,
             nombre: backendResponseData.nombre,
-            // ...otros campos ...
             apellido: backendResponseData.apellido,
             ci: backendResponseData.ci,
             telefono: backendResponseData.telefono,
@@ -163,7 +161,6 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem('userId', String(updatedUserData.id));
         localStorage.setItem('userEmail', updatedUserData.email || '');
         localStorage.setItem('userRol', updatedUserData.rol || '');
-        // ... guardar otros en localStorage si es necesario ...
     };
 
     const logout = () => {
@@ -187,16 +184,18 @@ export const AuthProvider = ({ children }) => {
             isAuthenticated,
             login,
             logout,
-            loading, // Este es el loading del AuthContext
+            loading,
             updateUserContext,
             error,
             setError
         }}>
-            {!loading ? children : <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', fontSize: '1.2em' }}>Cargando aplicación...</div>}
+            {/* ESTA ES LA LÍNEA A CORREGIR */}
+            {!loading ? children : <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>Cargando aplicación...</div>}
         </AuthContext.Provider>
     );
 };
 
+// Y asegúrate que el resto del archivo también esté completo
 export const useAuth = () => {
     const context = useContext(AuthContext);
     if (context === undefined) {
