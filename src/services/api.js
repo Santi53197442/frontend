@@ -394,6 +394,17 @@ export const obtenerUsuariosParaSeleccion = async () => {
     }
 };
 
-
+export const getDashboardStatistics = async () => {
+    try {
+        // La función ahora es la responsable de conocer la URL exacta.
+        const response = await apiClient.get('/admin/dashboard/statistics');
+        return response.data; // Devolvemos directamente la data para simplificar en el componente.
+    } catch (error) {
+        // Centralizamos el manejo de errores aquí.
+        console.error("Error en API al obtener estadísticas del dashboard:", error.response?.data || error.message);
+        // Relanzamos el error para que el componente que llama pueda manejarlo (ej. mostrar un mensaje al usuario).
+        throw error;
+    }
+};
 
 export default apiClient;

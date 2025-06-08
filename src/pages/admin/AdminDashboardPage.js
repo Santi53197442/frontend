@@ -1,7 +1,8 @@
 // src/pages/admin/AdminDashboardPage.js
 
 import React, { useState, useEffect } from 'react';
-import apiClient from '../../services/api';
+// 1. Importamos la función específica desde nuestro archivo de servicio API
+import { getDashboardStatistics } from '../../services/api';
 import { Bar, Doughnut, Line } from 'react-chartjs-2';
 import {
     Chart as ChartJS,
@@ -58,10 +59,13 @@ function AdminDashboardPage() {
             setLoading(true);
             setError(null);
             try {
-                const response = await apiClient.get('/admin/dashboard/statistics');
-                setStats(response.data);
+                // 2. Usamos la nueva función importada. ¡Mucho más limpio!
+                // Ya no necesitamos conocer la URL aquí.
+                const data = await getDashboardStatistics();
+                setStats(data);
             } catch (err) {
-                console.error("Error al cargar estadísticas:", err);
+                // El error ya fue logueado en api.js, aquí solo lo manejamos para la UI
+                console.error("Error capturado en el componente:", err);
                 setError(err.response?.data?.message || 'Error al cargar las estadísticas.');
             } finally {
                 setLoading(false);
@@ -75,7 +79,7 @@ function AdminDashboardPage() {
     if (error) return <div className="error-message">Error: {error}</div>;
     if (!stats) return <div className="info-message">No se encontraron datos de estadísticas.</div>;
 
-    // --- Preparar datos para los gráficos ---
+    // --- Preparar datos para los gráficos (esta lógica no cambia) ---
     const roleChartData = {
         labels: stats.userRoleCounts?.map(d => d.roleName) || [],
         datasets: [{
@@ -135,7 +139,6 @@ function AdminDashboardPage() {
             chartComponent: <Line data={creationChartData} />,
             pdfHeaders: ['Fecha', 'Cantidad'],
             pdfData: stats.userCreationOverTime?.map(item => [new Date(item.creationDate).toLocaleDateString(), item.count]),
-            // Formatear datos para CSV para que la fecha se vea bien
             csvData: stats.userCreationOverTime?.map(item => ({ fecha: new Date(item.creationDate).toLocaleDateString(), cantidad: item.count }))
         }
     ];
