@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { obtenerListadoViajesConPrecio } from '../../services/apiService'; // Ajusta la ruta a tu archivo apiService.js
+import { obtenerListadoViajesConPrecio } from '../../services/api'; // Ajusta la ruta a tu archivo apiService.js
 import './VendedorEstadisticasPrecio.css'; // Crearemos este archivo para los estilos
 
 // Función auxiliar para formatear los precios a un formato de moneda
