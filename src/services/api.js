@@ -407,4 +407,20 @@ export const getDashboardStatistics = async () => {
     }
 };
 
+// --- NUEVA FUNCIÓN PARA OBTENER EL LISTADO DE VIAJES CON PRECIOS ---
+/**
+ * Obtiene un listado completo de todos los viajes con información resumida y precios.
+ * Ideal para tablas de vista general para Vendedores o Administradores.
+ * @returns {Promise<Object>} La respuesta de la API con la lista de ViajePrecioDTO.
+ */
+export const obtenerListadoViajesConPrecio = async () => {
+    try {
+        const response = await apiClient.get('/vendedor/viajes/listado-precios');
+        return response;
+    } catch (error) {
+        console.error("Error en API al obtener el listado de viajes con precios:", error.response?.data || error.message);
+        throw error;
+    }
+};
+
 export default apiClient;
