@@ -21,10 +21,11 @@ import CambiarContraseña from "./components/CambiarContraseña";
 
 // Admin
 import AdminCreateUserPage from './pages/admin/AdminCreateUserPage';
-import AdminDashboard from './pages/admin/AdminDashboard';
+// import AdminDashboard from './pages/admin/AdminDashboard'; // Comentamos o eliminamos la importación antigua si ya no se usa
 import AdminUserBatchUploadPage from './pages/admin/AdminUserBatchUploadPage';
 import AdminUserListPage from "./pages/admin/AdminUserListPage";
 import AdminUserListDeletePage from './pages/admin/AdminUserListDeletePage';
+import AdminDashboardPage from './pages/admin/AdminDashboardPage'; // Ya está importado con el nombre correcto
 
 // Vendedor y Comunes
 import VendedorDashboard from './pages/vendedor/VendedorDashboard';
@@ -39,15 +40,14 @@ import VendedorCambiarOmnibusaOperativo from './pages/vendedor/VendedorCambiarOm
 import VendedorReasignarViaje from './pages/vendedor/VendedorReasignarViaje';
 import VendedorListarViajes from './pages/vendedor/VendedorListarViajes';
 import VendedorListadoViajesCompra from "./pages/vendedor/VendedorListadoViajesCompra";
-import SeleccionAsientosPage from "./pages/vendedor/SeleccionAsientosPage"; // Para VENDEDOR
-import CheckoutPage from './pages/vendedor/CheckoutPage'; // Para VENDEDOR
-import VendedorListadoPasajesViaje from './pages/vendedor/VendedorListadoPasajesViaje'; // Asegúrate que esta sea la única para esta funcionalidad
+import SeleccionAsientosPage from "./pages/vendedor/SeleccionAsientosPage";
+import CheckoutPage from './pages/vendedor/CheckoutPage';
+import VendedorListadoPasajesViaje from './pages/vendedor/VendedorListadoPasajesViaje';
 
 // Cliente Específico
 import ClienteSeleccionAsientosPage from "./pages/cliente/ClienteSeleccionAsientosPage";
 import ClienteCheckoutPage from "./pages/cliente/ClienteCheckoutPage";
-// *** NUEVA IMPORTACIÓN PARA LA PÁGINA DE HISTORIAL DE PASAJES DEL CLIENTE ***
-import ClienteListarPasajes from './pages/cliente/ClienteListarPasajes'; // Asegúrate que la ruta sea correcta
+import ClienteListarPasajes from './pages/cliente/ClienteListarPasajes';
 
 // Página de Acceso Denegado
 const UnauthorizedPage = () => (
@@ -69,44 +69,30 @@ const AppRouter = () => {
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route path="/unauthorized" element={<UnauthorizedPage />} />
-
-            {/* Esta ruta "/viajes" parece ser accesible para todos, o al menos para clientes y vendedores,
-                considera si necesita un ProtectedRoute si solo es para usuarios logueados. */}
             <Route path="/viajes" element={<VendedorListadoViajesCompra />} />
 
-            {/* --- RUTAS DEL FLUJO DE COMPRA DEL CLIENTE (SIN LAYOUT DE VENDEDOR) --- */}
-            {/* También protegidas para cualquier rol logueado, pero ClienteSeleccionAsientosPage y ClienteCheckoutPage
-                internamente pueden tener lógica específica o usar datos del contexto del cliente */}
+            {/* --- RUTAS DEL FLUJO DE COMPRA DEL CLIENTE --- */}
             <Route element={<ProtectedRoute allowedRoles={['CLIENTE', 'cliente', 'VENDEDOR', 'vendedor', 'ADMINISTRADOR', 'administrador']} />}>
                 <Route path="/compra/viaje/:viajeId/seleccionar-asientos" element={<ClienteSeleccionAsientosPage />} />
                 <Route path="/compra/viaje/:viajeId/asiento/:asientoNumero/checkout" element={<ClienteCheckoutPage />} />
             </Route>
 
             {/* --- RUTAS GENERALES DE USUARIO LOGUEADO --- */}
-            <Route element={<ProtectedRoute />}> {/* Protegido para cualquier usuario logueado */}
+            <Route element={<ProtectedRoute />}>
                 <Route path="/editar-perfil" element={<EditProfile />} />
                 <Route path="/cambiar-contraseña" element={<CambiarContraseña />} />
-
-                {/* *** NUEVA RUTA PARA EL HISTORIAL DE PASAJES DEL CLIENTE *** */}
-                {/* Esta ruta solo debe ser accesible para el rol CLIENTE */}
-                {/* La colocamos dentro de un ProtectedRoute que ya existe, pero le especificamos el rol.
-                    Si quieres que /mis-pasajes esté fuera del layout del vendedor/admin,
-                    esta ubicación está bien. Si no, puedes crear un nuevo <Route element={<ProtectedRoute allowedRoles={['CLIENTE', 'cliente']}/>}>
-                    específico para esta y otras rutas de cliente. */}
             </Route>
 
             {/* --- RUTA ESPECÍFICA PARA CLIENTE: MIS PASAJES --- */}
-            {/* Usamos un ProtectedRoute dedicado para asegurar que solo clientes accedan */}
             <Route element={<ProtectedRoute allowedRoles={['CLIENTE', 'cliente']} />}>
                 <Route path="/mis-pasajes" element={<ClienteListarPasajes />} />
             </Route>
 
-
             {/* --- Rutas de ADMIN --- */}
             <Route element={<ProtectedRoute allowedRoles={['ADMINISTRADOR', 'administrador']} />}>
                 <Route path="/admin" element={<AdminLayout />}>
-                    <Route index element={<Navigate to="dashboard" replace />} /> {/* Redirige /admin a /admin/dashboard */}
-                    <Route path="dashboard" element={<AdminDashboard />} />
+                    <Route index element={<Navigate to="dashboard" replace />} />
+                    <Route path="dashboard" element={<AdminDashboardPage />} />
                     <Route path="crear-usuario" element={<AdminCreateUserPage />} />
                     <Route path="carga-masiva-usuarios" element={<AdminUserBatchUploadPage />} />
                     <Route path="listar-usuarios" element={<AdminUserListPage />} />
@@ -117,7 +103,7 @@ const AppRouter = () => {
             {/* --- Rutas de VENDEDOR (y Admin también puede acceder) --- */}
             <Route element={<ProtectedRoute allowedRoles={['VENDEDOR', 'vendedor', 'ADMINISTRADOR', 'administrador']} />}>
                 <Route path="/vendedor" element={<VendedorLayout />}>
-                    <Route index element={<Navigate to="dashboard" replace />} /> {/* Redirige /vendedor a /vendedor/dashboard */}
+                    <Route index element={<Navigate to="dashboard" replace />} />
                     <Route path="dashboard" element={<VendedorDashboard />} />
                     <Route path="alta-localidad" element={<VendedorAltaLocalidadPage />} />
                     <Route path="alta-masiva-localidades" element={<VendedorLocalidadMasivo />} />
@@ -136,7 +122,7 @@ const AppRouter = () => {
                 </Route>
             </Route>
 
-            {/* Ruta Catch-all para redirigir a Home si no se encuentra la ruta */}
+            {/* Ruta Catch-all */}
             <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
     );

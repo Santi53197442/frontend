@@ -1,4 +1,4 @@
-// src/pages/AdminUserListDeletePage/AdminUserListDeletePage.js
+        // src/pages/AdminUserListDeletePage/AdminUserListDeletePage.js
 
 import React, { useState, useEffect, useMemo } from 'react';
 import apiClient from '../../services/api'; // Ajusta la ruta si es diferente
