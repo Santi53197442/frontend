@@ -423,4 +423,14 @@ export const obtenerListadoViajesConPrecio = async () => {
     }
 };
 
+export const obtenerEstadisticasOmnibus = async () => {
+    try {
+        const response = await apiClient.get('/vendedor/omnibus/estadisticas');
+        return response;
+    } catch (error) {
+        console.error("Error en API al obtener estadísticas de ómnibus:", error.response?.data || error.message);
+        throw error;
+    }
+};
+
 export default apiClient;
