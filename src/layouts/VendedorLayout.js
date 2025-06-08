@@ -130,11 +130,11 @@ const VendedorLayout = () => {
                         </li>
                         <li>
                             <NavLink
-                                to="/vendedor/estadisticas-precios"
+                                to="/vendedor/estadisticas-viaje"
                                 className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
                                 onClick={handleNavLinkClick}
                             >
-                                <span>Estadísticas de Precios</span>
+                                <span>Estadísticas de Viajes</span>
                             </NavLink>
                         </li>
                     </ul>

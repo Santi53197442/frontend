@@ -1,30 +1,25 @@
-// src/pages/vendedor/VendedorEstadisticasPrecio.js
+// src/pages/vendedor/VendedorEstadisticasViaje.js
 
 import React, { useState, useEffect } from 'react';
-import { obtenerListadoViajesConPrecio } from '../../services/api'; // Ajusta la ruta si es necesario
+import { obtenerListadoViajesConPrecio } from '../../services/apiService';
 
-// 1. Importaciones necesarias de Chart.js
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title } from 'chart.js';
 import { Pie, Bar } from 'react-chartjs-2';
 
-import './VendedorEstadisticasPrecio.css'; // Usaremos el mismo archivo CSS y le añadiremos estilos
+import './VendedorEstadisticasViaje.css'; // <<-- CAMBIO AQUÍ
 
-// 2. Registrar los componentes de Chart.js que vamos a usar
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title);
 
-// Función auxiliar para formatear moneda
 const formatCurrency = (number) => {
     if (typeof number !== 'number') return 'N/A';
     return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(number);
 };
 
-const VendedorEstadisticasPrecio = () => {
-    // Estados existentes
+// VVV-- CAMBIO AQUÍ --VVV
+const VendedorEstadisticasViaje = () => {
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-
-    // 3. Nuevos estados para los datos de los gráficos
     const [pieChartData, setPieChartData] = useState(null);
     const [barChartData, setBarChartData] = useState(null);
 
@@ -37,21 +32,17 @@ const VendedorEstadisticasPrecio = () => {
                 const viajes = response.data;
 
                 if (viajes && viajes.length > 0) {
-                    // --- Cálculo de estadísticas (sin cambios) ---
                     const precios = viajes.map(v => v.precio);
-                    const ingresoPotencialTotal = precios.reduce((sum, precio) => sum + precio, 0);
-                    const precioPromedio = ingresoPotencialTotal / viajes.length;
+                    const sumaTotalPrecios = precios.reduce((sum, precio) => sum + precio, 0);
+                    const precioPromedio = sumaTotalPrecios / viajes.length;
+
                     setStats({
                         totalViajes: viajes.length,
-                        ingresoPotencialTotal,
                         precioPromedio,
                         precioMasAlto: Math.max(...precios),
                         precioMasBajo: Math.min(...precios),
                     });
 
-                    // --- 4. Procesamiento de datos para los gráficos ---
-
-                    // Para el Gráfico de Pastel (por estado)
                     const statusCounts = viajes.reduce((acc, viaje) => {
                         acc[viaje.estado] = (acc[viaje.estado] || 0) + 1;
                         return acc;
@@ -68,11 +59,10 @@ const VendedorEstadisticasPrecio = () => {
                         }],
                     });
 
-                    // Para el Gráfico de Barras (por mes)
                     const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
                     const monthlyCounts = Array(12).fill(0);
                     viajes.forEach(viaje => {
-                        const month = new Date(viaje.fecha).getMonth(); // 0 = Enero, 11 = Diciembre
+                        const month = new Date(viaje.fecha).getMonth();
                         monthlyCounts[month]++;
                     });
 
@@ -88,7 +78,7 @@ const VendedorEstadisticasPrecio = () => {
                     });
 
                 } else {
-                    setStats({ totalViajes: 0, ingresoPotencialTotal: 0, precioPromedio: 0, precioMasAlto: 0, precioMasBajo: 0 });
+                    setStats({ totalViajes: 0, precioPromedio: 0, precioMasAlto: 0, precioMasBajo: 0 });
                 }
             } catch (err) {
                 console.error("Error al cargar datos y gráficos:", err);
@@ -101,51 +91,29 @@ const VendedorEstadisticasPrecio = () => {
         cargarYProcesarDatos();
     }, []);
 
-    // Opciones para el gráfico de barras para que tenga un título
     const barChartOptions = {
         responsive: true,
         plugins: {
-            legend: {
-                position: 'top',
-            },
-            title: {
-                display: true,
-                text: 'Volumen de Viajes Mensual',
-            },
+            legend: { position: 'top' },
+            title: { display: true, text: 'Volumen de Viajes Mensual' },
         },
     };
 
-    if (loading) {
-        return <div className="stats-container-loading">Cargando estadísticas y gráficos...</div>;
-    }
-
-    if (error) {
-        return <div className="stats-container-error">{error}</div>;
-    }
-
-    if (!stats) {
-        return <div className="stats-container">No hay datos de viajes para mostrar.</div>;
-    }
+    if (loading) return <div className="stats-container-loading">Cargando estadísticas y gráficos...</div>;
+    if (error) return <div className="stats-container-error">{error}</div>;
+    if (!stats) return <div className="stats-container">No hay datos de viajes para mostrar.</div>;
 
     return (
         <div className="stats-container">
             <h2 className="stats-title">Estadísticas y Análisis de Viajes</h2>
-
-            {/* --- Tarjetas de Estadísticas (sin cambios) --- */}
             <div className="stats-grid">
                 <div className="stat-card">
                     <h3 className="stat-card-title">Total de Viajes</h3>
                     <p className="stat-card-value">{stats.totalViajes}</p>
                 </div>
-                {/* ... otras tarjetas ... */}
                 <div className="stat-card">
                     <h3 className="stat-card-title">Precio Promedio</h3>
                     <p className="stat-card-value">{formatCurrency(stats.precioPromedio)}</p>
-                </div>
-                <div className="stat-card">
-                    <h3 className="stat-card-title">Ingreso Potencial Total</h3>
-                    <p className="stat-card-value">{formatCurrency(stats.ingresoPotencialTotal)}</p>
-                    <small className="stat-card-note">Suma de todos los precios</small>
                 </div>
                 <div className="stat-card">
                     <h3 className="stat-card-title">Viaje más Caro</h3>
@@ -156,8 +124,6 @@ const VendedorEstadisticasPrecio = () => {
                     <p className="stat-card-value">{formatCurrency(stats.precioMasBajo)}</p>
                 </div>
             </div>
-
-            {/* --- 5. Nueva sección para los gráficos --- */}
             <div className="charts-section">
                 {pieChartData && (
                     <div className="chart-container">
@@ -176,4 +142,5 @@ const VendedorEstadisticasPrecio = () => {
     );
 };
 
-export default VendedorEstadisticasPrecio;
+// VVV-- CAMBIO AQUÍ --VVV
+export default VendedorEstadisticasViaje;
