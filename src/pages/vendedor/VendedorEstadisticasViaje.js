@@ -1,7 +1,7 @@
 // src/pages/vendedor/VendedorEstadisticasViaje.js
 
 import React, { useState, useEffect } from 'react';
-import { obtenerListadoViajesConPrecio } from '../../services/apiService';
+import { obtenerListadoViajesConPrecio } from '../../services/api';
 
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title } from 'chart.js';
 import { Pie, Bar } from 'react-chartjs-2';
