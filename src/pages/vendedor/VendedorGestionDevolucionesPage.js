@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 // Asumimos que las funciones de API se crearán en el siguiente paso
-import { buscarPasajeParaDevolucion, procesarDevolucionPasaje } from '../../services/apiService'; 
+import { buscarPasajeParaDevolucion, procesarDevolucionPasaje } from '../../services/api'; 
 import './VendedorGestionDevoluciones.css'; // Crearemos este archivo CSS
 
 const VendedorGestionDevolucionesPage = () => {
