@@ -485,5 +485,37 @@ export const reservarAsientosTemporalmente = (reservaData) => {
     return apiClient.post('/vendedor/pasajes/reservar-temporalmente', reservaData);
 };
 
+/**
+ * Busca un pasaje por su ID para obtener los detalles necesarios para la devolución.
+ * @param {number|string} pasajeId El ID del pasaje.
+ * @returns {Promise<Object>} La respuesta de la API con los datos del pasaje (PasajeResponseDTO).
+ */
+export const buscarPasajeParaDevolucion = async (pasajeId) => {
+    try {
+        // --- CORRECCIÓN ---
+        // Ahora apunta al endpoint correcto que acabamos de crear en el backend.
+        const response = await apiClient.get(`/vendedor/pasajes/${pasajeId}`);
+        return response;
+    } catch (error) {
+        console.error(`Error en API al buscar pasaje ${pasajeId} para devolución:`, error.response?.data || error.message);
+        throw error;
+    }
+};
+
+/**
+ * Inicia el proceso de devolución y reembolso para un pasaje.
+ * @param {number|string} pasajeId El ID del pasaje a devolver.
+ * @returns {Promise<Object>} La respuesta de la API con el mensaje de éxito o error.
+ */
+export const procesarDevolucionPasaje = async (pasajeId) => {
+    try {
+        const response = await apiClient.post(`/vendedor/pasajes/${pasajeId}/devolucion`);
+        return response;
+    } catch (error) {
+        console.error(`Error en API al procesar devolución para pasaje ${pasajeId}:`, error.response?.data || error.message);
+        throw error;
+    }
+};
+
 
 export default apiClient;

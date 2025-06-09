@@ -1,0 +1,77 @@
+/* src/pages/vendedor/VendedorGestionDevoluciones.css */
+
+.admin-panel-container {
+    padding: 2rem;
+    max-width: 800px;
+    margin: 2rem auto;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.search-form {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-end;
+    margin-bottom: 2rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+.form-group label {
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+}
+.form-group input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.details-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-top: 2rem;
+    background-color: #f9f9f9;
+}
+
+.details-card h3 {
+    margin-top: 0;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 0.5rem;
+}
+
+.devolucion-calculo {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px dashed #ccc;
+}
+
+.status-vendido { color: green; font-weight: bold; }
+.status-cancelado { color: orange; font-weight: bold; }
+/* Añade más clases de estado si las necesitas */
+
+.btn-primary, .btn-danger {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.2s;
+}
+
+.btn-primary { background-color: #007bff; }
+.btn-primary:hover { background-color: #0056b3; }
+.btn-primary:disabled { background-color: #a0cfff; cursor: not-allowed; }
+
+.btn-danger { background-color: #dc3545; }
+.btn-danger:hover { background-color: #c82333; }
+.btn-danger:disabled { background-color: #f5c6cb; cursor: not-allowed; }
+
+.error-message { color: #dc3545; font-weight: bold; }
+.success-message { color: #28a745; font-weight: bold; }
+.warning-message { color: #856404; background-color: #fff3cd; padding: 1rem; border-radius: 5px; border: 1px solid #ffeeba; }

@@ -130,6 +130,15 @@ const VendedorLayout = () => {
                         </li>
                         <li>
                             <NavLink
+                                to="/vendedor/gestion-devoluciones"
+                                className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
+                                onClick={handleNavLinkClick}
+                            >
+                                <span>Gestión de Devoluciones</span>
+                            </NavLink>
+                        </li>
+                        <li>
+                            <NavLink
                                 to="/vendedor/estadisticas-viaje"
                                 className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
                                 onClick={handleNavLinkClick}

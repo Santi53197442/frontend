@@ -46,6 +46,7 @@ import VendedorListadoPasajesViaje from './pages/vendedor/VendedorListadoPasajes
 import VendedorEstadisticasViaje from './pages/vendedor/VendedorEstadisticasViaje';
 import VendedorEstadisticasOmnibus from './pages/vendedor/VendedorEstadisticasOmnibus';
 import VendedorEstadisticasPasajes from './pages/vendedor/VendedorEstadisticasPasajes';
+import VendedorGestionDevolucionesPage from './pages/vendedor/VendedorGestionDevolucionesPage';
 
 
 // Cliente Específico
@@ -131,6 +132,7 @@ const AppRouter = () => {
                     <Route path="estadisticas-viaje" element={<VendedorEstadisticasViaje />} />
                     <Route path="estadisticas-omnibus" element={<VendedorEstadisticasOmnibus />} />
                     <Route path="estadisticas-ventas" element={<VendedorEstadisticasPasajes />} />
+                    <Route path="gestion-devoluciones" element={<VendedorGestionDevolucionesPage />} />
                 </Route>
             </Route>
 
