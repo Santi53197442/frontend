@@ -1,9 +1,11 @@
 // src/components/cliente/ClienteSeleccionAsientos.js
-import React, { useState, useEffect } from 'react'; // Eliminamos useCallback
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import { useAuth } from '../../AuthContext';
 import {
     obtenerDetallesViajeConAsientos,
-    obtenerAsientosOcupados
+    obtenerAsientosOcupados,
+    reservarAsientosTemporalmente
 } from '../../services/api';
 import './ClienteSeleccionAsientosPage.css';
 
@@ -11,8 +13,8 @@ const ClienteSeleccionAsientos = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { viajeId: viajeIdFromParams } = useParams();
+    const { user } = useAuth();
 
-    // El state pasado por el Link se usa como valor inicial, pero no se vuelve a leer
     const [viajeDetalles, setViajeDetalles] = useState(location.state?.viajeData || null);
     const [asientosOcupados, setAsientosOcupados] = useState([]);
     const [asientosSeleccionados, setAsientosSeleccionados] = useState([]);
@@ -20,49 +22,33 @@ const ClienteSeleccionAsientos = () => {
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [isReserving, setIsReserving] = useState(false);
 
     const parsedViajeId = parseInt(viajeIdFromParams, 10);
 
-    // ==================  ESTRUCTURA SIMPLIFICADA Y CORRECTA ==================
-    // Usamos un solo useEffect que se ejecuta cuando el ID del viaje cambia.
-    // Esto evita los bucles causados por dependencias de objetos.
     useEffect(() => {
-        // Definimos la función de carga dentro del useEffect
         const cargarDatos = async () => {
             if (isNaN(parsedViajeId)) {
                 setError("ID de Viaje inválido en la URL.");
                 setLoading(false);
                 return;
             }
-
             setLoading(true);
             setError(null);
             try {
-                // Siempre cargamos los datos desde la API para asegurar que estén actualizados.
-                // Esto simplifica la lógica y evita problemas de sincronización.
-                console.log(`Cargando datos para viaje ID ${parsedViajeId} desde API.`);
                 const responseDetalles = await obtenerDetallesViajeConAsientos(parsedViajeId);
                 setViajeDetalles(responseDetalles.data);
-
                 const responseOcupados = await obtenerAsientosOcupados(parsedViajeId);
-                console.log("Datos de asientos ocupados recibidos:", responseOcupados.data);
                 setAsientosOcupados(Array.isArray(responseOcupados.data) ? responseOcupados.data : []);
-
             } catch (err) {
-                const errorMessage = err.response?.data?.message || err.message || "Error al cargar datos.";
-                console.error("Error al cargar datos:", errorMessage, err.response || err);
-                setError(errorMessage);
-                setViajeDetalles(null);
+                setError(err.response?.data?.message || "Error al cargar datos.");
             } finally {
                 setLoading(false);
             }
         };
+        cargarDatos();
+    }, [parsedViajeId]);
 
-        cargarDatos(); // Ejecutamos la función
-
-    }, [parsedViajeId]); // <-- La única dependencia es el ID del viaje de la URL.
-
-    // El resto del componente se mantiene exactamente igual...
     const handleSeleccionarAsiento = (numeroAsiento) => {
         if (asientosOcupados.includes(numeroAsiento)) return;
         setAsientosSeleccionados(prev => {
@@ -77,27 +63,44 @@ const ClienteSeleccionAsientos = () => {
         });
     };
 
-    // ... (handleIrACheckout, getCapacidadAsientos, renderAsientos, y el JSX se mantienen igual)
-    const handleIrACheckout = () => {
+    const handleIrACheckout = async () => {
         if (asientosSeleccionados.length === 0) {
-            alert("Por favor, seleccione al menos un asiento para continuar.");
+            alert("Por favor, seleccione al menos un asiento.");
             return;
         }
-        if (isNaN(parsedViajeId)) {
-            alert("ID de viaje inválido. No se puede continuar.");
+        if (!user || !user.id) {
+            alert("Error: No se pudo identificar al usuario. Por favor, inicie sesión de nuevo.");
             return;
         }
 
-        const basePath = '/compra';
-        const asientosString = asientosSeleccionados.join(',');
-        const targetPath = `${basePath}/viaje/${parsedViajeId}/asientos/${asientosString}/checkout`;
+        setIsReserving(true);
+        try {
+            const reservaDTO = {
+                viajeId: parsedViajeId,
+                clienteId: user.id,
+                numerosAsiento: asientosSeleccionados,
+            };
 
-        navigate(targetPath, {
-            state: {
-                viajeData: viajeDetalles,
-                asientosNumeros: asientosSeleccionados
-            }
-        });
+            const response = await reservarAsientosTemporalmente(reservaDTO);
+            const { expiracion } = response.data;
+
+            const asientosString = asientosSeleccionados.join(',');
+            const targetPath = `/compra/viaje/${parsedViajeId}/asientos/${asientosString}/checkout`;
+
+            navigate(targetPath, {
+                state: {
+                    viajeData: viajeDetalles,
+                    asientosNumeros: asientosSeleccionados,
+                    reservaExpiraEn: expiracion,
+                }
+            });
+        } catch (error) {
+            const errorMessage = error.response?.data?.message || "Uno o más asientos ya no están disponibles. La página se actualizará.";
+            alert(errorMessage);
+            window.location.reload();
+        } finally {
+            setIsReserving(false);
+        }
     };
 
     const getCapacidadAsientos = () => {
@@ -156,18 +159,15 @@ const ClienteSeleccionAsientos = () => {
                     <p>Precio por asiento: <strong>${viajeDetalles.precio ? parseFloat(viajeDetalles.precio).toFixed(2) : 'N/A'}</strong></p>
                 </div>
             )}
-
             <div className="leyenda-asientos-wrapper">
                 <span className="leyenda-item"><span className="asiento-ejemplo asiento disponible"></span> Libre</span>
                 <span className="leyenda-item"><span className="asiento-ejemplo asiento ocupado"></span> Ocupado</span>
                 <span className="leyenda-item"><span className="asiento-ejemplo asiento seleccionado"></span> Seleccionado</span>
             </div>
-
             <div className="mapa-asientos-render">
                 <div className="frente-omnibus-barra">FRENTE DEL ÓMNIBUS</div>
                 {renderAsientos()}
             </div>
-
             {asientosSeleccionados.length > 0 && viajeDetalles ? (
                 <div className="resumen-seleccion-actual">
                     <h3>Asientos Seleccionados:</h3>
@@ -176,8 +176,12 @@ const ClienteSeleccionAsientos = () => {
                     </div>
                     <p>Cantidad: {asientosSeleccionados.length}</p>
                     <p>Total a Pagar: {`$${(parseFloat(viajeDetalles.precio) * asientosSeleccionados.length).toFixed(2)}`}</p>
-                    <button onClick={handleIrACheckout} className="btn-continuar-checkout">
-                        Continuar y Pagar
+                    <button
+                        onClick={handleIrACheckout}
+                        className="btn-continuar-checkout"
+                        disabled={isReserving}
+                    >
+                        {isReserving ? 'Reservando...' : 'Continuar y Pagar'}
                     </button>
                 </div>
             ) : (

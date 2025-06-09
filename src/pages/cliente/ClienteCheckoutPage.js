@@ -1,7 +1,7 @@
 // src/components/cliente/ClienteCheckoutPage.js
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { comprarMultiplesPasajes, obtenerDetallesViajeConAsientos } from '../../services/api';
+import { comprarMultiplesPasajes } from '../../services/api';
 import { useAuth } from '../../AuthContext';
 import './CheckoutPage.css';
 
@@ -15,53 +15,51 @@ const ClienteCheckoutPage = () => {
     const { viajeId: viajeIdFromParams, asientosString } = useParams();
 
     const [viajeData, setViajeData] = useState(location.state?.viajeData || null);
-
     const [asientosSeleccionados, setAsientosSeleccionados] = useState(
         location.state?.asientosNumeros || (asientosString ? asientosString.split(',').map(s => parseInt(s, 10)) : [])
     );
 
-    const [isLoadingViaje, setIsLoadingViaje] = useState(true);
-    const [errorCarga, setErrorCarga] = useState(null);
+    const reservaExpiraEn = location.state?.reservaExpiraEn;
+    const [tiempoRestante, setTiempoRestante] = useState("10:00");
+    const [reservaExpirada, setReservaExpirada] = useState(false);
+
     const [isLoadingCompra, setIsLoadingCompra] = useState(false);
     const [errorCompra, setErrorCompra] = useState(null);
     const [mensajeExitoCompra, setMensajeExitoCompra] = useState(null);
 
     const [{ isPending }] = usePayPalScriptReducer();
-
     const parsedViajeId = parseInt(viajeIdFromParams, 10);
-
-    useEffect(() => {
-        const cargarDatosIniciales = async () => {
-            if (authLoading) return;
-            setIsLoadingViaje(true);
-            setErrorCarga(null);
-            if (isNaN(parsedViajeId) || asientosSeleccionados.length === 0) {
-                setErrorCarga("Información del viaje o asientos inválida.");
-                setIsLoadingViaje(false);
-                return;
-            }
-            if (!isAuthenticated || !user?.id) {
-                setIsLoadingViaje(false);
-                return;
-            }
-            try {
-                if (!viajeData || viajeData.id !== parsedViajeId) {
-                    const response = await obtenerDetallesViajeConAsientos(parsedViajeId);
-                    setViajeData(response.data);
-                }
-            } catch (err) {
-                setErrorCarga(err.message || "Error al cargar los datos del viaje.");
-            } finally {
-                setIsLoadingViaje(false);
-            }
-        };
-        cargarDatosIniciales();
-    }, [viajeData, parsedViajeId, asientosSeleccionados.length, authLoading, isAuthenticated, user?.id, navigate]);
-
     const precioTotal = viajeData?.precio ? (viajeData.precio * asientosSeleccionados.length) : 0;
 
+    useEffect(() => {
+        if (!reservaExpiraEn) {
+            console.error("No se recibió fecha de expiración de la reserva.");
+            setReservaExpirada(true);
+            return;
+        }
+
+        const interval = setInterval(() => {
+            const ahora = new Date();
+            const expiracion = new Date(reservaExpiraEn);
+            const segundosTotales = Math.round((expiracion - ahora) / 1000);
+
+            if (segundosTotales <= 0) {
+                setTiempoRestante("00:00");
+                setReservaExpirada(true);
+                clearInterval(interval);
+            } else {
+                const minutos = Math.floor(segundosTotales / 60);
+                const segundos = segundosTotales % 60;
+                setTiempoRestante(
+                    `${String(minutos).padStart(2, '0')}:${String(segundos).padStart(2, '0')}`
+                );
+            }
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, [reservaExpiraEn]);
+
     const createOrder = async (data, actions) => {
-        console.log("--- INICIANDO createOrder ---");
         setIsLoadingCompra(true);
         setErrorCompra(null);
 
@@ -72,8 +70,6 @@ const ClienteCheckoutPage = () => {
             return Promise.reject(new Error(errorMsg));
         }
 
-        console.log("Intentando crear orden de PayPal para el monto TOTAL:", precioTotal);
-
         try {
             const response = await fetch(`${API_URL}/api/paypal/orders`, {
                 method: 'POST',
@@ -82,13 +78,11 @@ const ClienteCheckoutPage = () => {
             });
             const order = await response.json();
             if (response.ok) {
-                console.log("Orden de PayPal creada con éxito. ID:", order.id);
                 return order.id;
             } else {
                 throw new Error(`El backend respondió con error ${response.status}: ${order.message || 'Error desconocido'}`);
             }
         } catch (error) {
-            console.error("Error al crear orden de PayPal:", error);
             setErrorCompra(error.message || "Error al iniciar el pago.");
             setIsLoadingCompra(false);
             return Promise.reject(error);
@@ -96,22 +90,17 @@ const ClienteCheckoutPage = () => {
     };
 
     const onApprove = async (data, actions) => {
-        console.log("--- INICIANDO onApprove (confirmación de pago) ---");
         setIsLoadingCompra(true);
         setErrorCompra(null);
 
         try {
-            console.log("Paso 1: Capturando el pago en PayPal con OrderID:", data.orderID);
             const captureResponse = await fetch(`${API_URL}/api/paypal/orders/${data.orderID}/capture`, { method: 'POST' });
             const details = await captureResponse.json();
 
             if (!captureResponse.ok || details.status !== 'COMPLETED') {
-                console.error("Error en la captura de PayPal:", details);
                 throw new Error(details.message || "El pago no pudo ser completado en PayPal.");
             }
-            console.log("¡Pago capturado con éxito en PayPal!", details);
 
-            console.log("Paso 2: Preparando datos para enviar a nuestro backend.");
             const datosCompraMultipleDTO = {
                 viajeId: parsedViajeId,
                 clienteId: user?.id,
@@ -119,20 +108,7 @@ const ClienteCheckoutPage = () => {
                 paypalTransactionId: details.id
             };
 
-            console.log(
-                "Enviando este DTO al endpoint /comprar-multiple:",
-                JSON.stringify(datosCompraMultipleDTO, null, 2)
-            );
-
-            // ===== ESTA ES LA LÍNEA CORREGIDA =====
-            if (!datosCompraMultipleDTO.viajeId || !datosCompraMultipleDTO.clienteId || !datosCompraMultipleDTO.numerosAsiento?.length) {
-                throw new Error("Datos de compra incompletos. Faltan viajeId, clienteId o asientos.");
-            }
-
-            console.log("Paso 3: Llamando a la API comprarMultiplesPasajes...");
             const responsePasajes = await comprarMultiplesPasajes(datosCompraMultipleDTO);
-
-            console.log("¡Éxito! El backend respondió con los pasajes creados:", responsePasajes.data);
 
             setMensajeExitoCompra({
                 message: "¡Compra realizada con éxito!",
@@ -142,34 +118,40 @@ const ClienteCheckoutPage = () => {
             setErrorCompra(null);
 
         } catch (error) {
-            console.error("--- ERROR CAPTURADO EN onApprove ---", error);
-            const errorMessage = error.response?.data?.message || error.message || "Hubo un error al confirmar su pago. Por favor, contacte a soporte.";
-            console.error("Mensaje de error final:", errorMessage);
+            const errorMessage = error.response?.data?.message || "Hubo un error al confirmar su pago. Por favor, contacte a soporte.";
             setErrorCompra(errorMessage);
         } finally {
-            console.log("--- FINALIZANDO onApprove ---");
             setIsLoadingCompra(false);
         }
     };
 
     const onError = (err) => {
-        console.error("Error de PayPal (onError):", err);
+        console.error("Error de PayPal:", err);
         setErrorCompra("Ocurrió un error con el pago o la operación fue cancelada. Por favor, intente de nuevo.");
         setIsLoadingCompra(false);
     };
 
-    const isBotonPagarDisabled = isLoadingCompra || !!mensajeExitoCompra || authLoading || isLoadingViaje || !isAuthenticated || !user?.id || !viajeData;
+    const isBotonPagarDisabled = isLoadingCompra || !!mensajeExitoCompra || authLoading || !isAuthenticated || !viajeData || reservaExpirada;
 
-    if (authLoading || isLoadingViaje) return <div className="checkout-page-container"><p>Cargando información...</p></div>;
-    if (errorCarga) return <div className="checkout-page-container"><p className="error-mensaje">Error: {errorCarga}</p></div>;
+    if (authLoading) return <div className="checkout-page-container"><p>Cargando sesión...</p></div>;
     if (!viajeData || asientosSeleccionados.length === 0) return <div className="checkout-page-container"><p>No se encontró la información del viaje o los asientos.</p></div>;
 
     return (
         <div className="checkout-page-container cliente-checkout-page">
-            <button onClick={() => navigate(-1)} className="btn-checkout-volver-atras" disabled={isBotonPagarDisabled}>
-                ← Modificar Selección de Asiento
+            <button onClick={() => navigate(-1)} className="btn-checkout-volver-atras" disabled={isLoadingCompra || !!mensajeExitoCompra}>
+                ← Modificar Selección
             </button>
             <h2>Confirmación y Pago</h2>
+
+            {!mensajeExitoCompra && (
+                <div className={`checkout-timer ${reservaExpirada ? 'expirado' : ''}`}>
+                    {reservaExpirada ? (
+                        <p><strong>Tu reserva ha expirado.</strong> Por favor, vuelve a seleccionar tus asientos.</p>
+                    ) : (
+                        <p>Tu reserva expirará en: <strong>{tiempoRestante}</strong></p>
+                    )}
+                </div>
+            )}
 
             <div className="checkout-resumen-viaje">
                 <p><strong>Viaje:</strong> {viajeData.origenNombre} → {viajeData.destinoNombre}</p>
@@ -190,19 +172,20 @@ const ClienteCheckoutPage = () => {
 
             {!mensajeExitoCompra ? (
                 <div className="checkout-acciones">
-                    {isPending ? (
+                    {isPending && !reservaExpirada ? (
                         <div className="spinner-paypal"></div>
                     ) : (
                         <PayPalButtons
                             style={{ layout: "vertical", label: "pay" }}
                             disabled={isBotonPagarDisabled}
-                            forceReRender={[precioTotal]}
+                            forceReRender={[precioTotal, reservaExpirada]}
                             createOrder={createOrder}
                             onApprove={onApprove}
                             onError={onError}
                         />
                     )}
-                    {isLoadingCompra && !isPending && <p>Procesando pago, por favor espere...</p>}
+                    {isLoadingCompra && !isPending && <p>Procesando pago...</p>}
+                    {reservaExpirada && !isLoadingCompra && <p>El pago ha sido deshabilitado porque tu tiempo ha expirado.</p>}
                 </div>
             ) : (
                 <div className="checkout-confirmacion-exitosa">

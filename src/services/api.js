@@ -481,6 +481,9 @@ export const comprarMultiplesPasajes = (compraMultipleData) => {
     // Apunta al nuevo endpoint que creamos en el backend
     return apiClient.post('/vendedor/pasajes/comprar-multiple', compraMultipleData);
 };
+export const reservarAsientosTemporalmente = (reservaData) => {
+    return apiClient.post('/vendedor/pasajes/reservar-temporalmente', reservaData);
+};
 
 
 export default apiClient;

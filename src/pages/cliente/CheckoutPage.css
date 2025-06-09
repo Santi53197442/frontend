@@ -132,3 +132,25 @@
         flex-basis: 48%; /* Distribuir espacio */
     }
 }
+
+.checkout-timer {
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 1.1em;
+    border: 1px solid #007bff;
+    background-color: #e7f3ff;
+    color: #004085;
+}
+
+.checkout-timer strong {
+    font-size: 1.3em;
+    margin-left: 8px;
+}
+
+.checkout-timer.expirado {
+    border-color: #dc3545;
+    background-color: #f8d7da;
+    color: #721c24;
+}
