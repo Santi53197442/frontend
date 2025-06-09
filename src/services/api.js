@@ -453,4 +453,29 @@ export const obtenerEstadisticasUsuarios = async () => {
     }
 };
 
+// --- NUEVA FUNCIÓN PARA CREAR RESERVAS ---
+/**
+ * Llama al backend para crear una reserva temporal de un asiento.
+ * @param {object} reservaData - Contiene viajeId y asientoNumero.
+ * @returns {Promise<AxiosResponse<any>>} La respuesta de la API.
+ */
+export const crearReserva = (reservaData) => {
+    // La URL debe coincidir con la que definiste en VendedorController
+    // El 'api' inicial depende de tu configuración de proxy o URL base de axios
+    return axios.post('/api/vendedor/reservas/crear', reservaData);
+};
+
+// --- NUEVA FUNCIÓN PARA LIBERAR RESERVAS (Opcional pero recomendado) ---
+/**
+ * Llama al backend para liberar una reserva si el usuario abandona el checkout.
+ * @param {number} reservaId - El ID de la reserva a liberar.
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const liberarReserva = (reservaId) => {
+    // Este endpoint deberías crearlo en el backend. Por ahora, asumimos que existe.
+    // Es un POST o DELETE, según prefieras.
+    return axios.post(`/api/vendedor/reservas/${reservaId}/liberar`);
+};
+
+
 export default apiClient;

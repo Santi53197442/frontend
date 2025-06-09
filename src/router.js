@@ -21,7 +21,7 @@ import CambiarContraseña from "./components/CambiarContraseña";
 
 // Admin
 import AdminCreateUserPage from './pages/admin/AdminCreateUserPage';
-import AdminDashboard from './pages/admin/AdminDashboard'; // Comentamos o eliminamos la importación antigua si ya no se usa
+import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminUserBatchUploadPage from './pages/admin/AdminUserBatchUploadPage';
 import AdminUserListPage from "./pages/admin/AdminUserListPage";
 import AdminUserListDeletePage from './pages/admin/AdminUserListDeletePage';
@@ -78,7 +78,10 @@ const AppRouter = () => {
             {/* --- RUTAS DEL FLUJO DE COMPRA DEL CLIENTE --- */}
             <Route element={<ProtectedRoute allowedRoles={['CLIENTE', 'cliente', 'VENDEDOR', 'vendedor', 'ADMINISTRADOR', 'administrador']} />}>
                 <Route path="/compra/viaje/:viajeId/seleccionar-asientos" element={<ClienteSeleccionAsientosPage />} />
-                <Route path="/compra/viaje/:viajeId/asiento/:asientoNumero/checkout" element={<ClienteCheckoutPage />} />
+
+                {/* ----- ¡AQUÍ ESTÁ LA CORRECCIÓN CLAVE! ----- */}
+                {/* Se cambia ":asientoNumero" por ":asientosString" para aceptar múltiples asientos */}
+                <Route path="/compra/viaje/:viajeId/asientos/:asientosString/checkout" element={<ClienteCheckoutPage />} />
             </Route>
 
             {/* --- RUTAS GENERALES DE USUARIO LOGUEADO --- */}
@@ -122,6 +125,7 @@ const AppRouter = () => {
                     <Route path="listar-viajes" element={<VendedorListarViajes />} />
                     <Route path="listar-viajes-compra" element={<VendedorListadoViajesCompra />} />
                     <Route path="viaje/:viajeId/seleccionar-asientos" element={<SeleccionAsientosPage />} />
+                    {/* Nota: esta ruta de vendedor sigue funcionando para 1 solo asiento, no la hemos modificado. */}
                     <Route path="viaje/:viajeId/asiento/:asientoNumero/checkout" element={<CheckoutPage />} />
                     <Route path="pasajes-por-viaje" element={<VendedorListadoPasajesViaje />} />
                     <Route path="estadisticas-viaje" element={<VendedorEstadisticasViaje />} />
