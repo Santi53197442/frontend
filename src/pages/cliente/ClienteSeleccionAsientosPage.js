@@ -95,14 +95,12 @@ const ClienteCheckoutPage = () => {
         }
     };
 
-    // ================== FUNCIÓN onApprove CON DEPURACIÓN AÑADIDA ==================
     const onApprove = async (data, actions) => {
         console.log("--- INICIANDO onApprove (confirmación de pago) ---");
         setIsLoadingCompra(true);
         setErrorCompra(null);
 
         try {
-            // Paso 1: Capturar el pago en PayPal
             console.log("Paso 1: Capturando el pago en PayPal con OrderID:", data.orderID);
             const captureResponse = await fetch(`${API_URL}/api/paypal/orders/${data.orderID}/capture`, { method: 'POST' });
             const details = await captureResponse.json();
@@ -113,27 +111,24 @@ const ClienteCheckoutPage = () => {
             }
             console.log("¡Pago capturado con éxito en PayPal!", details);
 
-            // Paso 2: Preparar los datos para registrar la compra en nuestro sistema
             console.log("Paso 2: Preparando datos para enviar a nuestro backend.");
             const datosCompraMultipleDTO = {
                 viajeId: parsedViajeId,
-                clienteId: user?.id, // Usamos optional chaining por seguridad
+                clienteId: user?.id,
                 numerosAsiento: asientosSeleccionados,
                 paypalTransactionId: details.id
             };
 
-            // ¡Este console.log es el más importante! Nos muestra qué se enviará.
             console.log(
                 "Enviando este DTO al endpoint /comprar-multiple:",
                 JSON.stringify(datosCompraMultipleDTO, null, 2)
             );
 
-            // Validar que los datos no sean nulos antes de enviar
-            if (!datosCompraMultipleDTO.viajeId || !datosCompraMultipleDTO.clienteId || !datosCompraMultipledDTO.numerosAsiento?.length) {
+            // ===== ESTA ES LA LÍNEA CORREGIDA =====
+            if (!datosCompraMultipleDTO.viajeId || !datosCompraMultipleDTO.clienteId || !datosCompraMultipleDTO.numerosAsiento?.length) {
                 throw new Error("Datos de compra incompletos. Faltan viajeId, clienteId o asientos.");
             }
 
-            // Paso 3: Llamar a nuestro backend para crear los pasajes
             console.log("Paso 3: Llamando a la API comprarMultiplesPasajes...");
             const responsePasajes = await comprarMultiplesPasajes(datosCompraMultipleDTO);
 
@@ -148,7 +143,6 @@ const ClienteCheckoutPage = () => {
 
         } catch (error) {
             console.error("--- ERROR CAPTURADO EN onApprove ---", error);
-            // Intentamos obtener un mensaje de error más específico si viene del backend
             const errorMessage = error.response?.data?.message || error.message || "Hubo un error al confirmar su pago. Por favor, contacte a soporte.";
             console.error("Mensaje de error final:", errorMessage);
             setErrorCompra(errorMessage);
