@@ -433,4 +433,14 @@ export const obtenerEstadisticasOmnibus = async () => {
     }
 };
 
+export const obtenerEstadisticasPasajes = async () => {
+    try {
+        const response = await apiClient.get('/vendedor/pasajes/estadisticas');
+        return response;
+    } catch (error) {
+        console.error("Error en API al obtener estadísticas de pasajes:", error.response?.data || error.message);
+        throw error;
+    }
+};
+
 export default apiClient;

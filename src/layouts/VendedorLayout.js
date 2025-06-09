@@ -146,6 +146,15 @@ const VendedorLayout = () => {
                                 <span>Estadísticas de Ómnibus</span>
                             </NavLink>
                         </li>
+                        <li>
+                            <NavLink
+                                to="/vendedor/estadisticas-ventas"
+                                className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
+                                onClick={handleNavLinkClick}
+                            >
+                                <span>Estadísticas de Ventas</span>
+                            </NavLink>
+                        </li>
                     </ul>
                 </nav>
 

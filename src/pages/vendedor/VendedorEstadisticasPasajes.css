@@ -1,0 +1,137 @@
+/* Contenedor principal para toda la página de estadísticas */
+.stats-container {
+    padding: 2rem;
+    background-color: #f4f7f6; /* Un gris muy claro para el fondo */
+    border-radius: 8px;
+    max-width: 1000px; /* Ancho máximo para mantener la legibilidad */
+    margin: 2rem auto; /* Centrar en la página */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Estilos para los mensajes de carga y error */
+.stats-container-loading,
+.stats-container-error {
+    text-align: center;
+    padding: 3rem;
+    font-size: 1.2rem;
+    color: #555;
+    background-color: #ffffff;
+    border-radius: 8px;
+    max-width: 1000px;
+    margin: 2rem auto;
+}
+
+.stats-container-error {
+    color: #d9534f; /* Rojo para errores */
+    background-color: #f2dede;
+    border: 1px solid #ebccd1;
+}
+
+/* Título principal de la página */
+.stats-title {
+    text-align: center;
+    color: #333;
+    margin-bottom: 2rem;
+    font-size: 1.8rem;
+    font-weight: 700;
+}
+
+/* Grid para las tarjetas de estadísticas */
+.stats-grid {
+    display: grid;
+    /* Columnas que se ajustan automáticamente, con un mínimo de 220px */
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem; /* Espacio entre las tarjetas */
+}
+
+/* Estilo de cada tarjeta individual */
+.stat-card {
+    background-color: #ffffff;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    text-align: center;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px); /* Efecto de "levantar" la tarjeta */
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+.stat-card-title {
+    margin: 0 0 0.5rem 0;
+    color: #6c757d; /* Gris para el título de la tarjeta */
+    font-size: 1rem;
+    font-weight: 500;
+    text-transform: uppercase; /* Opcional: para dar un look más formal */
+}
+
+.stat-card-value {
+    margin: 0;
+    color: #0056b3; /* Azul primario para el valor */
+    font-size: 2.2rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.stat-card-note {
+    font-size: 0.85rem;
+    color: #888;
+    margin-top: 0.5rem;
+    display: block;
+}
+
+/* Sección que contiene los dos gráficos */
+.charts-section {
+    margin-top: 3rem;
+    display: grid;
+    /* El gráfico de barras necesita más espacio horizontal que el de pastel */
+    grid-template-columns: 1fr 1.5fr;
+    gap: 2rem;
+    align-items: flex-start; /* Alinea los contenedores en la parte superior */
+}
+
+/* Contenedor para cada gráfico individual */
+.chart-container {
+    background-color: #ffffff;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    max-width: 100%;
+}
+
+/* Título dentro de cada contenedor de gráfico */
+.chart-title {
+    text-align: center;
+    color: #333;
+    margin-bottom: 1.5rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+/* Media query para hacer el diseño responsivo en pantallas más pequeñas */
+@media (max-width: 992px) {
+    .charts-section {
+        /* En pantallas pequeñas, un gráfico se apila debajo del otro */
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .stats-container {
+        padding: 1rem;
+    }
+    .stats-title {
+        font-size: 1.5rem;
+    }
+}
+
+.chart-container-fullwidth {
+    margin-top: 2rem;
+    grid-column: 1 / -1; /* Hace que este contenedor ocupe todo el ancho del grid */
+    background-color: #ffffff;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
