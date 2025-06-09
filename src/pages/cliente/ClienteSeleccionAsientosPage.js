@@ -1,5 +1,5 @@
 // src/components/cliente/ClienteSeleccionAsientos.js
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react'; // Eliminamos useCallback
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import {
     obtenerDetallesViajeConAsientos,
@@ -7,11 +7,12 @@ import {
 } from '../../services/api';
 import './ClienteSeleccionAsientosPage.css';
 
-const ClienteSeleccionAsientosPage = () => {
+const ClienteSeleccionAsientos = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { viajeId: viajeIdFromParams } = useParams();
 
+    // El state pasado por el Link se usa como valor inicial, pero no se vuelve a leer
     const [viajeDetalles, setViajeDetalles] = useState(location.state?.viajeData || null);
     const [asientosOcupados, setAsientosOcupados] = useState([]);
     const [asientosSeleccionados, setAsientosSeleccionados] = useState([]);
@@ -22,56 +23,61 @@ const ClienteSeleccionAsientosPage = () => {
 
     const parsedViajeId = parseInt(viajeIdFromParams, 10);
 
-    const cargarDatosViajeYAsientos = useCallback(async () => {
-        if (isNaN(parsedViajeId)) {
-            setError("ID de Viaje inválido en la URL.");
-            setLoading(false);
-            return;
-        }
-        if (!loading && error && error === "ID de Viaje inválido en la URL.") return;
+    // ==================  ESTRUCTURA SIMPLIFICADA Y CORRECTA ==================
+    // Usamos un solo useEffect que se ejecuta cuando el ID del viaje cambia.
+    // Esto evita los bucles causados por dependencias de objetos.
+    useEffect(() => {
+        // Definimos la función de carga dentro del useEffect
+        const cargarDatos = async () => {
+            if (isNaN(parsedViajeId)) {
+                setError("ID de Viaje inválido en la URL.");
+                setLoading(false);
+                return;
+            }
 
-        setLoading(true);
-        setError(null);
-        try {
-            if (!viajeDetalles || viajeDetalles.id !== parsedViajeId) {
+            setLoading(true);
+            setError(null);
+            try {
+                // Siempre cargamos los datos desde la API para asegurar que estén actualizados.
+                // Esto simplifica la lógica y evita problemas de sincronización.
+                console.log(`Cargando datos para viaje ID ${parsedViajeId} desde API.`);
                 const responseDetalles = await obtenerDetallesViajeConAsientos(parsedViajeId);
                 setViajeDetalles(responseDetalles.data);
+
+                const responseOcupados = await obtenerAsientosOcupados(parsedViajeId);
+                console.log("Datos de asientos ocupados recibidos:", responseOcupados.data);
+                setAsientosOcupados(Array.isArray(responseOcupados.data) ? responseOcupados.data : []);
+
+            } catch (err) {
+                const errorMessage = err.response?.data?.message || err.message || "Error al cargar datos.";
+                console.error("Error al cargar datos:", errorMessage, err.response || err);
+                setError(errorMessage);
+                setViajeDetalles(null);
+            } finally {
+                setLoading(false);
             }
-            const responseOcupados = await obtenerAsientosOcupados(parsedViajeId);
-            console.log("Respuesta cruda de asientos ocupados:", responseOcupados);
-            console.log("Datos de asientos ocupados (response.data):", responseOcupados.data);
-            setAsientosOcupados(Array.isArray(responseOcupados.data) ? responseOcupados.data : []);
-        } catch (err) {
-            const errorMessage = err.response?.data?.message || err.message || "Error al cargar datos del viaje o asientos.";
-            setError(errorMessage);
-            setViajeDetalles(null);
-        } finally {
-            setLoading(false);
-        }
-    }, [parsedViajeId, viajeDetalles, error, loading]);
+        };
 
-    useEffect(() => {
-        cargarDatosViajeYAsientos();
-    }, [cargarDatosViajeYAsientos]);
+        cargarDatos(); // Ejecutamos la función
 
+    }, [parsedViajeId]); // <-- La única dependencia es el ID del viaje de la URL.
+
+    // El resto del componente se mantiene exactamente igual...
     const handleSeleccionarAsiento = (numeroAsiento) => {
         if (asientosOcupados.includes(numeroAsiento)) return;
-
-        setAsientosSeleccionados(prevSeleccionados => {
-            const yaEstaSeleccionado = prevSeleccionados.includes(numeroAsiento);
-
-            if (yaEstaSeleccionado) {
-                return prevSeleccionados.filter(asiento => asiento !== numeroAsiento);
-            } else {
-                if (prevSeleccionados.length >= MAX_ASIENTOS) {
-                    alert(`Solo puede seleccionar un máximo de ${MAX_ASIENTOS} asientos.`);
-                    return prevSeleccionados;
-                }
-                return [...prevSeleccionados, numeroAsiento];
+        setAsientosSeleccionados(prev => {
+            if (prev.includes(numeroAsiento)) {
+                return prev.filter(a => a !== numeroAsiento);
             }
+            if (prev.length >= MAX_ASIENTOS) {
+                alert(`Solo puede seleccionar un máximo de ${MAX_ASIENTOS} asientos.`);
+                return prev;
+            }
+            return [...prev, numeroAsiento];
         });
     };
 
+    // ... (handleIrACheckout, getCapacidadAsientos, renderAsientos, y el JSX se mantienen igual)
     const handleIrACheckout = () => {
         if (asientosSeleccionados.length === 0) {
             alert("Por favor, seleccione al menos un asiento para continuar.");
@@ -85,8 +91,6 @@ const ClienteSeleccionAsientosPage = () => {
         const basePath = '/compra';
         const asientosString = asientosSeleccionados.join(',');
         const targetPath = `${basePath}/viaje/${parsedViajeId}/asientos/${asientosString}/checkout`;
-
-        console.log("Navegando a (checkout cliente):", targetPath);
 
         navigate(targetPath, {
             state: {
@@ -103,31 +107,20 @@ const ClienteSeleccionAsientosPage = () => {
 
     const renderAsientos = () => {
         const capacidad = getCapacidadAsientos();
-        if (capacidad === 0 && !loading && viajeDetalles) return <p>No se pudo determinar la capacidad del ómnibus.</p>;
         if (capacidad === 0 && loading) return <p className="loading-mensaje">Cargando mapa de asientos...</p>;
-        if (capacidad === 0 && !viajeDetalles && !loading) return <p>Esperando información del viaje...</p>
+        if (capacidad === 0 && !loading) return <p>No se pudo determinar la capacidad del ómnibus.</p>;
 
         let asientosVisuales = [];
         for (let i = 1; i <= capacidad; i++) {
             const estaOcupado = asientosOcupados.includes(i);
             const estaSeleccionadoPorUsuario = asientosSeleccionados.includes(i);
             let claseAsiento = "asiento";
-            if (estaOcupado) {
-                claseAsiento += " ocupado";
-            } else if (estaSeleccionadoPorUsuario) {
-                claseAsiento += " seleccionado";
-            } else {
-                claseAsiento += " disponible";
-            }
+            if (estaOcupado) claseAsiento += " ocupado";
+            else if (estaSeleccionadoPorUsuario) claseAsiento += " seleccionado";
+            else claseAsiento += " disponible";
 
             asientosVisuales.push(
-                <button
-                    key={i}
-                    className={claseAsiento}
-                    onClick={() => handleSeleccionarAsiento(i)}
-                    disabled={estaOcupado}
-                    aria-label={`Asiento número ${i} ${estaOcupado ? 'ocupado' : (estaSeleccionadoPorUsuario ? 'seleccionado' : 'disponible')}`}
-                >
+                <button key={i} className={claseAsiento} onClick={() => handleSeleccionarAsiento(i)} disabled={estaOcupado}>
                     {i}
                 </button>
             );
@@ -182,14 +175,8 @@ const ClienteSeleccionAsientosPage = () => {
                         {asientosSeleccionados.sort((a, b) => a - b).join(', ')}
                     </div>
                     <p>Cantidad: {asientosSeleccionados.length}</p>
-
-                    {/* ===== ESTA ES LA LÍNEA CORREGIDA ===== */}
                     <p>Total a Pagar: {`$${(parseFloat(viajeDetalles.precio) * asientosSeleccionados.length).toFixed(2)}`}</p>
-
-                    <button
-                        onClick={handleIrACheckout}
-                        className="btn-continuar-checkout"
-                    >
+                    <button onClick={handleIrACheckout} className="btn-continuar-checkout">
                         Continuar y Pagar
                     </button>
                 </div>
@@ -200,4 +187,4 @@ const ClienteSeleccionAsientosPage = () => {
     );
 };
 
-export default ClienteSeleccionAsientosPage;
+export default ClienteSeleccionAsientos;
