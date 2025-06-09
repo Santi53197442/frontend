@@ -477,5 +477,10 @@ export const liberarReserva = (reservaId) => {
     return axios.post(`/api/vendedor/reservas/${reservaId}/liberar`);
 };
 
+export const comprarMultiplesPasajes = (compraMultipleData) => {
+    // Apunta al nuevo endpoint que creamos en el backend
+    return apiClient.post('/vendedor/pasajes/comprar-multiple', compraMultipleData);
+};
+
 
 export default apiClient;
