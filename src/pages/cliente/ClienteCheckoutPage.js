@@ -19,10 +19,12 @@ const ClienteCheckoutPage = () => {
         location.state?.asientosNumeros || (asientosString ? asientosString.split(',').map(s => parseInt(s, 10)) : [])
     );
 
+    // Estados para el temporizador
     const reservaExpiraEn = location.state?.reservaExpiraEn;
     const [tiempoRestante, setTiempoRestante] = useState("10:00");
     const [reservaExpirada, setReservaExpirada] = useState(false);
 
+    // Otros estados del componente
     const [isLoadingCompra, setIsLoadingCompra] = useState(false);
     const [errorCompra, setErrorCompra] = useState(null);
     const [mensajeExitoCompra, setMensajeExitoCompra] = useState(null);
@@ -31,16 +33,17 @@ const ClienteCheckoutPage = () => {
     const parsedViajeId = parseInt(viajeIdFromParams, 10);
     const precioTotal = viajeData?.precio ? (viajeData.precio * asientosSeleccionados.length) : 0;
 
+    // Hook de efecto para manejar la lógica del temporizador
     useEffect(() => {
         if (!reservaExpiraEn) {
-            console.error("No se recibió fecha de expiración de la reserva.");
+            console.error("No se recibió fecha de expiración de la reserva. El pago será deshabilitado.");
             setReservaExpirada(true);
             return;
         }
 
         const interval = setInterval(() => {
             const ahora = new Date();
-            const expiracion = new Date(reservaExpiraEn);
+            const expiracion = new Date(reservaExpiraEn); // new Date() maneja correctamente la cadena UTC
             const segundosTotales = Math.round((expiracion - ahora) / 1000);
 
             if (segundosTotales <= 0) {
@@ -56,9 +59,11 @@ const ClienteCheckoutPage = () => {
             }
         }, 1000);
 
+        // Función de limpieza que se ejecuta cuando el componente se desmonta
         return () => clearInterval(interval);
     }, [reservaExpiraEn]);
 
+    // Función para crear la orden en PayPal (sin cambios)
     const createOrder = async (data, actions) => {
         setIsLoadingCompra(true);
         setErrorCompra(null);
@@ -89,6 +94,7 @@ const ClienteCheckoutPage = () => {
         }
     };
 
+    // Función que se ejecuta tras la aprobación del pago (sin cambios)
     const onApprove = async (data, actions) => {
         setIsLoadingCompra(true);
         setErrorCompra(null);
@@ -125,12 +131,14 @@ const ClienteCheckoutPage = () => {
         }
     };
 
+    // Función para manejar errores de PayPal (sin cambios)
     const onError = (err) => {
         console.error("Error de PayPal:", err);
         setErrorCompra("Ocurrió un error con el pago o la operación fue cancelada. Por favor, intente de nuevo.");
         setIsLoadingCompra(false);
     };
 
+    // Condición para deshabilitar el botón de pago
     const isBotonPagarDisabled = isLoadingCompra || !!mensajeExitoCompra || authLoading || !isAuthenticated || !viajeData || reservaExpirada;
 
     if (authLoading) return <div className="checkout-page-container"><p>Cargando sesión...</p></div>;
