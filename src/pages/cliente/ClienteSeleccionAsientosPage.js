@@ -38,6 +38,8 @@ const ClienteSeleccionAsientosPage = () => {
                 setViajeDetalles(responseDetalles.data);
             }
             const responseOcupados = await obtenerAsientosOcupados(parsedViajeId);
+            console.log("Respuesta cruda de asientos ocupados:", responseOcupados);
+            console.log("Datos de asientos ocupados (response.data):", responseOcupados.data);
             setAsientosOcupados(Array.isArray(responseOcupados.data) ? responseOcupados.data : []);
         } catch (err) {
             const errorMessage = err.response?.data?.message || err.message || "Error al cargar datos del viaje o asientos.";
