@@ -15,22 +15,18 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         const initializeAuth = async () => {
             setLoading(true);
-            console.log("AuthContext (initializeAuth): Verificando token...");
             const storedToken = localStorage.getItem('authToken');
 
             if (storedToken) {
-                console.log("AuthContext (initializeAuth): Token encontrado. Configurando header.");
                 apiClient.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
                 try {
-                    console.log("AuthContext (initializeAuth): Obteniendo perfil de usuario...");
                     const response = await getCurrentUserProfile();
                     const userDataFromApi = response.data;
-                    console.log("AuthContext (initializeAuth): Perfil obtenido de API:", userDataFromApi);
 
-                    // === CAMBIO CLAVE AQUÍ: Condición más robusta y simple ===
-                    // Usamos "optional chaining" (?.) para evitar errores y solo comprobamos si 'id' existe.
                     if (userDataFromApi?.id) {
                         const rolLowerCase = userDataFromApi.rol?.toLowerCase() || '';
+
+                        // <<< CAMBIO 1: Guardamos el tipoCliente al inicializar desde el perfil
                         setUser({
                             token: storedToken,
                             id: userDataFromApi.id,
@@ -40,72 +36,73 @@ export const AuthProvider = ({ children }) => {
                             apellido: userDataFromApi.apellido,
                             ci: userDataFromApi.ci,
                             telefono: userDataFromApi.telefono,
-                            fechaNac: userDataFromApi.fechaNac
+                            fechaNac: userDataFromApi.fechaNac,
+                            tipoCliente: userDataFromApi.tipoCliente // Guardamos el tipo de cliente
                         });
+
                         setIsAuthenticated(true);
+                        // Guardar en localStorage para persistencia
                         localStorage.setItem('userId', String(userDataFromApi.id));
                         localStorage.setItem('userRol', rolLowerCase);
                         localStorage.setItem('userEmail', userDataFromApi.email || '');
-                        console.log("AuthContext (initializeAuth): Usuario autenticado y contexto establecido desde perfil.");
+                        if (userDataFromApi.tipoCliente) {
+                            localStorage.setItem('userTipoCliente', userDataFromApi.tipoCliente);
+                        }
+
                     } else {
-                        // Este bloque ahora solo se ejecutará si la API no devuelve un objeto con la propiedad 'id' válida.
-                        console.warn("AuthContext (initializeAuth): El perfil recibido de la API no contiene una propiedad 'id' válida. Deslogueando. Perfil recibido:", userDataFromApi);
-                        ['authToken', 'userId', 'userEmail', 'userRol'].forEach(item => localStorage.removeItem(item));
+                        // Limpiar si el perfil no es válido
+                        ['authToken', 'userId', 'userEmail', 'userRol', 'userTipoCliente'].forEach(item => localStorage.removeItem(item));
                         setUser(null);
                         setIsAuthenticated(false);
                         delete apiClient.defaults.headers.common['Authorization'];
                     }
                 } catch (e) {
-                    console.error("AuthContext (initializeAuth): Token inválido o error al obtener perfil. Deslogueando.", e.message);
-                    ['authToken', 'userId', 'userEmail', 'userRol'].forEach(item => localStorage.removeItem(item));
+                    // Limpiar si hay error
+                    ['authToken', 'userId', 'userEmail', 'userRol', 'userTipoCliente'].forEach(item => localStorage.removeItem(item));
                     setUser(null);
                     setIsAuthenticated(false);
                     delete apiClient.defaults.headers.common['Authorization'];
                 }
-            } else {
-                console.log("AuthContext (initializeAuth): No hay token en localStorage.");
             }
             setLoading(false);
-            console.log("AuthContext (initializeAuth): Carga inicial completada.");
         };
 
         initializeAuth();
-    }, []); // Ejecutar solo una vez
+    }, []);
 
     const login = async (credentials) => {
         setError("");
         setLoading(true);
-        console.log("AuthContext (login): Intentando login para:", credentials.email);
         try {
             const response = await apiClient.post('/auth/login', credentials);
-            console.log("AuthContext (login): Respuesta COMPLETA de API /auth/login:", JSON.stringify(response.data, null, 2));
 
-            const { token, id, email, rol, nombre, apellido, ci, telefono, fechaNac } = response.data;
+            // <<< CAMBIO 2: Extraemos tipoCliente de la respuesta del login
+            const { token, id, email, rol, nombre, apellido, ci, telefono, fechaNac, tipoCliente } = response.data;
 
-            if (!token) {
-                console.error("AuthContext (login): No se recibió token del servidor.");
-                throw new Error("No se recibió token del servidor.");
-            }
-            if (typeof id === 'undefined' || id === null) {
-                console.error("AuthContext (login): ID de usuario no recibido o es nulo en la respuesta del login.");
-                throw new Error("Información de usuario incompleta recibida del servidor (falta ID).");
+            if (!token || typeof id === 'undefined' || id === null) {
+                throw new Error("Información de usuario incompleta recibida del servidor.");
             }
 
+            const rolLowerCase = rol?.toLowerCase() || '';
+
+            // Guardar todo en localStorage
             localStorage.setItem('authToken', token);
             localStorage.setItem('userId', String(id));
             localStorage.setItem('userEmail', email || '');
-            const rolLowerCase = rol?.toLowerCase() || '';
             localStorage.setItem('userRol', rolLowerCase);
             localStorage.setItem('userNombre', nombre || '');
             localStorage.setItem('userApellido', apellido || '');
             localStorage.setItem('userCI', String(ci || ''));
             localStorage.setItem('userTelefono', String(telefono || ''));
             localStorage.setItem('userFechaNac', fechaNac || '');
+            if (tipoCliente) { // Solo guardar si existe
+                localStorage.setItem('userTipoCliente', tipoCliente);
+            }
 
-            setUser({ token, id, email, rol: rolLowerCase, nombre, apellido, ci, telefono, fechaNac });
+            // Establecer el estado del usuario, incluyendo tipoCliente
+            setUser({ token, id, email, rol: rolLowerCase, nombre, apellido, ci, telefono, fechaNac, tipoCliente });
             setIsAuthenticated(true);
             apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-            console.log("AuthContext (login): Login exitoso. User establecido con ID:", id);
 
             setLoading(false);
             if (rolLowerCase === 'administrador') {
@@ -118,15 +115,7 @@ export const AuthProvider = ({ children }) => {
             return true;
 
         } catch (err) {
-            console.error("AuthContext (login): Error en el proceso de login:", err.response?.data || err.message, err);
-            ['authToken', 'userId', 'userEmail', 'userRol', 'userNombre', 'userApellido', 'userCI', 'userTelefono', 'userFechaNac']
-                .forEach(item => localStorage.removeItem(item));
-            setUser(null);
-            setIsAuthenticated(false);
-            if (apiClient.defaults.headers.common['Authorization']) {
-                delete apiClient.defaults.headers.common['Authorization'];
-            }
-            const errorMessage = err.response?.data?.message || err.message || "Login fallido. Verifique credenciales o intente más tarde.";
+            const errorMessage = err.response?.data?.message || err.message || "Login fallido.";
             setError(errorMessage);
             setLoading(false);
             return false;
@@ -134,48 +123,50 @@ export const AuthProvider = ({ children }) => {
     };
 
     const updateUserContext = (backendResponseData) => {
-        console.log("AuthContext (updateUserContext): Actualizando contexto con:", backendResponseData);
         const currentUserToken = user?.token || localStorage.getItem('authToken');
-        const userIdFromResponse = backendResponseData.id;
 
-        if (!currentUserToken || typeof userIdFromResponse === 'undefined' || userIdFromResponse === null) {
-            console.error("AuthContext (updateUserContext): Token o ID de usuario faltante en datos de respuesta para actualizar.", backendResponseData);
+        if (!currentUserToken || typeof backendResponseData.id === 'undefined') {
             return;
         }
 
         const rolLowerCase = backendResponseData.rol?.toLowerCase() || user?.rol || '';
+
+        // <<< CAMBIO 3: Nos aseguramos de actualizar también el tipoCliente si viene en los datos
         const updatedUserData = {
             token: currentUserToken,
-            id: userIdFromResponse,
+            id: backendResponseData.id,
             email: backendResponseData.email,
             rol: rolLowerCase,
             nombre: backendResponseData.nombre,
             apellido: backendResponseData.apellido,
             ci: backendResponseData.ci,
             telefono: backendResponseData.telefono,
-            fechaNac: backendResponseData.fechaNac
+            fechaNac: backendResponseData.fechaNac,
+            tipoCliente: backendResponseData.tipoCliente // Actualizar el tipo de cliente
         };
 
         setUser(updatedUserData);
         setIsAuthenticated(true);
+        // Actualizar localStorage también
         localStorage.setItem('userId', String(updatedUserData.id));
         localStorage.setItem('userEmail', updatedUserData.email || '');
         localStorage.setItem('userRol', updatedUserData.rol || '');
+        if (updatedUserData.tipoCliente) {
+            localStorage.setItem('userTipoCliente', updatedUserData.tipoCliente);
+        } else {
+            localStorage.removeItem('userTipoCliente');
+        }
     };
 
     const logout = () => {
-        console.log("AuthContext (logout): Ejecutando logout...");
-        ['authToken', 'userId', 'userEmail', 'userRol', 'userNombre', 'userApellido', 'userCI', 'userTelefono', 'userFechaNac']
+        // <<< CAMBIO 4: Limpiamos también userTipoCliente del localStorage
+        ['authToken', 'userId', 'userEmail', 'userRol', 'userNombre', 'userApellido', 'userCI', 'userTelefono', 'userFechaNac', 'userTipoCliente']
             .forEach(item => localStorage.removeItem(item));
         setUser(null);
         setIsAuthenticated(false);
         setError("");
-        if (apiClient.defaults.headers.common['Authorization']) {
-            delete apiClient.defaults.headers.common['Authorization'];
-        }
-        setLoading(false);
+        delete apiClient.defaults.headers.common['Authorization'];
         navigate('/login');
-        console.log("AuthContext (logout): Logout completado.");
     };
 
     return (
@@ -189,13 +180,12 @@ export const AuthProvider = ({ children }) => {
             error,
             setError
         }}>
-            {/* ESTA ES LA LÍNEA A CORREGIR */}
-            {!loading ? children : <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>Cargando aplicación...</div>}
+            {/* Si no está cargando, muestra los hijos (la app), sino, muestra un mensaje de carga. */}
+            {children}
         </AuthContext.Provider>
     );
 };
 
-// Y asegúrate que el resto del archivo también esté completo
 export const useAuth = () => {
     const context = useContext(AuthContext);
     if (context === undefined) {

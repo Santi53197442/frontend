@@ -1,5 +1,5 @@
 // src/components/cliente/ClienteCheckoutPage.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { comprarMultiplesPasajes } from '../../services/api';
 import { useAuth } from '../../AuthContext';
@@ -11,7 +11,7 @@ const API_URL = process.env.REACT_APP_API_URL || "https://web-production-2443c.u
 const ClienteCheckoutPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { user, isAuthenticated, loading: authLoading } = useAuth();
+    const { user, isAuthenticated, loading: authLoading } = useAuth(); // 'user' ahora tiene .tipoCliente
     const { viajeId: viajeIdFromParams, asientosString } = useParams();
 
     const [viajeData, setViajeData] = useState(location.state?.viajeData || null);
@@ -19,33 +19,45 @@ const ClienteCheckoutPage = () => {
         location.state?.asientosNumeros || (asientosString ? asientosString.split(',').map(s => parseInt(s, 10)) : [])
     );
 
-    // Estados para el temporizador
     const reservaExpiraEn = location.state?.reservaExpiraEn;
     const [tiempoRestante, setTiempoRestante] = useState("10:00");
     const [reservaExpirada, setReservaExpirada] = useState(false);
 
-    // Otros estados del componente
     const [isLoadingCompra, setIsLoadingCompra] = useState(false);
     const [errorCompra, setErrorCompra] = useState(null);
     const [mensajeExitoCompra, setMensajeExitoCompra] = useState(null);
 
     const [{ isPending }] = usePayPalScriptReducer();
     const parsedViajeId = parseInt(viajeIdFromParams, 10);
-    const precioTotal = viajeData?.precio ? (viajeData.precio * asientosSeleccionados.length) : 0;
+
+    // --- Lógica de Precios con Descuento ---
+    const precioBasePorAsiento = viajeData?.precio || 0;
+    // Leemos el tipo de cliente desde el contexto de autenticación
+    const esElegibleParaDescuento = user?.tipoCliente === 'JUBILADO' || user?.tipoCliente === 'ESTUDIANTE';
+    const TASA_DESCUENTO = 0.20;
+
+    // useMemo para calcular los precios de forma eficiente
+    const calculoPrecio = useMemo(() => {
+        const totalBase = precioBasePorAsiento * asientosSeleccionados.length;
+        if (esElegibleParaDescuento) {
+            const montoDescuento = totalBase * TASA_DESCUENTO;
+            const totalFinal = totalBase - montoDescuento;
+            return { totalBase, montoDescuento, totalFinal };
+        }
+        // Si no hay descuento, el monto del descuento es 0 y el total es el base
+        return { totalBase, montoDescuento: 0, totalFinal: totalBase };
+    }, [precioBasePorAsiento, asientosSeleccionados.length, esElegibleParaDescuento]);
+
+    // Este es el valor que se enviará a PayPal
+    const precioTotalParaPayPal = calculoPrecio.totalFinal;
 
     // Hook de efecto para manejar la lógica del temporizador
     useEffect(() => {
         if (!reservaExpiraEn) {
-            console.error("No se recibió fecha de expiración de la reserva. El pago será deshabilitado.");
-            setReservaExpirada(true);
-            return;
+            setReservaExpirada(true); return;
         }
-
         const interval = setInterval(() => {
-            const ahora = new Date();
-            const expiracion = new Date(reservaExpiraEn); // new Date() maneja correctamente la cadena UTC
-            const segundosTotales = Math.round((expiracion - ahora) / 1000);
-
+            const segundosTotales = Math.round((new Date(reservaExpiraEn) - new Date()) / 1000);
             if (segundosTotales <= 0) {
                 setTiempoRestante("00:00");
                 setReservaExpirada(true);
@@ -53,96 +65,81 @@ const ClienteCheckoutPage = () => {
             } else {
                 const minutos = Math.floor(segundosTotales / 60);
                 const segundos = segundosTotales % 60;
-                setTiempoRestante(
-                    `${String(minutos).padStart(2, '0')}:${String(segundos).padStart(2, '0')}`
-                );
+                setTiempoRestante(`${String(minutos).padStart(2, '0')}:${String(segundos).padStart(2, '0')}`);
             }
         }, 1000);
-
-        // Función de limpieza que se ejecuta cuando el componente se desmonta
         return () => clearInterval(interval);
     }, [reservaExpiraEn]);
 
-    // Función para crear la orden en PayPal (sin cambios)
-    const createOrder = async (data, actions) => {
+    // Función para crear la orden en PayPal, usando el precio con descuento
+    const createOrder = async () => {
         setIsLoadingCompra(true);
         setErrorCompra(null);
 
-        if (precioTotal <= 0) {
-            const errorMsg = "Precio total inválido o no disponible.";
-            setErrorCompra(errorMsg);
+        if (precioTotalParaPayPal <= 0) {
+            setErrorCompra("El precio total debe ser mayor que cero para proceder al pago.");
             setIsLoadingCompra(false);
-            return Promise.reject(new Error(errorMsg));
+            return Promise.reject(new Error("Precio inválido"));
         }
-
         try {
             const response = await fetch(`${API_URL}/api/paypal/orders`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ amount: precioTotal.toFixed(2) })
+                body: JSON.stringify({ amount: precioTotalParaPayPal.toFixed(2) })
             });
             const order = await response.json();
             if (response.ok) {
+                setIsLoadingCompra(false);
                 return order.id;
-            } else {
-                throw new Error(`El backend respondió con error ${response.status}: ${order.message || 'Error desconocido'}`);
             }
+            throw new Error(order.message || 'Error al crear la orden en PayPal');
         } catch (error) {
-            setErrorCompra(error.message || "Error al iniciar el pago.");
+            setErrorCompra(error.message);
             setIsLoadingCompra(false);
             return Promise.reject(error);
         }
     };
 
-    // Función que se ejecuta tras la aprobación del pago (sin cambios)
-    const onApprove = async (data, actions) => {
+    // Función que se ejecuta tras la aprobación del pago
+    const onApprove = async (data) => {
         setIsLoadingCompra(true);
         setErrorCompra(null);
-
         try {
             const captureResponse = await fetch(`${API_URL}/api/paypal/orders/${data.orderID}/capture`, { method: 'POST' });
             const details = await captureResponse.json();
-
             if (!captureResponse.ok || details.status !== 'COMPLETED') {
                 throw new Error(details.message || "El pago no pudo ser completado en PayPal.");
             }
-
             const datosCompraMultipleDTO = {
                 viajeId: parsedViajeId,
                 clienteId: user?.id,
                 numerosAsiento: asientosSeleccionados,
                 paypalTransactionId: details.id
             };
-
             const responsePasajes = await comprarMultiplesPasajes(datosCompraMultipleDTO);
-
             setMensajeExitoCompra({
                 message: "¡Compra realizada con éxito!",
                 count: responsePasajes.data.length,
                 asientos: responsePasajes.data.map(p => p.numeroAsiento).join(', ')
             });
-            setErrorCompra(null);
-
         } catch (error) {
-            const errorMessage = error.response?.data?.message || "Hubo un error al confirmar su pago. Por favor, contacte a soporte.";
-            setErrorCompra(errorMessage);
+            setErrorCompra(error.response?.data?.message || "Hubo un error al confirmar su pago.");
         } finally {
             setIsLoadingCompra(false);
         }
     };
 
-    // Función para manejar errores de PayPal (sin cambios)
+    // Función para manejar errores de PayPal
     const onError = (err) => {
         console.error("Error de PayPal:", err);
-        setErrorCompra("Ocurrió un error con el pago o la operación fue cancelada. Por favor, intente de nuevo.");
+        setErrorCompra("Ocurrió un error con el pago o la operación fue cancelada.");
         setIsLoadingCompra(false);
     };
 
-    // Condición para deshabilitar el botón de pago
     const isBotonPagarDisabled = isLoadingCompra || !!mensajeExitoCompra || authLoading || !isAuthenticated || !viajeData || reservaExpirada;
 
-    if (authLoading) return <div className="checkout-page-container"><p>Cargando sesión...</p></div>;
-    if (!viajeData || asientosSeleccionados.length === 0) return <div className="checkout-page-container"><p>No se encontró la información del viaje o los asientos.</p></div>;
+    if (authLoading) return <div className="checkout-page-container"><p>Cargando...</p></div>;
+    if (!viajeData) return <div className="checkout-page-container"><p>Datos del viaje no disponibles.</p></div>;
 
     return (
         <div className="checkout-page-container cliente-checkout-page">
@@ -153,40 +150,41 @@ const ClienteCheckoutPage = () => {
 
             {!mensajeExitoCompra && (
                 <div className={`checkout-timer ${reservaExpirada ? 'expirado' : ''}`}>
-                    {reservaExpirada ? (
-                        <p><strong>Tu reserva ha expirado.</strong> Por favor, vuelve a seleccionar tus asientos.</p>
-                    ) : (
-                        <p>Tu reserva expirará en: <strong>{tiempoRestante}</strong></p>
-                    )}
+                    {reservaExpirada ? ( <p><strong>Tu reserva ha expirado.</strong> Por favor, vuelve a seleccionar tus asientos.</p> ) : ( <p>Tiempo restante: <strong>{tiempoRestante}</strong></p> )}
                 </div>
             )}
 
             <div className="checkout-resumen-viaje">
                 <p><strong>Viaje:</strong> {viajeData.origenNombre} → {viajeData.destinoNombre}</p>
-                <p><strong>Fecha:</strong> {new Date(viajeData.fechaSalida || (viajeData.fecha + 'T' + viajeData.horaSalida)).toLocaleString('es-ES', { dateStyle: 'full', timeStyle: 'short' })}</p>
                 <p><strong>Asientos:</strong> <span className="checkout-asiento-num">{asientosSeleccionados.join(', ')}</span></p>
-                <p><strong>Cantidad:</strong> {asientosSeleccionados.length}</p>
-                <p><strong>Precio Total:</strong> <span className="checkout-precio-val">${precioTotal.toFixed(2)}</span></p>
+                <hr style={{margin: '15px 0'}}/>
+                <div className="desglose-precios">
+                    <p>Precio por asiento: <span>${precioBasePorAsiento.toFixed(2)}</span></p>
+                    <p>Cantidad de pasajes: <span>{asientosSeleccionados.length}</span></p>
+                    <p>Subtotal: <span>${calculoPrecio.totalBase.toFixed(2)}</span></p>
+
+                    {esElegibleParaDescuento && (
+                        <p className="descuento-aplicado">
+                            Descuento ({user.tipoCliente} 20%): <span>-${calculoPrecio.montoDescuento.toFixed(2)}</span>
+                        </p>
+                    )}
+                </div>
+                <p className="precio-total">
+                    <strong>Total a Pagar:</strong>
+                    <span className="checkout-precio-val">${precioTotalParaPayPal.toFixed(2)}</span>
+                </p>
             </div>
 
-            {user && (
-                <div className="checkout-info-cliente-logueado">
-                    <h4>Comprando como:</h4>
-                    <p>{user.nombre} {user.apellido} (CI: {user.ci})</p>
-                </div>
-            )}
-
+            {user && ( <div className="checkout-info-cliente-logueado"><h4>Comprando como:</h4><p>{user.nombre} {user.apellido} (CI: {user.ci})</p></div> )}
             {errorCompra && <p className="error-mensaje checkout-error">{errorCompra}</p>}
 
             {!mensajeExitoCompra ? (
                 <div className="checkout-acciones">
-                    {isPending && !reservaExpirada ? (
-                        <div className="spinner-paypal"></div>
-                    ) : (
+                    {isPending && !reservaExpirada ? (<div className="spinner-paypal"></div>) : (
                         <PayPalButtons
                             style={{ layout: "vertical", label: "pay" }}
                             disabled={isBotonPagarDisabled}
-                            forceReRender={[precioTotal, reservaExpirada]}
+                            forceReRender={[precioTotalParaPayPal, reservaExpirada]}
                             createOrder={createOrder}
                             onApprove={onApprove}
                             onError={onError}
