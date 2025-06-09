@@ -84,6 +84,15 @@ const AdminLayout = () => {
                                 Eliminar Usuarios
                             </NavLink>
                         </li>
+                        <li>
+                            <NavLink
+                                to="/admin/estadisticas-usuarios"
+                                className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
+                                onClick={handleNavLinkClick}
+                            >
+                                <span>Estadísticas de Usuarios</span>
+                            </NavLink>
+                        </li>
                         {/* Otros enlaces */}
                     </ul>
                 </nav>

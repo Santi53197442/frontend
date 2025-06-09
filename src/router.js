@@ -21,11 +21,11 @@ import CambiarContraseña from "./components/CambiarContraseña";
 
 // Admin
 import AdminCreateUserPage from './pages/admin/AdminCreateUserPage';
-// import AdminDashboard from './pages/admin/AdminDashboard'; // Comentamos o eliminamos la importación antigua si ya no se usa
+import AdminDashboard from './pages/admin/AdminDashboard'; // Comentamos o eliminamos la importación antigua si ya no se usa
 import AdminUserBatchUploadPage from './pages/admin/AdminUserBatchUploadPage';
 import AdminUserListPage from "./pages/admin/AdminUserListPage";
 import AdminUserListDeletePage from './pages/admin/AdminUserListDeletePage';
-import AdminDashboardPage from './pages/admin/AdminDashboardPage'; // Ya está importado con el nombre correcto
+import AdminEstadisticasUsuarios from './pages/admin/AdminEstadisticasUsuarios';
 
 // Vendedor y Comunes
 import VendedorDashboard from './pages/vendedor/VendedorDashboard';
@@ -96,11 +96,12 @@ const AppRouter = () => {
             <Route element={<ProtectedRoute allowedRoles={['ADMINISTRADOR', 'administrador']} />}>
                 <Route path="/admin" element={<AdminLayout />}>
                     <Route index element={<Navigate to="dashboard" replace />} />
-                    <Route path="dashboard" element={<AdminDashboardPage />} />
+                    <Route path="dashboard" element={<AdminDashboard />} />
                     <Route path="crear-usuario" element={<AdminCreateUserPage />} />
                     <Route path="carga-masiva-usuarios" element={<AdminUserBatchUploadPage />} />
                     <Route path="listar-usuarios" element={<AdminUserListPage />} />
                     <Route path="eliminar-usuarios" element={<AdminUserListDeletePage />} />
+                    <Route path="estadisticas-usuarios" element={<AdminEstadisticasUsuarios />} />
                 </Route>
             </Route>
 

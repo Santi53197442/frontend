@@ -443,4 +443,14 @@ export const obtenerEstadisticasPasajes = async () => {
     }
 };
 
+export const obtenerEstadisticasUsuarios = async () => {
+    try {
+        const response = await apiClient.get('/admin/usuarios/estadisticas');
+        return response;
+    } catch (error) {
+        console.error("Error en API al obtener estadísticas de usuarios:", error.response?.data || error.message);
+        throw error;
+    }
+};
+
 export default apiClient;
