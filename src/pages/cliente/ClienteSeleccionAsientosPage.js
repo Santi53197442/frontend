@@ -1,219 +1,190 @@
-// src/components/cliente/ClienteCheckoutPage.js
-import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { comprarMultiplesPasajes, obtenerDetallesViajeConAsientos } from '../../services/api';
-import { useAuth } from '../../AuthContext';
-import './CheckoutPage.css';
+// src/components/cliente/ClienteSeleccionAsientos.js
+import React, { useState, useEffect } from 'react'; // Eliminamos useCallback
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import {
+    obtenerDetallesViajeConAsientos,
+    obtenerAsientosOcupados
+} from '../../services/api';
+import './ClienteSeleccionAsientosPage.css';
 
-import { PayPalButtons, usePayPalScriptReducer } from "@paypal/react-paypal-js";
-const API_URL = process.env.REACT_APP_API_URL || "https://web-production-2443c.up.railway.app";
-
-const ClienteCheckoutPage = () => {
+const ClienteSeleccionAsientos = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { user, isAuthenticated, loading: authLoading } = useAuth();
-    const { viajeId: viajeIdFromParams, asientosString } = useParams();
+    const { viajeId: viajeIdFromParams } = useParams();
 
-    const [viajeData, setViajeData] = useState(location.state?.viajeData || null);
+    // El state pasado por el Link se usa como valor inicial, pero no se vuelve a leer
+    const [viajeDetalles, setViajeDetalles] = useState(location.state?.viajeData || null);
+    const [asientosOcupados, setAsientosOcupados] = useState([]);
+    const [asientosSeleccionados, setAsientosSeleccionados] = useState([]);
+    const MAX_ASIENTOS = 4;
 
-    const [asientosSeleccionados, setAsientosSeleccionados] = useState(
-        location.state?.asientosNumeros || (asientosString ? asientosString.split(',').map(s => parseInt(s, 10)) : [])
-    );
-
-    const [isLoadingViaje, setIsLoadingViaje] = useState(true);
-    const [errorCarga, setErrorCarga] = useState(null);
-    const [isLoadingCompra, setIsLoadingCompra] = useState(false);
-    const [errorCompra, setErrorCompra] = useState(null);
-    const [mensajeExitoCompra, setMensajeExitoCompra] = useState(null);
-
-    const [{ isPending }] = usePayPalScriptReducer();
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     const parsedViajeId = parseInt(viajeIdFromParams, 10);
 
+    // ==================  ESTRUCTURA SIMPLIFICADA Y CORRECTA ==================
+    // Usamos un solo useEffect que se ejecuta cuando el ID del viaje cambia.
+    // Esto evita los bucles causados por dependencias de objetos.
     useEffect(() => {
-        const cargarDatosIniciales = async () => {
-            if (authLoading) return;
-            setIsLoadingViaje(true);
-            setErrorCarga(null);
-            if (isNaN(parsedViajeId) || asientosSeleccionados.length === 0) {
-                setErrorCarga("Información del viaje o asientos inválida.");
-                setIsLoadingViaje(false);
+        // Definimos la función de carga dentro del useEffect
+        const cargarDatos = async () => {
+            if (isNaN(parsedViajeId)) {
+                setError("ID de Viaje inválido en la URL.");
+                setLoading(false);
                 return;
             }
-            if (!isAuthenticated || !user?.id) {
-                setIsLoadingViaje(false);
-                return;
-            }
+
+            setLoading(true);
+            setError(null);
             try {
-                if (!viajeData || viajeData.id !== parsedViajeId) {
-                    const response = await obtenerDetallesViajeConAsientos(parsedViajeId);
-                    setViajeData(response.data);
-                }
+                // Siempre cargamos los datos desde la API para asegurar que estén actualizados.
+                // Esto simplifica la lógica y evita problemas de sincronización.
+                console.log(`Cargando datos para viaje ID ${parsedViajeId} desde API.`);
+                const responseDetalles = await obtenerDetallesViajeConAsientos(parsedViajeId);
+                setViajeDetalles(responseDetalles.data);
+
+                const responseOcupados = await obtenerAsientosOcupados(parsedViajeId);
+                console.log("Datos de asientos ocupados recibidos:", responseOcupados.data);
+                setAsientosOcupados(Array.isArray(responseOcupados.data) ? responseOcupados.data : []);
+
             } catch (err) {
-                setErrorCarga(err.message || "Error al cargar los datos del viaje.");
+                const errorMessage = err.response?.data?.message || err.message || "Error al cargar datos.";
+                console.error("Error al cargar datos:", errorMessage, err.response || err);
+                setError(errorMessage);
+                setViajeDetalles(null);
             } finally {
-                setIsLoadingViaje(false);
+                setLoading(false);
             }
         };
-        cargarDatosIniciales();
-    }, [viajeData, parsedViajeId, asientosSeleccionados.length, authLoading, isAuthenticated, user?.id, navigate]);
 
-    const precioTotal = viajeData?.precio ? (viajeData.precio * asientosSeleccionados.length) : 0;
+        cargarDatos(); // Ejecutamos la función
 
-    const createOrder = async (data, actions) => {
-        console.log("--- INICIANDO createOrder ---");
-        setIsLoadingCompra(true);
-        setErrorCompra(null);
+    }, [parsedViajeId]); // <-- La única dependencia es el ID del viaje de la URL.
 
-        if (precioTotal <= 0) {
-            const errorMsg = "Precio total inválido o no disponible.";
-            setErrorCompra(errorMsg);
-            setIsLoadingCompra(false);
-            return Promise.reject(new Error(errorMsg));
-        }
-
-        console.log("Intentando crear orden de PayPal para el monto TOTAL:", precioTotal);
-
-        try {
-            const response = await fetch(`${API_URL}/api/paypal/orders`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ amount: precioTotal.toFixed(2) })
-            });
-            const order = await response.json();
-            if (response.ok) {
-                console.log("Orden de PayPal creada con éxito. ID:", order.id);
-                return order.id;
-            } else {
-                throw new Error(`El backend respondió con error ${response.status}: ${order.message || 'Error desconocido'}`);
+    // El resto del componente se mantiene exactamente igual...
+    const handleSeleccionarAsiento = (numeroAsiento) => {
+        if (asientosOcupados.includes(numeroAsiento)) return;
+        setAsientosSeleccionados(prev => {
+            if (prev.includes(numeroAsiento)) {
+                return prev.filter(a => a !== numeroAsiento);
             }
-        } catch (error) {
-            console.error("Error al crear orden de PayPal:", error);
-            setErrorCompra(error.message || "Error al iniciar el pago.");
-            setIsLoadingCompra(false);
-            return Promise.reject(error);
-        }
+            if (prev.length >= MAX_ASIENTOS) {
+                alert(`Solo puede seleccionar un máximo de ${MAX_ASIENTOS} asientos.`);
+                return prev;
+            }
+            return [...prev, numeroAsiento];
+        });
     };
 
-    const onApprove = async (data, actions) => {
-        console.log("--- INICIANDO onApprove (confirmación de pago) ---");
-        setIsLoadingCompra(true);
-        setErrorCompra(null);
+    // ... (handleIrACheckout, getCapacidadAsientos, renderAsientos, y el JSX se mantienen igual)
+    const handleIrACheckout = () => {
+        if (asientosSeleccionados.length === 0) {
+            alert("Por favor, seleccione al menos un asiento para continuar.");
+            return;
+        }
+        if (isNaN(parsedViajeId)) {
+            alert("ID de viaje inválido. No se puede continuar.");
+            return;
+        }
 
-        try {
-            console.log("Paso 1: Capturando el pago en PayPal con OrderID:", data.orderID);
-            const captureResponse = await fetch(`${API_URL}/api/paypal/orders/${data.orderID}/capture`, { method: 'POST' });
-            const details = await captureResponse.json();
+        const basePath = '/compra';
+        const asientosString = asientosSeleccionados.join(',');
+        const targetPath = `${basePath}/viaje/${parsedViajeId}/asientos/${asientosString}/checkout`;
 
-            if (!captureResponse.ok || details.status !== 'COMPLETED') {
-                console.error("Error en la captura de PayPal:", details);
-                throw new Error(details.message || "El pago no pudo ser completado en PayPal.");
+        navigate(targetPath, {
+            state: {
+                viajeData: viajeDetalles,
+                asientosNumeros: asientosSeleccionados
             }
-            console.log("¡Pago capturado con éxito en PayPal!", details);
+        });
+    };
 
-            console.log("Paso 2: Preparando datos para enviar a nuestro backend.");
-            const datosCompraMultipleDTO = {
-                viajeId: parsedViajeId,
-                clienteId: user?.id,
-                numerosAsiento: asientosSeleccionados,
-                paypalTransactionId: details.id
-            };
+    const getCapacidadAsientos = () => {
+        if (!viajeDetalles) return 0;
+        return viajeDetalles.capacidadOmnibus || (viajeDetalles.omnibus && viajeDetalles.omnibus.capacidadAsientos) || 0;
+    };
 
-            console.log(
-                "Enviando este DTO al endpoint /comprar-multiple:",
-                JSON.stringify(datosCompraMultipleDTO, null, 2)
+    const renderAsientos = () => {
+        const capacidad = getCapacidadAsientos();
+        if (capacidad === 0 && loading) return <p className="loading-mensaje">Cargando mapa de asientos...</p>;
+        if (capacidad === 0 && !loading) return <p>No se pudo determinar la capacidad del ómnibus.</p>;
+
+        let asientosVisuales = [];
+        for (let i = 1; i <= capacidad; i++) {
+            const estaOcupado = asientosOcupados.includes(i);
+            const estaSeleccionadoPorUsuario = asientosSeleccionados.includes(i);
+            let claseAsiento = "asiento";
+            if (estaOcupado) claseAsiento += " ocupado";
+            else if (estaSeleccionadoPorUsuario) claseAsiento += " seleccionado";
+            else claseAsiento += " disponible";
+
+            asientosVisuales.push(
+                <button key={i} className={claseAsiento} onClick={() => handleSeleccionarAsiento(i)} disabled={estaOcupado}>
+                    {i}
+                </button>
             );
-
-            // ===== ESTA ES LA LÍNEA CORREGIDA =====
-            if (!datosCompraMultipleDTO.viajeId || !datosCompraMultipleDTO.clienteId || !datosCompraMultipleDTO.numerosAsiento?.length) {
-                throw new Error("Datos de compra incompletos. Faltan viajeId, clienteId o asientos.");
-            }
-
-            console.log("Paso 3: Llamando a la API comprarMultiplesPasajes...");
-            const responsePasajes = await comprarMultiplesPasajes(datosCompraMultipleDTO);
-
-            console.log("¡Éxito! El backend respondió con los pasajes creados:", responsePasajes.data);
-
-            setMensajeExitoCompra({
-                message: "¡Compra realizada con éxito!",
-                count: responsePasajes.data.length,
-                asientos: responsePasajes.data.map(p => p.numeroAsiento).join(', ')
-            });
-            setErrorCompra(null);
-
-        } catch (error) {
-            console.error("--- ERROR CAPTURADO EN onApprove ---", error);
-            const errorMessage = error.response?.data?.message || error.message || "Hubo un error al confirmar su pago. Por favor, contacte a soporte.";
-            console.error("Mensaje de error final:", errorMessage);
-            setErrorCompra(errorMessage);
-        } finally {
-            console.log("--- FINALIZANDO onApprove ---");
-            setIsLoadingCompra(false);
         }
+        const filas = [];
+        for (let i = 0; i < asientosVisuales.length; i += 4) {
+            filas.push(
+                <div key={`fila-${i/4}`} className="fila-asientos">
+                    {asientosVisuales.slice(i, i + 2)}
+                    <div className="pasillo"></div>
+                    {asientosVisuales.slice(i + 2, i + 4)}
+                </div>
+            );
+        }
+        return filas;
     };
 
-    const onError = (err) => {
-        console.error("Error de PayPal (onError):", err);
-        setErrorCompra("Ocurrió un error con el pago o la operación fue cancelada. Por favor, intente de nuevo.");
-        setIsLoadingCompra(false);
-    };
-
-    const isBotonPagarDisabled = isLoadingCompra || !!mensajeExitoCompra || authLoading || isLoadingViaje || !isAuthenticated || !user?.id || !viajeData;
-
-    if (authLoading || isLoadingViaje) return <div className="checkout-page-container"><p>Cargando información...</p></div>;
-    if (errorCarga) return <div className="checkout-page-container"><p className="error-mensaje">Error: {errorCarga}</p></div>;
-    if (!viajeData || asientosSeleccionados.length === 0) return <div className="checkout-page-container"><p>No se encontró la información del viaje o los asientos.</p></div>;
+    if (loading) return <div className="seleccion-asientos-container"><p className="loading-mensaje">Cargando...</p></div>;
+    if (error) return <div className="seleccion-asientos-container"><p className="error-mensaje">Error: {error}</p></div>;
+    if (!viajeDetalles && !loading) return <div className="seleccion-asientos-container"><p>No se encontraron datos para este viaje.</p></div>;
 
     return (
-        <div className="checkout-page-container cliente-checkout-page">
-            <button onClick={() => navigate(-1)} className="btn-checkout-volver-atras" disabled={isBotonPagarDisabled}>
-                ← Modificar Selección de Asiento
+        <div className="seleccion-asientos-container cliente-seleccion-asientos">
+            <button onClick={() => navigate(-1)} className="btn-volver-listado">
+                ← Volver al Listado de Viajes
             </button>
-            <h2>Confirmación y Pago</h2>
-
-            <div className="checkout-resumen-viaje">
-                <p><strong>Viaje:</strong> {viajeData.origenNombre} → {viajeData.destinoNombre}</p>
-                <p><strong>Fecha:</strong> {new Date(viajeData.fechaSalida || (viajeData.fecha + 'T' + viajeData.horaSalida)).toLocaleString('es-ES', { dateStyle: 'full', timeStyle: 'short' })}</p>
-                <p><strong>Asientos:</strong> <span className="checkout-asiento-num">{asientosSeleccionados.join(', ')}</span></p>
-                <p><strong>Cantidad:</strong> {asientosSeleccionados.length}</p>
-                <p><strong>Precio Total:</strong> <span className="checkout-precio-val">${precioTotal.toFixed(2)}</span></p>
-            </div>
-
-            {user && (
-                <div className="checkout-info-cliente-logueado">
-                    <h4>Comprando como:</h4>
-                    <p>{user.nombre} {user.apellido} (CI: {user.ci})</p>
+            <h2>Selección de Asientos</h2>
+            {viajeDetalles && (
+                <div className="info-viaje-seleccion">
+                    <p><strong>{viajeDetalles.origenNombre} → {viajeDetalles.destinoNombre}</strong></p>
+                    <p>Salida: {new Date(viajeDetalles.fechaSalida || (viajeDetalles.fecha + 'T' + viajeDetalles.horaSalida)).toLocaleString('es-ES', { dateStyle: 'full', timeStyle: 'short' })}</p>
+                    <p>Servicio: {viajeDetalles.omnibusMatricula || (viajeDetalles.omnibus && viajeDetalles.omnibus.matricula)}</p>
+                    <p>Precio por asiento: <strong>${viajeDetalles.precio ? parseFloat(viajeDetalles.precio).toFixed(2) : 'N/A'}</strong></p>
                 </div>
             )}
 
-            {errorCompra && <p className="error-mensaje checkout-error">{errorCompra}</p>}
+            <div className="leyenda-asientos-wrapper">
+                <span className="leyenda-item"><span className="asiento-ejemplo asiento disponible"></span> Libre</span>
+                <span className="leyenda-item"><span className="asiento-ejemplo asiento ocupado"></span> Ocupado</span>
+                <span className="leyenda-item"><span className="asiento-ejemplo asiento seleccionado"></span> Seleccionado</span>
+            </div>
 
-            {!mensajeExitoCompra ? (
-                <div className="checkout-acciones">
-                    {isPending ? (
-                        <div className="spinner-paypal"></div>
-                    ) : (
-                        <PayPalButtons
-                            style={{ layout: "vertical", label: "pay" }}
-                            disabled={isBotonPagarDisabled}
-                            forceReRender={[precioTotal]}
-                            createOrder={createOrder}
-                            onApprove={onApprove}
-                            onError={onError}
-                        />
-                    )}
-                    {isLoadingCompra && !isPending && <p>Procesando pago, por favor espere...</p>}
+            <div className="mapa-asientos-render">
+                <div className="frente-omnibus-barra">FRENTE DEL ÓMNIBUS</div>
+                {renderAsientos()}
+            </div>
+
+            {asientosSeleccionados.length > 0 && viajeDetalles ? (
+                <div className="resumen-seleccion-actual">
+                    <h3>Asientos Seleccionados:</h3>
+                    <div className="asientos-lista-grande">
+                        {asientosSeleccionados.sort((a, b) => a - b).join(', ')}
+                    </div>
+                    <p>Cantidad: {asientosSeleccionados.length}</p>
+                    <p>Total a Pagar: {`$${(parseFloat(viajeDetalles.precio) * asientosSeleccionados.length).toFixed(2)}`}</p>
+                    <button onClick={handleIrACheckout} className="btn-continuar-checkout">
+                        Continuar y Pagar
+                    </button>
                 </div>
             ) : (
-                <div className="checkout-confirmacion-exitosa">
-                    <h4>{mensajeExitoCompra.message}</h4>
-                    <p>Se han comprado <strong>{mensajeExitoCompra.count}</strong> pasajes para los asientos: <strong>{mensajeExitoCompra.asientos}</strong>.</p>
-                    <p>Recibirás una confirmación por correo electrónico en breve.</p>
-                    <button onClick={() => navigate('/mis-viajes')}>Ver Mis Viajes</button>
-                </div>
+                <p className="mensaje-seleccionar-asiento">Por favor, elija hasta {MAX_ASIENTOS} asientos del mapa.</p>
             )}
         </div>
     );
 };
 
-export default ClienteCheckoutPage;
+export default ClienteSeleccionAsientos;
