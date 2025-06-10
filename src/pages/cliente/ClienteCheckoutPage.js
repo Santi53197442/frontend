@@ -102,35 +102,55 @@ const ClienteCheckoutPage = () => {
 
     // Función que se ejecuta tras la aprobación del pago
     const onApprove = async (data) => {
-        setIsLoadingCompra(true);
-        setErrorCompra(null);
-        try {
-            const captureResponse = await fetch(`${API_URL}/api/paypal/orders/${data.orderID}/capture`, { method: 'POST' });
-            const details = await captureResponse.json();
+    setIsLoadingCompra(true);
+    setErrorCompra(null);
+    try {
+        // 1. Captura el pago
+        const captureResponse = await fetch(`${API_URL}/api/paypal/orders/${data.orderID}/capture`, { method: 'POST' });
+        const details = await captureResponse.json();
 
-            console.log("Respuesta COMPLETA de la captura de PayPal:", JSON.stringify(details, null, 2));
-            
-            if (!captureResponse.ok || details.status !== 'COMPLETED') {
-                throw new Error(details.message || "El pago no pudo ser completado en PayPal.");
-            }
-            const datosCompraMultipleDTO = {
-                viajeId: parsedViajeId,
-                clienteId: user?.id,
-                numerosAsiento: asientosSeleccionados,
-                paypalTransactionId: details.id
-            };
-            const responsePasajes = await comprarMultiplesPasajes(datosCompraMultipleDTO);
-            setMensajeExitoCompra({
-                message: "¡Compra realizada con éxito!",
-                count: responsePasajes.data.length,
-                asientos: responsePasajes.data.map(p => p.numeroAsiento).join(', ')
-            });
-        } catch (error) {
-            setErrorCompra(error.response?.data?.message || "Hubo un error al confirmar su pago.");
-        } finally {
-            setIsLoadingCompra(false);
+        // --- ¡AÑADE ESTA LÍNEA CRUCIAL! ---
+        console.log("Respuesta COMPLETA de la captura de PayPal:", JSON.stringify(details, null, 2));
+
+        // 2. Valida la respuesta
+        if (!captureResponse.ok || details.status !== 'COMPLETED') {
+            throw new Error(details.message || "El pago no pudo ser completado.");
         }
-    };
+
+        // 3. Extrae el ID DE LA FORMA CORRECTA Y SEGURA
+        // Intentamos obtener el capture_id de la ruta anidada primero.
+        let captureId = null;
+        if (details.purchase_units && details.purchase_units[0] && details.purchase_units[0].payments && details.purchase_units[0].payments.captures && details.purchase_units[0].payments.captures[0]) {
+            captureId = details.purchase_units[0].payments.captures[0].id;
+        }
+
+        // Si no lo encontramos ahí, podríamos considerar details.id como un fallback,
+        // pero por ahora vamos a ser estrictos para encontrar el error.
+        if (!captureId) {
+            console.error("¡ERROR CRÍTICO! No se pudo encontrar el 'capture_id' en la respuesta de PayPal.");
+            throw new Error("No se pudo obtener el ID de la transacción para registrar la compra.");
+        }
+
+        console.log("ID de captura REAL que se enviará al backend:", captureId);
+
+        // 4. Construye el DTO con el ID correcto
+        const datosCompraMultipleDTO = {
+            viajeId: parsedViajeId,
+            clienteId: user?.id,
+            numerosAsiento: asientosSeleccionados,
+            paypalTransactionId: captureId // Usamos el ID correcto
+        };
+
+        // ... (el resto de tu lógica)
+        const responsePasajes = await comprarMultiplesPasajes(datosCompraMultipleDTO);
+        // ...
+
+    } catch (error) {
+        // ...
+    } finally {
+        setIsLoadingCompra(false);
+    }
+};
 
     // Función para manejar errores de PayPal
     const onError = (err) => {
