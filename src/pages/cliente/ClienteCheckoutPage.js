@@ -107,6 +107,9 @@ const ClienteCheckoutPage = () => {
         try {
             const captureResponse = await fetch(`${API_URL}/api/paypal/orders/${data.orderID}/capture`, { method: 'POST' });
             const details = await captureResponse.json();
+
+            console.log("Respuesta COMPLETA de la captura de PayPal:", JSON.stringify(details, null, 2));
+            
             if (!captureResponse.ok || details.status !== 'COMPLETED') {
                 throw new Error(details.message || "El pago no pudo ser completado en PayPal.");
             }
