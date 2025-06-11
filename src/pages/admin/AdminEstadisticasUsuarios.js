@@ -1,52 +1,108 @@
 // src/pages/admin/AdminEstadisticasUsuarios.js
 
-// 1. Importar las nuevas bibliotecas
+// Importaciones de React y servicios
+import React, { useState, useEffect } from 'react';
+import { obtenerEstadisticasUsuarios } from '../../services/api';
+
+// Importaciones para la generación de PDF
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
-import React, { useState, useEffect } from 'react';
-// La llamada a la API y las importaciones de Chart.js no cambian
-import { obtenerEstadisticasUsuarios } from '../../services/api';
+// Importaciones para los gráficos
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title } from 'chart.js';
 import { Pie, Line, Bar } from 'react-chartjs-2';
+
+// Importación de estilos
 import './AdminEstadisticasUsuarios.css';
 
-// ... (El resto de tus imports y registros de Chart.js no cambian)
+// Registro de los componentes de Chart.js
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title);
-const calculateAge = (birthDate) => { /* ... (sin cambios) */ };
+
+// Función auxiliar para calcular la edad
+const calculateAge = (birthDate) => {
+    if (!birthDate) return null;
+    const today = new Date();
+    const dob = new Date(birthDate);
+    let age = today.getFullYear() - dob.getFullYear();
+    const monthDifference = today.getMonth() - dob.getMonth();
+    if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < dob.getDate())) {
+        age--;
+    }
+    return age;
+};
 
 const AdminEstadisticasUsuarios = () => {
-    // ... (Todos tus estados existentes no cambian)
+    // Estados para los datos de las estadísticas
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [roleDistData, setRoleDistData] = useState(null);
+    const [clientTypeData, setClientTypeData] = useState(null);
     const [userGrowthData, setUserGrowthData] = useState(null);
     const [ageDistData, setAgeDistData] = useState(null);
 
-    // 2. Nuevo estado para el feedback de la generación del PDF
+    // Estado para el feedback de la generación del PDF
     const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
     useEffect(() => {
-        // ... (La lógica de useEffect para cargar datos no cambia en absoluto)
-        const cargarDatos = async () => { /* ... (tu código existente) */ };
+        const cargarDatos = async () => {
+            try {
+                setLoading(true);
+                const response = await obtenerEstadisticasUsuarios();
+                const usuarios = response.data;
+
+                if (usuarios && usuarios.length > 0) {
+                    const totalAdmins = usuarios.filter(u => u.rol === 'ADMINISTRADOR').length;
+                    const totalVendedores = usuarios.filter(u => u.rol === 'VENDEDOR').length;
+                    const totalClientes = usuarios.filter(u => u.rol === 'CLIENTE').length;
+                    setStats({ totalUsuarios: usuarios.length, totalAdmins, totalVendedores, totalClientes });
+                    setRoleDistData({ labels: ['Clientes', 'Vendedores', 'Administradores'], datasets: [{ data: [totalClientes, totalVendedores, totalAdmins], backgroundColor: ['#36A2EB', '#FFCE56', '#FF6384'] }] });
+
+                    const clientes = usuarios.filter(u => u.rol === 'CLIENTE');
+                    const clientTypeCounts = clientes.reduce((acc, c) => { acc[c.tipoCliente] = (acc[c.tipoCliente] || 0) + 1; return acc; }, {});
+                    setClientTypeData({ labels: Object.keys(clientTypeCounts), datasets: [{ data: Object.values(clientTypeCounts), backgroundColor: ['#4BC0C0', '#9966FF'] }] });
+
+                    const monthlySignups = Array(12).fill(0);
+                    usuarios.forEach(u => { if(u.fechaCreacion) { const month = new Date(u.fechaCreacion).getMonth(); monthlySignups[month]++; } });
+                    const monthNames = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+                    setUserGrowthData({ labels: monthNames, datasets: [{ label: 'Nuevos Registros por Mes', data: monthlySignups, borderColor: 'rgb(75, 192, 192)', backgroundColor: 'rgba(75, 192, 192, 0.5)', fill: true, tension: 0.1 }] });
+
+                    const ageBrackets = { 'Menores de 18': 0, '18-25': 0, '26-35': 0, '36-45': 0, '46-60': 0, 'Mayores de 60': 0 };
+                    usuarios.forEach(u => {
+                        const age = calculateAge(u.fechaNac);
+                        if (age !== null) {
+                            if (age < 18) ageBrackets['Menores de 18']++;
+                            else if (age <= 25) ageBrackets['18-25']++;
+                            else if (age <= 35) ageBrackets['26-35']++;
+                            else if (age <= 45) ageBrackets['36-45']++;
+                            else if (age <= 60) ageBrackets['46-60']++;
+                            else ageBrackets['Mayores de 60']++;
+                        }
+                    });
+                    setAgeDistData({ labels: Object.keys(ageBrackets), datasets: [{ label: 'Cantidad de Usuarios por Edad', data: Object.values(ageBrackets), backgroundColor: 'rgba(153, 102, 255, 0.6)', borderColor: 'rgba(153, 102, 255, 1)', borderWidth: 1 }] });
+                } else {
+                    setStats({ totalUsuarios: 0, totalAdmins: 0, totalVendedores: 0, totalClientes: 0 });
+                }
+            } catch (err) {
+                setError("No se pudieron cargar las estadísticas de usuarios.");
+            } finally {
+                setLoading(false);
+            }
+        };
+
         cargarDatos();
     }, []);
 
-    // 3. Nueva función para generar y descargar el PDF
     const handleDownloadPDF = async () => {
         setIsGeneratingPDF(true);
 
-        // Seleccionamos los contenedores de los gráficos por su clase
         const lineChartElement = document.querySelector('#line-chart-container');
         const pieChartsContainer = document.querySelector('#pie-charts-container');
         const barChartElement = document.querySelector('#bar-chart-container');
 
-        // Creamos una instancia de jsPDF en formato A4, vertical
         const pdf = new jsPDF('p', 'mm', 'a4');
-        let yPosition = 20; // Posición vertical inicial
+        let yPosition = 20;
 
-        // --- Título del PDF ---
         pdf.setFontSize(22);
         pdf.setFont('helvetica', 'bold');
         pdf.text('Reporte de Estadísticas de Usuarios', 105, yPosition, { align: 'center' });
@@ -56,7 +112,6 @@ const AdminEstadisticasUsuarios = () => {
         pdf.text(`Generado el: ${new Date().toLocaleDateString()}`, 105, yPosition, { align: 'center' });
         yPosition += 15;
 
-        // --- Tarjetas de Resumen (las añadimos como texto) ---
         pdf.setFontSize(16);
         pdf.text('Resumen General', 15, yPosition);
         yPosition += 8;
@@ -68,11 +123,9 @@ const AdminEstadisticasUsuarios = () => {
             pdf.text(`- Administradores: ${stats.totalAdmins}`, 20, yPosition); yPosition += 15;
         }
 
-        // --- Añadir Gráficos como Imágenes ---
         const addChartToPDF = async (element, title) => {
             if (element) {
-                // Manejo de salto de página si no hay espacio
-                if (yPosition > 220) { // Un umbral seguro antes del final de la página (297mm)
+                if (yPosition > 220) {
                     pdf.addPage();
                     yPosition = 20;
                 }
@@ -83,70 +136,84 @@ const AdminEstadisticasUsuarios = () => {
                 const canvas = await html2canvas(element, { scale: 2 });
                 const imgData = canvas.toDataURL('image/png');
 
-                const pdfWidth = 180; // Ancho de la imagen en el PDF (A4 es 210mm de ancho)
+                const pdfWidth = 180;
                 const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
                 pdf.addImage(imgData, 'PNG', 15, yPosition, pdfWidth, pdfHeight);
-                yPosition += pdfHeight + 15; // Actualizar posición para el siguiente elemento
+                yPosition += pdfHeight + 15;
             }
         };
 
-        // Procesamos cada gráfico en orden
         await addChartToPDF(lineChartElement, 'Crecimiento de Usuarios');
-        await addChartToPDF(pieChartsContainer, 'Distribución de Roles y Tipos');
+        await addChartToPDF(pieChartsContainer, 'Distribución de Roles y Tipos de Cliente');
         await addChartToPDF(barChartElement, 'Distribución de Edades');
 
-        // --- Guardar el PDF ---
         pdf.save('reporte-estadisticas-usuarios.pdf');
         setIsGeneratingPDF(false);
     };
 
-
-    if (loading) return <div className="stats-container-loading">Cargando...</div>;
-    // ... (resto de tus return de loading/error no cambian)
+    if (loading) return <div className="stats-container-loading">Cargando estadísticas de usuarios...</div>;
+    if (error) return <div className="stats-container-error">{error}</div>;
+    if (!stats) return <div className="stats-container">No hay datos de usuarios para mostrar.</div>;
 
     return (
-        <div className="stats-container" id="stats-report-container">
+        <div className="stats-container">
             <div className="stats-header-with-button">
                 <h2 className="stats-title">Estadísticas de la Comunidad de Usuarios</h2>
-                {/* 4. El nuevo botón de descarga */}
                 <button
                     onClick={handleDownloadPDF}
                     className="download-pdf-button"
-                    disabled={isGeneratingPDF}
+                    disabled={isGeneratingPDF || loading}
                 >
                     {isGeneratingPDF ? 'Generando PDF...' : 'Descargar Reporte en PDF'}
                 </button>
             </div>
 
-            {/* Tarjetas (sin cambios) */}
             <div className="stats-grid">
-                {/* ... */}
+                <div className="stat-card">
+                    <h3 className="stat-card-title">Usuarios Totales</h3>
+                    <p className="stat-card-value">{stats.totalUsuarios}</p>
+                </div>
+                <div className="stat-card">
+                    <h3 className="stat-card-title">Clientes</h3>
+                    <p className="stat-card-value">{stats.totalClientes}</p>
+                </div>
+                <div className="stat-card">
+                    <h3 className="stat-card-title">Vendedores</h3>
+                    <p className="stat-card-value">{stats.totalVendedores}</p>
+                </div>
+                <div className="stat-card">
+                    <h3 className="stat-card-title">Administradores</h3>
+                    <p className="stat-card-value">{stats.totalAdmins}</p>
+                </div>
             </div>
 
-            {/* --- Modificamos los contenedores de los gráficos para darles un ID --- */}
             {userGrowthData && (
                 <div id="line-chart-container" className="chart-container-fullwidth">
                     <h3 className="chart-title">Crecimiento de Usuarios (Registros por Mes)</h3>
-                    <Line data={userGrowthData} options={{ animation: false }} /> {/* Desactivar animación para captura limpia */}
+                    <Line data={userGrowthData} options={{ animation: false, responsive: true }} />
                 </div>
             )}
 
-            {/* Agrupamos los gráficos de pastel en un solo contenedor para una mejor captura */}
             <div id="pie-charts-container" className="charts-section">
                 {roleDistData && (
                     <div className="chart-container">
                         <h3 className="chart-title">Distribución por Rol</h3>
-                        <Pie data={roleDistData} options={{ animation: false }} />
+                        <Pie data={roleDistData} options={{ animation: false, responsive: true }} />
                     </div>
                 )}
-                {/* ... (el otro Pie chart aquí sin cambios) ... */}
+                {clientTypeData && clientTypeData.labels.length > 0 && (
+                    <div className="chart-container">
+                        <h3 className="chart-title">Tipos de Cliente</h3>
+                        <Pie data={clientTypeData} options={{ animation: false, responsive: true }} />
+                    </div>
+                )}
             </div>
 
             {ageDistData && (
                 <div id="bar-chart-container" className="chart-container-fullwidth">
                     <h3 className="chart-title">Distribución de Edades</h3>
-                    <Bar data={ageDistData} options={{ animation: false }} />
+                    <Bar data={ageDistData} options={{ animation: false, responsive: true }} />
                 </div>
             )}
         </div>
