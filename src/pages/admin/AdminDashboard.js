@@ -1,59 +1,69 @@
 // src/pages/admin/AdminDashboard.js
 import React from 'react';
-import { NavLink } from 'react-router-dom'; // Usamos NavLink para obtener estilos en el enlace activo
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../AuthContext';
-import './AdminDashboard.css';
+import './AdminDashboard.css'; // Usamos el mismo CSS que ya tenías
 
 const AdminDashboard = () => {
     const { user } = useAuth();
 
-    // 1. Actualizamos el array para que coincida con las opciones de tu menú
-    const adminMenuOptions = [
+    // 1. Actualizamos el array con las nuevas opciones, pero manteniendo la estructura para las tarjetas
+    const adminActions = [
         {
             title: "Crear Usuario",
+            description: "Añadir un nuevo administrador o vendedor de forma individual.",
             link: "/admin/crear-usuario",
+            color: "#3498db" // Azul
         },
         {
             title: "Carga Masiva",
+            description: "Crear múltiples usuarios a la vez subiendo un archivo CSV.",
             link: "/admin/carga-masiva-usuarios",
+            color: "#9b59b6" // Morado
         },
         {
             title: "Listar Usuarios",
+            description: "Ver, filtrar y ordenar todos los usuarios del sistema.",
             link: "/admin/listar-usuarios",
+            color: "#1abc9c" // Turquesa
         },
         {
             title: "Eliminar Usuarios",
+            description: "Administrar y eliminar usuarios existentes de la plataforma.",
             link: "/admin/eliminar-usuarios",
+            color: "#e74c3c" // Rojo
         },
         {
             title: "Estadísticas de Usuarios",
-            link: "/admin/estadisticas", // Asegúrate de que esta ruta exista en tu App.js
+            description: "Visualizar reportes y datos sobre la actividad de los usuarios.",
+            link: "/admin/estadisticas", // Asegúrate de que esta ruta exista
+            color: "#f39c12" // Naranja
         },
     ];
 
     return (
         <div className="admin-dashboard-container">
             <header className="admin-dashboard-header">
-                <h1>Panel de Administración</h1>
-                <p>Bienvenido, {user?.nombre || user?.email}!</p>
+                <h1>Dashboard de Administración</h1>
+                <p>Bienvenido, {user?.nombre || user?.email}! Gestiona la plataforma desde aquí.</p>
             </header>
 
-            {/* 2. Reemplazamos la sección de "action cards" por una barra de navegación */}
-            <nav className="admin-vertical-nav">
-                <ul>
-                    {adminMenuOptions.map((option, index) => (
-                        <li key={index}>
-                            <NavLink
-                                to={option.link}
-                                className="nav-link"
-                                // El NavLink añade la clase 'active' automáticamente al enlace que coincide con la URL actual
-                            >
-                                {option.title}
-                            </NavLink>
-                        </li>
+            {/* 2. Mantenemos la misma estructura de renderizado con la cuadrícula de acciones */}
+            <section className="admin-actions-grid">
+                <h2>Acciones de Administración</h2>
+                <div className="actions-wrapper">
+                    {adminActions.map((action, index) => (
+                        <Link to={action.link} key={index} className="action-card-link">
+                            <div className="action-card" style={{ '--action-color': action.color }}>
+                                <div className="action-card-content">
+                                    <h3>{action.title}</h3>
+                                    <p>{action.description}</p>
+                                </div>
+                            </div>
+                        </Link>
                     ))}
-                </ul>
-            </nav>
+                </div>
+            </section>
         </div>
     );
 };
