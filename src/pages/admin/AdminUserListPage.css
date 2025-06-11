@@ -216,3 +216,50 @@
     background-color: #f8f9fa;
     border: 1px solid #e9ecef;
 }
+
+/* --- Controles de Paginación --- */
+.pagination-controls {
+    display: flex;
+    justify-content: center; /* Centra los controles debajo de la tabla */
+    align-items: center;
+    gap: 10px; /* Espacio entre los botones y el texto */
+    margin-top: 25px; /* Espacio superior para separarlo de la tabla */
+    padding: 10px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.pagination-controls button {
+    background-color: #ffffff;
+    color: #3498db; /* Color primario del tema */
+    border: 1px solid #3498db;
+    padding: 8px 16px;
+    border-radius: 5px; /* Mismo borde que los filtros */
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.9em;
+    transition: all 0.2s ease-in-out;
+}
+
+/* Efecto al pasar el mouse sobre botones no deshabilitados */
+.pagination-controls button:not(:disabled):hover {
+    background-color: #3498db;
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Estilo para los botones deshabilitados */
+.pagination-controls button:disabled {
+    background-color: #f0f0f0;
+    color: #b0b0b0;
+    border-color: #dddddd;
+    cursor: not-allowed;
+}
+
+/* Estilo para el texto "Página X de Y" */
+.pagination-controls span {
+    color: #555;
+    font-size: 0.95rem;
+    font-weight: 500;
+    margin: 0 8px; /* Espacio extra alrededor del texto */
+}
