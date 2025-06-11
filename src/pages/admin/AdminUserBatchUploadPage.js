@@ -1,7 +1,7 @@
 // src/pages/admin/AdminUserBatchUploadPage.js
 import React, { useState } from 'react';
 import apiClient from '../../services/api';
-import './AdminUserBatchUploadPage.css'; // Importamos el nuevo archivo CSS
+import './AdminUserBatchUploadPage.css'; // Importamos el CSS
 
 function AdminUserBatchUploadPage() {
     const [selectedFile, setSelectedFile] = useState(null);
@@ -24,18 +24,16 @@ function AdminUserBatchUploadPage() {
     };
 
     const handleUpload = async () => {
+        // ... (La lógica de esta función no cambia)
         if (!selectedFile) {
             setError('Por favor, selecciona un archivo primero.');
             return;
         }
-
         setIsLoading(true);
         setError('');
         setUploadResponse(null);
-
         const formData = new FormData();
         formData.append('file', selectedFile);
-
         try {
             const response = await apiClient.post('/admin/create-privileged-batch', formData);
             setUploadResponse(response.data);
@@ -63,18 +61,19 @@ function AdminUserBatchUploadPage() {
             <h2>Carga Masiva de Usuarios Privilegiados</h2>
 
             <div className="upload-instructions">
-                <p>
-                    Asegúrate de que tu archivo <strong>CSV</strong> tenga los siguientes encabezados en la primera fila:
-                </p>
+                <p>Asegúrate de que tu archivo <strong>CSV</strong> tenga los siguientes encabezados en la primera fila:</p>
                 <code>nombre,apellido,ci,contrasenia,email,telefono,fechaNac,tipoRolACrear,areaResponsabilidad,codigoVendedor</code>
                 <small>
                     <code>areaResponsabilidad</code> es para ADMINISTRADOR. <code>codigoVendedor</code> es para VENDEDOR. Deja la celda vacía si no aplica.
                 </small>
             </div>
 
-            <div className="upload-area">
-                <div className="form-group">
-                    <label htmlFor="csv-upload-input">Seleccionar archivo CSV</label>
+            <div className="upload-control-panel">
+                {/* --- NUEVA ESTRUCTURA PARA EL INPUT DE ARCHIVO --- */}
+                <div className="file-input-wrapper">
+                    <label htmlFor="csv-upload-input" className="file-input-label">
+                        Seleccionar Archivo
+                    </label>
                     <input
                         id="csv-upload-input"
                         type="file"
@@ -82,31 +81,32 @@ function AdminUserBatchUploadPage() {
                         onChange={handleFileChange}
                         disabled={isLoading}
                     />
+                    <span className="file-name-display">
+                        {selectedFile ? selectedFile.name : 'Ningún archivo seleccionado'}
+                    </span>
                 </div>
+
                 <button
                     onClick={handleUpload}
                     disabled={!selectedFile || isLoading}
                     className="upload-button"
                 >
-                    {isLoading ? 'Subiendo...' : 'Subir y Procesar Archivo'}
+                    {isLoading ? 'Subiendo...' : 'Subir y Procesar'}
                 </button>
             </div>
 
-            {/* Mensaje de error general (solo si no hay resultados detallados) */}
             {error && !uploadResponse?.failureDetails && <p className="form-error-message">{error}</p>}
 
-            {/* Contenedor de resultados */}
             {uploadResponse && (
                 <div className="upload-results">
                     <h4>Resultados de la Carga</h4>
 
-                    {/* Mensaje de error específico del proceso por lotes */}
                     {error && uploadResponse.failureDetails && <p className="form-error-message">{error}</p>}
 
                     <div className="results-summary">
-                        <p><strong>Total de Filas Procesadas:</strong> {uploadResponse.totalProcessed ?? 'N/A'}</p>
-                        <p><strong>Creaciones Exitosas:</strong> {uploadResponse.successfulCreations ?? 'N/A'}</p>
-                        <p><strong>Creaciones Fallidas:</strong> {uploadResponse.failedCreations ?? 'N/A'}</p>
+                        <p><strong>Total Procesado:</strong> {uploadResponse.totalProcessed ?? 'N/A'}</p>
+                        <p><strong>Éxitos:</strong> {uploadResponse.successfulCreations ?? 'N/A'}</p>
+                        <p><strong>Fallos:</strong> {uploadResponse.failedCreations ?? 'N/A'}</p>
                     </div>
 
                     {uploadResponse.successDetails?.length > 0 && (
