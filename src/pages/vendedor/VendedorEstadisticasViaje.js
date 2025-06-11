@@ -22,14 +22,12 @@ const formatCurrency = (number) => {
 };
 
 const VendedorEstadisticasViaje = () => {
-    // Estados existentes
+    // Estados del componente
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [pieChartData, setPieChartData] = useState(null);
     const [barChartData, setBarChartData] = useState(null);
-
-    // Nuevo estado para el PDF
     const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
     useEffect(() => {
@@ -95,6 +93,7 @@ const VendedorEstadisticasViaje = () => {
         const pdf = new jsPDF('p', 'mm', 'a4');
         let yPosition = 20;
 
+        // --- Título del Reporte ---
         pdf.setFontSize(22);
         pdf.setFont('helvetica', 'bold');
         pdf.text('Reporte de Estadísticas de Viajes', 105, yPosition, { align: 'center' });
@@ -104,54 +103,76 @@ const VendedorEstadisticasViaje = () => {
         pdf.text(`Generado el: ${new Date().toLocaleDateString()}`, 105, yPosition, { align: 'center' });
         yPosition += 15;
 
+        // --- Resumen General (con formato de dos columnas para alineación) ---
         pdf.setFontSize(16);
         pdf.text('Resumen General de Viajes', 15, yPosition);
-        yPosition += 8;
-        pdf.setFontSize(12);
-        if (stats) {
-            pdf.text(`- Total de Viajes Registrados: ${stats.totalViajes}`, 20, yPosition); yPosition += 7;
-            pdf.text(`- Precio Promedio por Viaje: ${formatCurrency(stats.precioPromedio)}`, 20, yPosition); yPosition += 7;
-            pdf.text(`- Precio del Viaje más Caro: ${formatCurrency(stats.precioMasAlto)}`, 20, yPosition); yPosition += 7;
-            pdf.text(`- Precio del Viaje más Barato: ${formatCurrency(stats.precioMasBajo)}`, 20, yPosition); yPosition += 5;
-        }
+        yPosition += 10;
 
-        const addBlockToPDF = async (elementSelector) => {
-            const element = document.querySelector(elementSelector);
-            if (element) {
-                const canvas = await html2canvas(element, { scale: 2, backgroundColor: '#ffffff' });
-                const imgData = canvas.toDataURL('image/png');
-                const pdfWidth = 180;
-                const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-                if (yPosition + pdfHeight > 280) {
+        const summaryData = [
+            { label: 'Total de Viajes Registrados:', value: stats.totalViajes },
+            { label: 'Precio Promedio por Viaje:', value: formatCurrency(stats.precioPromedio) },
+            { label: 'Precio del Viaje más Caro:', value: formatCurrency(stats.precioMasAlto) },
+            { label: 'Precio del Viaje más Barato:', value: formatCurrency(stats.precioMasBajo) },
+        ];
+
+        pdf.setFontSize(12);
+        summaryData.forEach(item => {
+            pdf.setFont('helvetica', 'bold');
+            pdf.text(item.label, 20, yPosition);
+            pdf.setFont('helvetica', 'normal');
+            pdf.text(String(item.value), 90, yPosition);
+            yPosition += 8;
+        });
+        yPosition += 10;
+
+        // --- Función mejorada para colocar dos gráficos uno al lado del otro ---
+        const addTwoChartsSideBySide = async (selector1, selector2) => {
+            const element1 = document.querySelector(selector1);
+            const element2 = document.querySelector(selector2);
+
+            if (element1 && element2) {
+                const [canvas1, canvas2] = await Promise.all([
+                    html2canvas(element1, { scale: 2, backgroundColor: '#ffffff' }),
+                    html2canvas(element2, { scale: 2, backgroundColor: '#ffffff' })
+                ]);
+
+                const imgData1 = canvas1.toDataURL('image/png');
+                const imgData2 = canvas2.toDataURL('image/png');
+
+                const colWidth = 88;
+                const gap = 4;
+                const img1Height = (canvas1.height * colWidth) / canvas1.width;
+                const img2Height = (canvas2.height * colWidth) / canvas2.width;
+                const maxHeight = Math.max(img1Height, img2Height);
+
+                if (yPosition + maxHeight > 280) {
                     pdf.addPage();
                     yPosition = 20;
                 }
-                pdf.addImage(imgData, 'PNG', 15, yPosition, pdfWidth, pdfHeight);
-                yPosition += pdfHeight + 10;
+
+                pdf.addImage(imgData1, 'PNG', 15, yPosition, colWidth, img1Height);
+                pdf.addImage(imgData2, 'PNG', 15 + colWidth + gap, yPosition, colWidth, img2Height);
+
+                yPosition += maxHeight + 10;
+            } else {
+                console.error("No se pudieron encontrar los contenedores de los gráficos para el PDF.");
             }
         };
 
-        await addBlockToPDF('#pie-chart-container');
-        await addBlockToPDF('#bar-chart-container');
+        await addTwoChartsSideBySide('#pie-chart-container', '#bar-chart-container');
 
         pdf.save('reporte-estadisticas-viajes.pdf');
         setIsGeneratingPDF(false);
     };
 
-    const barChartOptions = {
-        responsive: true,
-        plugins: { legend: { position: 'top' }, title: { display: false } }, // Título ya está en el <h3>
-        animation: false // Desactivar animación para captura de PDF
-    };
-
-    const pieChartOptions = {
+    const chartOptions = {
         responsive: true,
         animation: false // Desactivar animación para captura de PDF
     };
 
     if (loading) return <div className="stats-container-loading">Cargando estadísticas...</div>;
     if (error) return <div className="stats-container-error">{error}</div>;
-    if (!stats) return <div className="stats-container">No hay datos de viajes.</div>;
+    if (!stats) return <div className="stats-container">No hay datos de viajes para mostrar.</div>;
 
     return (
         <div className="stats-container">
@@ -174,16 +195,16 @@ const VendedorEstadisticasViaje = () => {
             </div>
 
             <div className="charts-section">
-                {pieChartData && (
+                {pieChartData && pieChartData.labels.length > 0 && (
                     <div id="pie-chart-container" className="chart-container">
                         <h3 className="chart-title">Distribución por Estado</h3>
-                        <Pie data={pieChartData} options={pieChartOptions} />
+                        <Pie data={pieChartData} options={chartOptions} />
                     </div>
                 )}
                 {barChartData && (
                     <div id="bar-chart-container" className="chart-container">
                         <h3 className="chart-title">Viajes por Mes</h3>
-                        <Bar options={barChartOptions} data={barChartData} />
+                        <Bar data={barChartData} options={chartOptions} />
                     </div>
                 )}
             </div>
