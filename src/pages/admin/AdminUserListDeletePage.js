@@ -1,35 +1,30 @@
 // src/pages/Admin/AdminUserListPage.js
 import React, { useState, useEffect, useCallback } from 'react';
 import apiClient from '../../services/api';
-import useDebounce from '../../hooks/useDebounce'; // <-- Importa el hook
+import useDebounce from '../../hooks/useDebounce';
 import './AdminUserListPage.css';
 
 const SortAscIcon = () => <span> ▲</span>;
 const SortDescIcon = () => <span> ▼</span>;
 
 function AdminUserListPage() {
-    // Estados de datos y UI
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // Estados de Paginación
     const [currentPage, setCurrentPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
     const [totalItems, setTotalItems] = useState(0);
     const PAGE_SIZE = 20;
 
-    // Estados para los Filtros y Orden
     const [sortConfig, setSortConfig] = useState({ key: 'id', direction: 'ascending' });
     const [filtroNombre, setFiltroNombre] = useState('');
     const [filtroEmail, setFiltroEmail] = useState('');
     const [filtroRol, setFiltroRol] = useState('');
 
-    // Valores "debounced" que se usarán para la llamada a la API
     const debouncedFiltroNombre = useDebounce(filtroNombre, 500);
     const debouncedFiltroEmail = useDebounce(filtroEmail, 500);
 
-    // Los roles son fijos ya que no podemos derivarlos de la lista paginada
     const rolesUnicos = ["", "ADMINISTRADOR", "VENDEDOR", "CLIENTE"];
 
     const fetchUsers = useCallback(async () => {
@@ -42,10 +37,9 @@ function AdminUserListPage() {
                 sort: `${sortConfig.key},${sortConfig.direction === 'ascending' ? 'asc' : 'desc'}`
             });
 
-            // Usamos los valores debounced para los parámetros de la API
             if (debouncedFiltroNombre) params.append('nombre', debouncedFiltroNombre);
             if (debouncedFiltroEmail) params.append('email', debouncedFiltroEmail);
-            if (filtroRol) params.append('rol', filtroRol); // El rol no necesita debounce
+            if (filtroRol) params.append('rol', filtroRol);
 
             const response = await apiClient.get(`/admin/users?${params.toString()}`);
 
@@ -65,7 +59,7 @@ function AdminUserListPage() {
         }
     }, [currentPage, sortConfig, debouncedFiltroNombre, debouncedFiltroEmail, filtroRol]);
 
-    // Efecto principal que llama a la API cuando las dependencias cambian
+    // Efecto principal que llama a la API
     useEffect(() => {
         fetchUsers();
     }, [fetchUsers]);
@@ -76,7 +70,7 @@ function AdminUserListPage() {
             setCurrentPage(0);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [debouncedFiltroNombre, debouncedFiltroEmail, filtroRol, sortConfig]);
+    }, [debouncedFiltroNombre, debouncedFiltroEmail, filtroRol, sortConfig]); // <-- ¡AQUÍ ESTÁ LA CORRECCIÓN!
 
     const requestSort = (key) => {
         setSortConfig(prevConfig => ({
