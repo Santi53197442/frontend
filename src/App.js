@@ -1,34 +1,44 @@
-// src/App.js - MODIFICADO CON PAYPAL
+// src/App.js
 
 import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
-import AppRouter from './router';
 import { AuthProvider } from './AuthContext';
-import Header from './components/Header';
-import './App.css';
-
-// 1. Importa el proveedor de PayPal
 import { PayPalScriptProvider } from "@paypal/react-paypal-js";
 
-// 2. Define las opciones iniciales para el SDK de PayPal
-// ¡¡¡ RECUERDA CAMBIAR EL CLIENT_ID POR EL REAL DE SANDBOX !!!
+import AppRouter from './router'; // Tu archivo con todas las rutas
+import Header from './components/Layout/Header'; // O Navbar, según lo llames
+import Footer from './components/Layout/Footer'; // Tu nuevo footer
+
+import './App.css';
+
+// Opciones iniciales para el SDK de PayPal con tu Client ID de Sandbox
 const initialOptions = {
     "client-id": "AclKeFueUT6hu_vNmKjHR4MEfn7vyF3J3mzk8DxkkM0y_Gc9DyD2250fCktw_Tt8h3Qu8--U8EDWEc7u",
     currency: "USD",
     intent: "capture",
-    debug: "true",
 };
 
 function App() {
     return (
-        // 3. Envuelve la aplicación con el PayPalScriptProvider
+        // 1. Proveedor de PayPal (envuelve todo para que esté disponible en todas partes)
         <PayPalScriptProvider options={initialOptions}>
+            {/* 2. Proveedor de Rutas */}
             <BrowserRouter>
+                {/* 3. Proveedor de Autenticación */}
                 <AuthProvider>
-                    <Header />
-                    <div className="main-content">
-                        <AppRouter />
+
+                    {/* 4. Estructura visual de la página */}
+                    <div className="App">
+                        <Header /> {/* O <Navbar />, como lo hayas nombrado */}
+
+                        <main className="main-content">
+                            {/* AppRouter renderizará el componente de la página actual aquí */}
+                            <AppRouter />
+                        </main>
+
+                        <Footer /> {/* Tu footer al final de la página */}
                     </div>
+
                 </AuthProvider>
             </BrowserRouter>
         </PayPalScriptProvider>
