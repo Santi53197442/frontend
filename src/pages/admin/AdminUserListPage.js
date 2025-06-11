@@ -1,5 +1,5 @@
 // src/pages/Admin/AdminUserListPage.js
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import apiClient from '../../services/api';
 import './AdminUserListPage.css';
 
@@ -7,79 +7,64 @@ const SortAscIcon = () => <span> ▲</span>;
 const SortDescIcon = () => <span> ▼</span>;
 
 function AdminUserListPage() {
-    const [usersOriginal, setUsersOriginal] = useState([]);
+    const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    const [currentPage, setCurrentPage] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
+    const [totalItems, setTotalItems] = useState(0);
+    const PAGE_SIZE = 20;
+
     const [sortConfig, setSortConfig] = useState({ key: 'id', direction: 'ascending' });
     const [filtroNombre, setFiltroNombre] = useState('');
     const [filtroEmail, setFiltroEmail] = useState('');
     const [filtroRol, setFiltroRol] = useState('');
 
-    useEffect(() => {
-        const fetchUsers = async () => {
-            setLoading(true);
-            setError(null);
-            try {
-                const response = await apiClient.get('/admin/users');
-                setUsersOriginal(response.data || []);
-            } catch (err) {
-                console.error("Error al cargar usuarios:", err);
-                if (err.response) {
-                    if (err.response.status === 403) setError('Acceso denegado.');
-                    else if (err.response.status === 401) setError('Sesión expirada.');
-                    else setError(err.response.data?.message || `Error ${err.response.status}.`);
-                } else if (err.request) setError('Sin respuesta del servidor.');
-                else setError('Error en la configuración de la solicitud.');
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchUsers();
-    }, []);
+    const rolesUnicos = ["", "ADMINISTRADOR", "VENDEDOR", "CLIENTE"];
 
-    const rolesUnicos = useMemo(() => {
-        if (!usersOriginal || usersOriginal.length === 0) return [];
-        // Mostrar el rol original en el dropdown (ej. "ADMINISTRADOR")
-        const roles = new Set(usersOriginal.map(u => u.rol?.trim()).filter(Boolean));
-        return ["", ...Array.from(roles).sort()];
-    }, [usersOriginal]);
-
-    const filteredAndSortedUsers = useMemo(() => {
-        if (!usersOriginal || usersOriginal.length === 0) return [];
-        let items = [...usersOriginal];
-
-        if (filtroNombre) {
-            items = items.filter(user =>
-                (user.nombre.toLowerCase() + ' ' + user.apellido.toLowerCase()).includes(filtroNombre.toLowerCase()) ||
-                user.nombre.toLowerCase().includes(filtroNombre.toLowerCase()) ||
-                user.apellido.toLowerCase().includes(filtroNombre.toLowerCase())
-            );
-        }
-        if (filtroEmail) {
-            items = items.filter(user =>
-                user.email.toLowerCase().includes(filtroEmail.toLowerCase())
-            );
-        }
-        if (filtroRol) {
-            items = items.filter(user => user.rol?.trim() === filtroRol);
-        }
-
-        if (sortConfig.key !== null) {
-            items.sort((a, b) => {
-                let valA = a[sortConfig.key];
-                let valB = b[sortConfig.key];
-                if (sortConfig.key === 'fechaNac') {
-                    valA = new Date(valA); valB = new Date(valB);
-                } else if (typeof valA === 'string' && typeof valB === 'string') {
-                    valA = valA.toLowerCase(); valB = valB.toLowerCase();
-                }
-                if (valA < valB) return sortConfig.direction === 'ascending' ? -1 : 1;
-                if (valA > valB) return sortConfig.direction === 'ascending' ? 1 : -1;
-                return 0;
+    const fetchUsers = useCallback(async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const params = new URLSearchParams({
+                page: currentPage,
+                size: PAGE_SIZE,
+                sort: `${sortConfig.key},${sortConfig.direction === 'ascending' ? 'asc' : 'desc'}`
             });
+
+            if (filtroNombre) params.append('nombre', filtroNombre);
+            if (filtroEmail) params.append('email', filtroEmail);
+            if (filtroRol) params.append('rol', filtroRol);
+
+            const response = await apiClient.get(`/admin/users?${params.toString()}`);
+
+            setUsers(response.data.content || []);
+            setTotalPages(response.data.totalPages);
+            setTotalItems(response.data.totalItems);
+        } catch (err) {
+            console.error("Error al cargar usuarios:", err);
+            if (err.response) {
+                if (err.response.status === 403) setError('Acceso denegado.');
+                else if (err.response.status === 401) setError('Sesión expirada.');
+                else setError(err.response.data?.message || `Error ${err.response.status}.`);
+            } else if (err.request) setError('Sin respuesta del servidor.');
+            else setError('Error en la configuración de la solicitud.');
+        } finally {
+            setLoading(false);
         }
-        return items;
-    }, [usersOriginal, filtroNombre, filtroEmail, filtroRol, sortConfig]);
+    }, [currentPage, sortConfig, filtroNombre, filtroEmail, filtroRol]);
+
+    useEffect(() => {
+        fetchUsers();
+    }, [fetchUsers]);
+
+    useEffect(() => {
+        if(currentPage !== 0) { // Evita un renderizado inicial innecesario
+            setCurrentPage(0);
+        }
+    }, [filtroNombre, filtroEmail, filtroRol, sortConfig]);
+
 
     const requestSort = (key) => {
         setSortConfig(prevConfig => ({
@@ -100,6 +85,12 @@ function AdminUserListPage() {
         setFiltroEmail('');
         setFiltroRol('');
     };
+
+    const handlePageChange = (newPage) => {
+        if (newPage >= 0 && newPage < totalPages) {
+            setCurrentPage(newPage);
+        }
+    }
 
     if (loading) return <div className="loading-message">Cargando usuarios...</div>;
     if (error) return <div className="error-message">Error: {error}</div>;
@@ -122,8 +113,7 @@ function AdminUserListPage() {
                         <div className="filtro-item">
                             <label htmlFor="filtro-rol">Rol:</label>
                             <select id="filtro-rol" value={filtroRol} onChange={(e) => setFiltroRol(e.target.value)}>
-                                <option value="">Cualquiera</option>
-                                {rolesUnicos.slice(1).map(rol => (<option key={rol} value={rol}>{rol}</option>))}
+                                {rolesUnicos.map(rol => (<option key={rol} value={rol}>{rol || 'Cualquiera'}</option>))}
                             </select>
                         </div>
                         <div className="filtro-acciones">
@@ -132,60 +122,61 @@ function AdminUserListPage() {
                     </div>
                 </section>
 
-                {filteredAndSortedUsers.length === 0 ? (
-                    <p className="no-users-message">{usersOriginal.length > 0 ? "No hay usuarios que coincidan." : "No hay usuarios."}</p>
+                {users.length === 0 && !loading ? (
+                    <p className="no-users-message">{totalItems > 0 ? "No hay usuarios que coincidan con los filtros." : "No hay usuarios registrados en el sistema."}</p>
                 ) : (
-                    <div className="user-list-table-responsive">
-                        <table className="user-list-table">
-                            <thead>
-                            <tr>
-                                <th onClick={() => requestSort('id')}>ID{getSortIcon('id')}</th>
-                                <th onClick={() => requestSort('nombre')}>Nombre{getSortIcon('nombre')}</th>
-                                <th onClick={() => requestSort('apellido')}>Apellido{getSortIcon('apellido')}</th>
-                                <th className="allow-wrap" onClick={() => requestSort('email')}>Email{getSortIcon('email')}</th>
-                                <th onClick={() => requestSort('ci')}>CI{getSortIcon('ci')}</th>
-                                <th onClick={() => requestSort('telefono')}>Teléfono{getSortIcon('telefono')}</th>
-                                <th onClick={() => requestSort('fechaNac')}>Fecha Nac.{getSortIcon('fechaNac')}</th>
-                                <th onClick={() => requestSort('rol')}>Rol{getSortIcon('rol')}</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {filteredAndSortedUsers.map(user => {
-                                const rolOriginal = user.rol?.trim();
-                                const rolParaClase = (rolOriginal && rolOriginal !== "") ? rolOriginal.toLowerCase() : 'desconocido';
+                    <>
+                        <div className="user-list-table-responsive">
+                            <table className="user-list-table">
+                                <thead>
+                                <tr>
+                                    <th onClick={() => requestSort('id')}>ID{getSortIcon('id')}</th>
+                                    <th onClick={() => requestSort('nombre')}>Nombre{getSortIcon('nombre')}</th>
+                                    <th onClick={() => requestSort('apellido')}>Apellido{getSortIcon('apellido')}</th>
+                                    <th className="allow-wrap" onClick={() => requestSort('email')}>Email{getSortIcon('email')}</th>
+                                    <th onClick={() => requestSort('ci')}>CI{getSortIcon('ci')}</th>
+                                    <th onClick={() => requestSort('telefono')}>Teléfono{getSortIcon('telefono')}</th>
+                                    <th onClick={() => requestSort('fechaNac')}>Fecha Nac.{getSortIcon('fechaNac')}</th>
+                                    <th onClick={() => requestSort('rol')}>Rol{getSortIcon('rol')}</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {users.map(user => {
+                                    const rolOriginal = user.rol?.trim();
+                                    const rolParaClase = (rolOriginal && rolOriginal !== "") ? rolOriginal.toLowerCase() : 'desconocido';
+                                    let textoDelBadge = rolOriginal.toLowerCase() === 'administrador' ? 'Admin' : user.rol;
 
-                                // Determinar el texto a mostrar en el badge
-                                let textoDelBadge = 'DESCONOCIDO';
-                                if (rolOriginal && rolOriginal !== "") {
-                                    // Si el rol original (limpio) es 'administrador' (insensible a mayúsculas), mostrar 'Admin'
-                                    // Para otros roles, mostrar el rol original (que se capitalizará por CSS)
-                                    if (rolOriginal.toLowerCase() === 'administrador') {
-                                        textoDelBadge = 'Admin';
-                                    } else {
-                                        textoDelBadge = user.rol; // Usar el valor original para que text-transform: capitalize funcione
-                                    }
-                                }
+                                    return (
+                                        <tr key={user.id}>
+                                            <td>{user.id}</td>
+                                            <td>{user.nombre}</td>
+                                            <td>{user.apellido}</td>
+                                            <td className="allow-wrap">{user.email}</td>
+                                            <td>{user.ci}</td>
+                                            <td>{user.telefono || 'N/D'}</td>
+                                            <td>{user.fechaNac ? new Date(user.fechaNac).toLocaleDateString() : 'N/D'}</td>
+                                            <td>
+                                                <span className={`role-badge role-${rolParaClase}`}>{textoDelBadge}</span>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                                </tbody>
+                            </table>
+                        </div>
 
-                                return (
-                                    <tr key={user.id}>
-                                        <td>{user.id}</td>
-                                        <td>{user.nombre}</td>
-                                        <td>{user.apellido}</td>
-                                        <td className="allow-wrap">{user.email}</td>
-                                        <td>{user.ci}</td>
-                                        <td>{user.telefono || 'N/D'}</td>
-                                        <td>{user.fechaNac ? new Date(user.fechaNac).toLocaleDateString() : 'N/D'}</td>
-                                        <td>
-                                                <span className={`role-badge role-${rolParaClase}`}>
-                                                    {textoDelBadge}
-                                                </span>
-                                        </td>
-                                    </tr>
-                                );
-                            })}
-                            </tbody>
-                        </table>
-                    </div>
+                        <div className="pagination-controls">
+                            <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 0}>
+                                Anterior
+                            </button>
+                            <span>
+                                Página {currentPage + 1} de {totalPages}
+                            </span>
+                            <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage >= totalPages - 1}>
+                                Siguiente
+                            </button>
+                        </div>
+                    </>
                 )}
             </div>
         </div>
