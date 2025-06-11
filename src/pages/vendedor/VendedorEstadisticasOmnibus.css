@@ -126,3 +126,43 @@
         font-size: 1.5rem;
     }
 }
+
+/* Añade esto al final de VendedorEstadisticasOmnibus.css */
+
+.stats-header-with-button {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 2rem; /* Coincide con el margen del título original */
+}
+
+/* Modifica el título para que no esté centrado y no tenga tanto margen inferior */
+.stats-header-with-button .stats-title {
+    text-align: left;
+    margin-bottom: 0;
+}
+
+.download-pdf-button {
+    padding: 10px 18px;
+    background-color: #f0ad4e; /* Naranja para diferenciar de otros reportes */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.95em;
+    font-weight: 600;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.download-pdf-button:hover {
+    background-color: #ec971f;
+    transform: translateY(-2px);
+}
+
+.download-pdf-button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+    transform: none;
+}
