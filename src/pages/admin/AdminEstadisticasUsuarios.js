@@ -59,7 +59,7 @@ const AdminEstadisticasUsuarios = () => {
                     setRoleDistData({ labels: ['Clientes', 'Vendedores', 'Administradores'], datasets: [{ data: [totalClientes, totalVendedores, totalAdmins], backgroundColor: ['#36A2EB', '#FFCE56', '#FF6384'] }] });
 
                     const clientes = usuarios.filter(u => u.rol === 'CLIENTE');
-                    const clientTypeCounts = clientes.reduce((acc, c) => { acc[c.tipoCliente] = (acc[c.tipoCliente] || 0) + 1; return acc; }, {});
+                    const clientTypeCounts = clientes.reduce((acc, c) => { if(c.tipoCliente) acc[c.tipoCliente] = (acc[c.tipoCliente] || 0) + 1; return acc; }, {});
                     setClientTypeData({ labels: Object.keys(clientTypeCounts), datasets: [{ data: Object.values(clientTypeCounts), backgroundColor: ['#4BC0C0', '#9966FF'] }] });
 
                     const monthlySignups = Array(12).fill(0);
@@ -96,10 +96,6 @@ const AdminEstadisticasUsuarios = () => {
     const handleDownloadPDF = async () => {
         setIsGeneratingPDF(true);
 
-        const lineChartElement = document.querySelector('#line-chart-container');
-        const pieChartsContainer = document.querySelector('#pie-charts-container');
-        const barChartElement = document.querySelector('#bar-chart-container');
-
         const pdf = new jsPDF('p', 'mm', 'a4');
         let yPosition = 20;
 
@@ -120,33 +116,36 @@ const AdminEstadisticasUsuarios = () => {
             pdf.text(`- Usuarios Totales: ${stats.totalUsuarios}`, 20, yPosition); yPosition += 7;
             pdf.text(`- Clientes: ${stats.totalClientes}`, 20, yPosition); yPosition += 7;
             pdf.text(`- Vendedores: ${stats.totalVendedores}`, 20, yPosition); yPosition += 7;
-            pdf.text(`- Administradores: ${stats.totalAdmins}`, 20, yPosition); yPosition += 15;
+            pdf.text(`- Administradores: ${stats.totalAdmins}`, 20, yPosition); yPosition += 5;
         }
 
-        const addChartToPDF = async (element, title) => {
+        const addBlockToPDF = async (elementSelector) => {
+            const element = document.querySelector(elementSelector);
             if (element) {
-                if (yPosition > 220) {
-                    pdf.addPage();
-                    yPosition = 20;
-                }
-                pdf.setFontSize(16);
-                pdf.text(title, 15, yPosition);
-                yPosition += 10;
-
-                const canvas = await html2canvas(element, { scale: 2 });
+                const canvas = await html2canvas(element, {
+                    scale: 2,
+                    useCORS: true,
+                    backgroundColor: '#ffffff', // Fondo blanco explícito para evitar transparencias
+                });
                 const imgData = canvas.toDataURL('image/png');
 
                 const pdfWidth = 180;
                 const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
+                if (yPosition + pdfHeight > 280) {
+                    pdf.addPage();
+                    yPosition = 20;
+                }
+
+                // No añadimos el título con pdf.text(), ya está en la imagen
                 pdf.addImage(imgData, 'PNG', 15, yPosition, pdfWidth, pdfHeight);
-                yPosition += pdfHeight + 15;
+                yPosition += pdfHeight + 10;
             }
         };
 
-        await addChartToPDF(lineChartElement, 'Crecimiento de Usuarios');
-        await addChartToPDF(pieChartsContainer, 'Distribución de Roles y Tipos de Cliente');
-        await addChartToPDF(barChartElement, 'Distribución de Edades');
+        await addBlockToPDF('#line-chart-container');
+        await addBlockToPDF('#pie-charts-container');
+        await addBlockToPDF('#bar-chart-container');
 
         pdf.save('reporte-estadisticas-usuarios.pdf');
         setIsGeneratingPDF(false);
