@@ -1,66 +1,59 @@
 // src/pages/admin/AdminDashboard.js
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { useAuth } from '../../AuthContext'; // Ajusta la ruta
+import { NavLink } from 'react-router-dom'; // Usamos NavLink para obtener estilos en el enlace activo
+import { useAuth } from '../../AuthContext';
 import './AdminDashboard.css';
-// No necesitas importar UserBatchUpload aquí ahora
 
 const AdminDashboard = () => {
     const { user } = useAuth();
 
-    const adminActions = [
+    // 1. Actualizamos el array para que coincida con las opciones de tu menú
+    const adminMenuOptions = [
         {
             title: "Crear Usuario",
-            description: "Añadir nuevos administradores o vendedores individualmente.",
             link: "/admin/crear-usuario",
-            color: "#2980b9"
-        },
-        // === NUEVA ACCIÓN PARA CARGA MASIVA ===
-        {
-            title: "Carga Masiva de Usuarios",
-            description: "Subir un archivo CSV para crear múltiples usuarios.",
-            link: "/admin/carga-masiva-usuarios", // Enlace a la nueva ruta
-            color: "#8e44ad" // Morado, por ejemplo
-        },
-        // =====================================
-        {
-            title: "Gestionar Viajes",
-            description: "Configurar rutas, horarios y disponibilidad de viajes.",
-            link: "/admin/gestion-viajes",
-            color: "#27ae60"
         },
         {
-            title: "Ver Reportes",
-            description: "Analizar estadísticas de ventas, usuarios y rendimiento.",
-            link: "/admin/reportes",
-            color: "#f39c12"
+            title: "Carga Masiva",
+            link: "/admin/carga-masiva-usuarios",
+        },
+        {
+            title: "Listar Usuarios",
+            link: "/admin/listar-usuarios",
+        },
+        {
+            title: "Eliminar Usuarios",
+            link: "/admin/eliminar-usuarios",
+        },
+        {
+            title: "Estadísticas de Usuarios",
+            link: "/admin/estadisticas", // Asegúrate de que esta ruta exista en tu App.js
         },
     ];
 
     return (
         <div className="admin-dashboard-container">
             <header className="admin-dashboard-header">
-                <h1>Dashboard de Administración</h1>
-                <p>Bienvenido, {user?.nombre || user?.email}! Gestiona la plataforma desde aquí.</p>
+                <h1>Panel de Administración</h1>
+                <p>Bienvenido, {user?.nombre || user?.email}!</p>
             </header>
 
-            <section className="admin-actions-grid">
-                <h2>Acciones Rápidas</h2>
-                <div className="actions-wrapper">
-                    {adminActions.map((action, index) => (
-                        <Link to={action.link} key={index} className="action-card-link">
-                            <div className="action-card" style={{ '--action-color': action.color }}>
-                                <div className="action-card-content">
-                                    <h3>{action.title}</h3>
-                                    <p>{action.description}</p>
-                                </div>
-                            </div>
-                        </Link>
+            {/* 2. Reemplazamos la sección de "action cards" por una barra de navegación */}
+            <nav className="admin-vertical-nav">
+                <ul>
+                    {adminMenuOptions.map((option, index) => (
+                        <li key={index}>
+                            <NavLink
+                                to={option.link}
+                                className="nav-link"
+                                // El NavLink añade la clase 'active' automáticamente al enlace que coincide con la URL actual
+                            >
+                                {option.title}
+                            </NavLink>
+                        </li>
                     ))}
-                </div>
-            </section>
-
-            {/* La sección de carga masiva ya no estará aquí directamente */}
+                </ul>
+            </nav>
         </div>
     );
 };

@@ -120,3 +120,90 @@
     color: #555;
     line-height: 1.5;
 }
+
+.admin-dashboard-container {
+    padding: 20px;
+    background-color: #f9fafb;
+    min-height: 100%;
+}
+
+.admin-dashboard-header {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e7e7e7;
+    text-align: left; /* O 'center' si lo prefieres */
+}
+
+.admin-dashboard-header h1 {
+    font-size: 2em;
+    color: #2c3e50;
+    margin-top: 0;
+    margin-bottom: 5px;
+}
+
+.admin-dashboard-header p {
+    font-size: 1.1em;
+    color: #555;
+}
+
+/* --- ESTILOS ELIMINADOS (Ya no se usan en el nuevo diseño) --- */
+/*
+.admin-stats-overview, .stat-card,
+.admin-actions-grid, .actions-wrapper,
+.action-card-link, .action-card, .action-card-icon, .action-card-content
+han sido eliminados porque el JSX ya no los contiene.
+*/
+
+
+/* --- NUEVOS ESTILOS para la Barra de Navegación Vertical --- */
+.admin-vertical-nav {
+    /* Si quieres que el menú esté alineado a la izquierda */
+    width: 100%;
+    max-width: 350px; /* Puedes ajustar el ancho del menú */
+
+    /* Si quieres que el menú esté centrado (como en mi respuesta anterior) */
+    /* margin: 0 auto; */
+
+    background-color: #2c3e50; /* Color de fondo azul oscuro como en la imagen */
+    border-radius: 8px;
+    padding: 15px 0;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+}
+
+.admin-vertical-nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.admin-vertical-nav li {
+    margin: 0;
+}
+
+.admin-vertical-nav .nav-link {
+    display: block;
+    padding: 15px 25px; /* Padding interno para cada opción */
+    color: #ecf0f1;     /* Texto claro */
+    text-decoration: none;
+    font-size: 1.1em;
+    font-weight: 500;
+    border-left: 4px solid transparent; /* Borde izquierdo para indicar estado activo/hover */
+    transition: all 0.3s ease;
+}
+
+/* Estilo al pasar el mouse sobre una opción */
+.admin-vertical-nav .nav-link:hover {
+    background-color: #34495e; /* Fondo ligeramente más claro */
+    border-left-color: #3498db; /* Muestra un borde azul */
+    color: #ffffff; /* El texto se vuelve blanco puro */
+    transform: translateX(5px); /* Pequeño desplazamiento a la derecha */
+}
+
+/* Estilo para el enlace que está ACTIVO (la página actual) */
+.admin-vertical-nav .nav-link.active {
+    background-color: #34495e;
+    border-left-color: #3498db; /* El borde se mantiene visible */
+    font-weight: 600; /* Texto en negrita para destacar */
+    color: #ffffff;
+    transform: translateX(5px); /* Mantiene el desplazamiento */
+}
