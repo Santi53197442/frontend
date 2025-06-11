@@ -6,8 +6,8 @@ import { AuthProvider } from './AuthContext';
 import { PayPalScriptProvider } from "@paypal/react-paypal-js";
 
 import AppRouter from './router'; // Tu archivo con todas las rutas
-import Header from './components/Layout/Header'; // O Navbar, según lo llames
-import Footer from './components/Layout/Footer'; // Tu nuevo footer
+import Header from './components/Header'; // O Navbar, según lo llames
+import Footer from './layouts/Footer'; // Tu nuevo footer
 
 import './App.css';
 
