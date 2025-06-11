@@ -263,3 +263,42 @@
     font-weight: 500;
     margin: 0 8px; /* Espacio extra alrededor del texto */
 }
+
+/* Contenedor para agrupar los botones de acción */
+.filtro-acciones-agrupadas {
+    display: flex;
+    gap: 10px; /* Espacio entre los botones */
+    align-items: flex-end; /* Alinea los botones en la parte inferior */
+}
+
+/* Estilo para el nuevo botón de Buscar */
+.btn-buscar {
+    padding: 10px 15px;
+    background-color: #3498db; /* Color primario azul */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.95em;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+    width: 100%;
+    height: calc(2.25rem + 2px + 10px); /* Misma altura que los inputs */
+    line-height: 1.5;
+}
+
+.btn-buscar:hover {
+    background-color: #2980b9; /* Un azul un poco más oscuro */
+}
+
+/* Modificamos el botón de limpiar para que ocupe el ancho disponible */
+.btn-limpiar-filtros {
+    width: 100%;
+    height: calc(2.25rem + 2px + 10px); /* Misma altura */
+}
+
+/* Ajuste en la grilla para que el contenedor de acciones se comporte bien */
+.filtros-grid {
+    /* ... (tus propiedades de grid anteriores) ... */
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); /* Ajuste ligero para dar espacio */
+}
