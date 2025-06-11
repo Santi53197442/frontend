@@ -1,0 +1,272 @@
+/* src/pages/AdminUserListDeletePage/AdminUserListDeletePage.css */
+
+/* --- Contenedor Principal de la Página --- */
+.user-list-delete-page-container {
+    padding: 25px;
+    max-width: 95%;
+    margin: 30px auto;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.user-list-title-wrapper {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.user-list-title-wrapper h2 {
+    color: #2c3e50;
+    font-size: 1.8rem;
+    font-weight: 600;
+    border-bottom: 3px solid #c0392b; /* Rojo para destacar la acción de eliminar */
+    padding-bottom: 12px;
+    display: inline-block;
+}
+
+/* --- Mensajes de Feedback (Éxito, Error, Info) --- */
+.success-message,
+.error-message,
+.no-users-message,
+.loading-message {
+    text-align: center;
+    padding: 15px;
+    font-size: 1rem;
+    margin: 0 auto 20px auto;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    max-width: 90%;
+}
+
+.success-message {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+.error-message {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+
+.no-users-message, .loading-message {
+    color: #7f8c8d;
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+}
+
+
+/* --- Sección de Filtros --- */
+.filtros-usuarios-container {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    border: 1px solid #e9ecef;
+}
+
+.filtros-usuarios-container h3 {
+    font-size: 1.4em;
+    color: #343a40;
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-weight: 500;
+}
+
+.filtros-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    align-items: end;
+}
+
+.filtro-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.filtro-item label {
+    font-size: 0.9em;
+    margin-bottom: 6px;
+    color: #495057;
+    font-weight: 500;
+}
+
+.filtro-item select,
+.filtro-item input[type="text"] {
+    padding: 10px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    font-size: 0.95em;
+    height: calc(2.25rem + 12px); /* Altura consistente */
+    box-sizing: border-box;
+}
+
+.filtro-item select:focus,
+.filtro-item input:focus {
+    outline: none;
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+.filtro-acciones-agrupadas {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+}
+
+.btn-buscar,
+.btn-limpiar-filtros {
+    padding: 10px 15px;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 500;
+    width: 100%;
+    height: calc(2.25rem + 12px); /* Misma altura que los inputs */
+    line-height: 1.5;
+    transition: background-color 0.2s ease;
+}
+
+.btn-buscar { background-color: #3498db; }
+.btn-buscar:hover { background-color: #2980b9; }
+.btn-limpiar-filtros { background-color: #6c757d; }
+.btn-limpiar-filtros:hover { background-color: #5a6268; }
+
+
+/* --- Tabla de Usuarios --- */
+.user-list-table-responsive {
+    overflow-x: auto;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+}
+
+.user-list-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 800px;
+}
+
+.user-list-table th,
+.user-list-table td {
+    padding: 14px 18px;
+    text-align: left;
+    vertical-align: middle;
+    border-bottom: 1px solid #e0e0e0;
+    white-space: nowrap;
+}
+
+.user-list-table td.allow-wrap,
+.user-list-table th.allow-wrap {
+    white-space: normal;
+}
+
+.user-list-table thead th {
+    background-color: #f5f7fa;
+    color: #34495e;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    border-bottom-width: 2px;
+    cursor: pointer;
+}
+
+.user-list-table tbody tr:hover {
+    background-color: #fdf2f2; /* Un hover rojizo muy sutil */
+}
+
+.user-list-table tbody td {
+    color: #555;
+    font-size: 0.9rem;
+}
+
+/* --- Celda de Acciones y Botón Eliminar --- */
+.actions-cell {
+    text-align: center;
+}
+
+.delete-button {
+    background-color: #e74c3c; /* Rojo de "peligro" */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.delete-button:hover {
+    background-color: #c0392b; /* Rojo más oscuro */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.delete-button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+
+/* --- Estilos para Roles (Badges) --- */
+.role-badge {
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: white;
+    display: inline-block;
+    min-width: 80px;
+    text-align: center;
+}
+
+.role-administrador { background-color: #3498db; }
+.role-vendedor { background-color: #2ecc71; }
+.role-cliente { background-color: #f39c12; }
+.role-desconocido { background-color: #95a5a6; }
+
+
+/* --- Controles de Paginación --- */
+.pagination-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 25px;
+}
+
+.pagination-controls button {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    padding: 8px 14px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.pagination-controls button:not(:disabled):hover {
+    background-color: #e9ecef;
+}
+
+.pagination-controls button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.pagination-controls .page-indicator {
+    background-color: #3498db;
+    color: white;
+    border-radius: 5px;
+    padding: 8px 14px;
+    font-weight: bold;
+}
+
+.pagination-summary {
+    text-align: center;
+    margin-top: 10px;
+    color: #7f8c8d;
+    font-size: 0.85rem;
+}

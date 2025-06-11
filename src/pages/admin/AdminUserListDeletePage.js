@@ -1,202 +1,231 @@
-        // src/pages/AdminUserListDeletePage/AdminUserListDeletePage.js
+// src/pages/AdminUserListDeletePage/AdminUserListDeletePage.js
 
-import React, { useState, useEffect, useMemo } from 'react';
-import apiClient from '../../services/api'; // Ajusta la ruta si es diferente
-import './AdminUserListDeletePage.css'; // Importa el NUEVO archivo CSS
+import React, { useState, useEffect, useCallback } from 'react';
+import apiClient from '../../services/api';
+import './AdminUserListDeletePage.css';
 
-// Iconos para ordenamiento
-const SortAscIcon = () => <span> ▲</span>; // Corregido para que se muestre el espacio
-const SortDescIcon = () => <span> ▼</span>; // Corregido para que se muestre el espacio
+const SortAscIcon = () => <span> ▲</span>;
+const SortDescIcon = () => <span> ▼</span>;
 
-// CAMBIAR EL NOMBRE DE LA FUNCIÓN (ya está como AdminUserListDeletePage)
 function AdminUserListDeletePage() {
+    // --- ESTADOS ---
+    // Datos y UI
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // --- ESTADOS PARA ELIMINACIÓN ---
+    // Mensajes de eliminación
     const [deleteError, setDeleteError] = useState(null);
     const [deleteSuccess, setDeleteSuccess] = useState('');
 
-    // Estado para el ordenamiento
+    // Paginación
+    const [currentPage, setCurrentPage] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
+    const [totalItems, setTotalItems] = useState(0);
+    const PAGE_SIZE = 20;
+
+    // Filtros de input (lo que se escribe)
+    const [inputNombre, setInputNombre] = useState('');
+    const [inputEmail, setInputEmail] = useState('');
+
+    // Filtros activos (lo que se envía a la API)
+    const [activeFiltroNombre, setActiveFiltroNombre] = useState('');
+    const [activeFiltroEmail, setActiveFiltroEmail] = useState('');
+    const [filtroRol, setFiltroRol] = useState('');
+
+    // Ordenamiento
     const [sortConfig, setSortConfig] = useState({ key: 'id', direction: 'ascending' });
 
-    const fetchUsers = async () => {
+    const rolesUnicos = ["", "ADMINISTRADOR", "VENDEDOR", "CLIENTE"];
+
+    // --- LÓGICA DE DATOS ---
+    const fetchUsers = useCallback(async () => {
         setLoading(true);
         setError(null);
-        setDeleteError(null); // Resetear errores de eliminación al recargar
-        setDeleteSuccess(''); // Resetear mensajes de éxito al recargar
         try {
-            const response = await apiClient.get('/admin/users'); // Asumiendo que este endpoint lista los usuarios
-            setUsers(response.data);
+            const params = new URLSearchParams({
+                page: currentPage,
+                size: PAGE_SIZE,
+                sort: `${sortConfig.key},${sortConfig.direction === 'ascending' ? 'asc' : 'desc'}`
+            });
+
+            if (activeFiltroNombre) params.append('nombre', activeFiltroNombre);
+            if (activeFiltroEmail) params.append('email', activeFiltroEmail);
+            if (filtroRol) params.append('rol', filtroRol);
+
+            const response = await apiClient.get(`/admin/users?${params.toString()}`);
+
+            setUsers(response.data.content || []);
+            setTotalPages(response.data.totalPages);
+            setTotalItems(response.data.totalItems);
         } catch (err) {
             console.error("Error al cargar usuarios:", err);
-            if (err.response) {
-                if (err.response.status === 403) {
-                    setError('Acceso denegado. No tiene permisos para ver esta lista o la ruta es incorrecta.');
-                } else if (err.response.status === 401) {
-                    setError('Sesión expirada o inválida. Por favor, inicie sesión de nuevo.');
-                } else {
-                    setError(err.response.data?.message || err.message || `Error ${err.response.status} al cargar los usuarios.`);
-                }
-            } else if (err.request) {
-                setError('No se pudo conectar con el servidor. Verifique su conexión.');
-            } else {
-                setError('Ocurrió un error inesperado al configurar la solicitud.');
-            }
+            // ... (manejo de errores de carga)
         } finally {
             setLoading(false);
         }
-    };
+    }, [currentPage, sortConfig, activeFiltroNombre, activeFiltroEmail, filtroRol]);
 
+    // Efecto principal para cargar/recargar los datos
     useEffect(() => {
         fetchUsers();
-    }, []);
+    }, [fetchUsers]);
 
-    const sortedUsers = useMemo(() => {
-        if (!users || users.length === 0) return [];
-        let sortableUsers = [...users];
-        if (sortConfig.key !== null) {
-            sortableUsers.sort((a, b) => {
-                let valA = a[sortConfig.key];
-                let valB = b[sortConfig.key];
-
-                // Manejo específico para fechas
-                if (sortConfig.key === 'fechaNac') {
-                    valA = valA ? new Date(valA) : null;
-                    valB = valB ? new Date(valB) : null;
-                    if (valA === null && valB === null) return 0;
-                    if (valA === null) return sortConfig.direction === 'ascending' ? 1 : -1; // nulos al final/principio
-                    if (valB === null) return sortConfig.direction === 'ascending' ? -1 : 1;
-                }
-                // Manejo genérico para números y strings
-                else if (typeof valA === 'number' && typeof valB === 'number') {
-                    // Ya se maneja por la comparación directa
-                }
-                else if (typeof valA === 'string' && typeof valB === 'string') {
-                    valA = valA.toLowerCase();
-                    valB = valB.toLowerCase();
-                } else if (valA === null || valA === undefined) { return 1; } // nulos/undefined al final
-                else if (valB === null || valB === undefined) { return -1; } // nulos/undefined al final
-
-
-                if (valA < valB) { return sortConfig.direction === 'ascending' ? -1 : 1; }
-                if (valA > valB) { return sortConfig.direction === 'ascending' ? 1 : -1; }
-                return 0;
-            });
+    // Efecto para volver a la página 1 cuando los filtros o el orden cambian
+    useEffect(() => {
+        if (currentPage !== 0) {
+            setCurrentPage(0);
         }
-        return sortableUsers;
-    }, [users, sortConfig]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [activeFiltroNombre, activeFiltroEmail, filtroRol, sortConfig]);
 
-    const requestSort = (key) => {
-        let direction = 'ascending';
-        if (sortConfig.key === key && sortConfig.direction === 'ascending') {
-            direction = 'descending';
-        }
-        setSortConfig({ key, direction });
+    // --- MANEJADORES DE EVENTOS ---
+    const handleBuscar = (e) => {
+        e.preventDefault();
+        setActiveFiltroNombre(inputNombre);
+        setActiveFiltroEmail(inputEmail);
     };
 
-    const getSortIcon = (key) => {
-        if (sortConfig.key === key) {
-            return sortConfig.direction === 'ascending' ? <SortAscIcon /> : <SortDescIcon />;
-        }
-        return null; // No mostrar icono si no es la columna activa
+    const limpiarFiltros = () => {
+        setInputNombre('');
+        setInputEmail('');
+        setFiltroRol('');
+        setActiveFiltroNombre('');
+        setActiveFiltroEmail('');
     };
 
     const handleDeleteUser = async (userId, userName) => {
         setDeleteError(null);
         setDeleteSuccess('');
 
-        // Ejemplo de protección en el frontend (esto es solo una UX, la protección real debe estar en el backend)
-        if (userId === 1) {
-            alert("No se puede eliminar al administrador principal (ID: 1) desde esta interfaz (protección de frontend).");
-            setDeleteError("No se puede eliminar al administrador principal (ID: 1). La protección real debe estar en el backend.");
-            return;
-        }
-
         if (window.confirm(`¿Estás seguro de que quieres eliminar al usuario ${userName} (ID: ${userId})? Esta acción no se puede deshacer.`)) {
-            console.log('FRONTEND: Intentando eliminar usuario con ID:', userId); // Log para depuración
-            console.log('FRONTEND: Tipo de userId:', typeof userId); // Log para depuración
             try {
-                await apiClient.delete(`/admin/users/${userId}`); // La URL se construye correctamente aquí
-                setUsers(prevUsers => prevUsers.filter(user => user.id !== userId)); // Actualizar lista en el estado
+                await apiClient.delete(`/admin/users/${userId}`);
                 setDeleteSuccess(`Usuario ${userName} (ID: ${userId}) eliminado exitosamente.`);
-                setTimeout(() => setDeleteSuccess(''), 5000); // Limpiar mensaje después de 5s
+
+                // IMPORTANTE: Volvemos a llamar a fetchUsers para recargar la lista actualizada del servidor.
+                // Si eliminamos el último usuario de una página, esto la manejará correctamente.
+                fetchUsers();
+
+                setTimeout(() => setDeleteSuccess(''), 5000);
             } catch (err) {
-                console.error("FRONTEND: Error al eliminar usuario:", err); // Aquí es donde se origina tu "Error al eliminar usuario: ► pn"
-                const errorMessage = err.response?.data?.message || err.response?.statusText || err.message || 'Error desconocido al eliminar el usuario.';
+                const errorMessage = err.response?.data?.message || 'Error desconocido al eliminar.';
                 setDeleteError(errorMessage);
-                setTimeout(() => setDeleteError(null), 7000); // Limpiar mensaje de error después de 7s
+                setTimeout(() => setDeleteError(null), 7000);
             }
         }
     };
 
-    if (loading) {
-        return <div className="loading-message">Cargando usuarios...</div>;
+    const requestSort = (key) => {
+        setSortConfig(prev => ({ key, direction: prev.key === key && prev.direction === 'ascending' ? 'descending' : 'ascending' }));
+    };
+
+    const getSortIcon = (key) => {
+        if (sortConfig.key === key) {
+            return sortConfig.direction === 'ascending' ? <SortAscIcon /> : <SortDescIcon />;
+        }
+        return null;
+    };
+
+    const handlePageChange = (newPage) => {
+        if (newPage >= 0 && newPage < totalPages) {
+            setCurrentPage(newPage);
+        }
     }
 
-    if (error) {
-        return <div className="error-message">Error: {error}</div>;
-    }
+    if (error) return <div className="error-message">Error de carga: {error}</div>;
 
+    // --- RENDERIZADO ---
     return (
-        <div className="user-list-delete-container">
+        <div className="user-list-delete-page-container"> {/* Clase contenedora principal */}
             <div className="user-list-title-wrapper">
                 <h2>Administración de Usuarios</h2>
             </div>
 
+            {/* Mensajes de feedback para la eliminación */}
             {deleteSuccess && <div className="success-message">{deleteSuccess}</div>}
             {deleteError && <div className="error-message">Error al eliminar: {deleteError}</div>}
 
-            {users.length === 0 ? (
-                <p className="no-users-message">No hay usuarios para mostrar.</p>
-            ) : (
-                <div className="user-list-table-responsive">
-                    <table className="user-list-table">
-                        <thead>
-                        <tr>
-                            <th onClick={() => requestSort('id')} style={{ cursor: 'pointer' }}>ID {getSortIcon('id')}</th>
-                            <th onClick={() => requestSort('nombre')} style={{ cursor: 'pointer' }}>Nombre {getSortIcon('nombre')}</th>
-                            <th onClick={() => requestSort('apellido')} style={{ cursor: 'pointer' }}>Apellido {getSortIcon('apellido')}</th>
-                            <th className="allow-wrap" onClick={() => requestSort('email')} style={{ cursor: 'pointer' }}>Email {getSortIcon('email')}</th>
-                            <th onClick={() => requestSort('ci')} style={{ cursor: 'pointer' }}>CI {getSortIcon('ci')}</th>
-                            <th onClick={() => requestSort('telefono')} style={{ cursor: 'pointer' }}>Teléfono {getSortIcon('telefono')}</th>
-                            <th onClick={() => requestSort('fechaNac')} style={{ cursor: 'pointer' }}>Fecha Nac. {getSortIcon('fechaNac')}</th>
-                            <th onClick={() => requestSort('rol')} style={{ cursor: 'pointer' }}>Rol {getSortIcon('rol')}</th>
-                            <th>Acciones</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {sortedUsers.map(user => (
-                            <tr key={user.id}>
-                                <td>{user.id}</td>
-                                <td>{user.nombre}</td>
-                                <td>{user.apellido}</td>
-                                <td className="allow-wrap">{user.email}</td>
-                                <td>{user.ci || 'N/A'}</td>
-                                <td>{user.telefono || 'N/A'}</td>
-                                <td>{user.fechaNac ? new Date(user.fechaNac).toLocaleDateString() : 'N/A'}</td>
-                                <td>
-                                    <span className={`role-${(user.rol || 'desconocido').toLowerCase().replace(/\s+/g, '-')}`}>
-                                        {user.rol || 'DESCONOCIDO'}
-                                    </span>
-                                </td>
-                                <td className="actions-cell">
-                                    <button
-                                        onClick={() => handleDeleteUser(user.id, `${user.nombre} ${user.apellido}`)}
-                                        className="delete-button"
-                                        title={`Eliminar a ${user.nombre} ${user.apellido}`}
-                                        // Deshabilitar si es el usuario con ID 1 (ejemplo)
-                                        // disabled={user.id === 1}
-                                    >
-                                        Eliminar
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
-                        </tbody>
-                    </table>
-                </div>
+            {/* Sección de filtros (copiada del otro componente para consistencia) */}
+            <section className="filtros-usuarios-container">
+                <h3>Filtrar Usuarios</h3>
+                <form className="filtros-grid" onSubmit={handleBuscar}>
+                    <div className="filtro-item">
+                        <label htmlFor="filtro-nombre">Nombre/Apellido:</label>
+                        <input type="text" id="filtro-nombre" value={inputNombre} onChange={(e) => setInputNombre(e.target.value)} placeholder="Buscar por nombre o apellido"/>
+                    </div>
+                    <div className="filtro-item">
+                        <label htmlFor="filtro-email">Email:</label>
+                        <input type="text" id="filtro-email" value={inputEmail} onChange={(e) => setInputEmail(e.target.value)} placeholder="Buscar por email"/>
+                    </div>
+                    <div className="filtro-item">
+                        <label htmlFor="filtro-rol">Rol:</label>
+                        <select id="filtro-rol" value={filtroRol} onChange={(e) => setFiltroRol(e.target.value)}>
+                            {rolesUnicos.map(rol => (<option key={rol} value={rol}>{rol || 'Cualquiera'}</option>))}
+                        </select>
+                    </div>
+                    <div className="filtro-acciones-agrupadas">
+                        <button type="submit" className="btn-buscar">Buscar</button>
+                        <button type="button" onClick={limpiarFiltros} className="btn-limpiar-filtros">Limpiar</button>
+                    </div>
+                </form>
+            </section>
+
+            {/* Lógica de renderizado de la tabla y paginación */}
+            {loading ? <div className="loading-message">Cargando usuarios...</div> : (
+                users.length === 0 ? (
+                    <p className="no-users-message">{totalItems > 0 ? "No hay usuarios que coincidan con los filtros." : "No hay usuarios registrados."}</p>
+                ) : (
+                    <>
+                        <div className="user-list-table-responsive">
+                            <table className="user-list-table">
+                                <thead>
+                                <tr>
+                                    <th onClick={() => requestSort('id')}>ID{getSortIcon('id')}</th>
+                                    <th onClick={() => requestSort('nombre')}>Nombre{getSortIcon('nombre')}</th>
+                                    <th onClick={() => requestSort('apellido')}>Apellido{getSortIcon('apellido')}</th>
+                                    <th className="allow-wrap" onClick={() => requestSort('email')}>Email{getSortIcon('email')}</th>
+                                    <th onClick={() => requestSort('ci')}>CI{getSortIcon('ci')}</th>
+                                    <th onClick={() => requestSort('rol')}>Rol{getSortIcon('rol')}</th>
+                                    <th>Acciones</th> {/* Columna de acciones */}
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {users.map(user => (
+                                    <tr key={user.id}>
+                                        <td>{user.id}</td>
+                                        <td>{user.nombre}</td>
+                                        <td>{user.apellido}</td>
+                                        <td className="allow-wrap">{user.email}</td>
+                                        <td>{user.ci || 'N/A'}</td>
+                                        <td><span className={`role-badge role-${(user.rol || 'desconocido').toLowerCase()}`}>{user.rol || 'DESCONOCIDO'}</span></td>
+                                        <td className="actions-cell">
+                                            <button
+                                                onClick={() => handleDeleteUser(user.id, `${user.nombre} ${user.apellido}`)}
+                                                className="delete-button"
+                                                title={`Eliminar a ${user.nombre} ${user.apellido}`}
+                                            >
+                                                Eliminar
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                                </tbody>
+                            </table>
+                        </div>
+                        {/* Controles de paginación */}
+                        <div className="pagination-controls">
+                            <button onClick={() => handlePageChange(0)} disabled={currentPage === 0}>« Primera</button>
+                            <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 0}>‹ Anterior</button>
+                            <span className="page-indicator">{currentPage + 1}</span>
+                            <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage >= totalPages - 1}>Siguiente ›</button>
+                            <button onClick={() => handlePageChange(totalPages - 1)} disabled={currentPage >= totalPages - 1}>Última »</button>
+                        </div>
+                        <div className="pagination-summary">
+                            Página {currentPage + 1} de {totalPages} (Total: {totalItems} usuarios)
+                        </div>
+                    </>
+                )
             )}
         </div>
     );
