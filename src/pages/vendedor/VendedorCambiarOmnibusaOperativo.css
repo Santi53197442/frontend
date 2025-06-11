@@ -1,187 +1,243 @@
 /* src/pages/vendedor/VendedorCambiarOmnibusaOperativo.css */
 
+/* --- Contenedor Principal --- */
 .vceo-container {
-    padding: 20px;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-    line-height: 1.5;
+    background-color: #ffffff;
+    padding: 30px 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    max-width: 1100px;
+    margin: 40px auto;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
 }
 
+/* --- Encabezado y Texto --- */
 .vceo-title {
-    font-size: 24px;
-    margin-bottom: 10px;
-    color: #333;
+    font-size: 2em;
+    color: #2c3e50;
+    margin-top: 0;
+    margin-bottom: 15px;
+    text-align: center;
+    border-bottom: 2px solid #e0e0e0;
+    padding-bottom: 15px;
 }
 
-.vceo-text,
+.vceo-text {
+    font-size: 1.1em;
+    color: #555;
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto 30px auto;
+    line-height: 1.6;
+}
+
 .vceo-empty-message,
 .vceo-loading-update {
-    margin-bottom: 20px;
-    display: block;
-    color: #555;
+    text-align: center;
+    font-size: 1.1em;
+    padding: 25px;
+    background-color: #f8f9fa;
+    border: 1px dashed #d6d9dc;
+    border-radius: 8px;
+    color: #6c757d;
 }
 
 .spinner-container {
+    padding: 50px;
     text-align: center;
-    margin: 40px 20px;
-    font-size: 18px;
-    color: #555;
+    font-size: 1.2em;
 }
 
-/* Alertas */
+/* --- Alertas Mejoradas --- */
 .vceo-alert {
-    padding: 15px;
-    margin-bottom: 20px;
+    padding: 15px 20px;
+    margin-bottom: 25px;
     border: 1px solid transparent;
-    border-radius: 4px;
-    position: relative;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
 .vceo-alert-error {
-    color: #a94442;
-    background-color: #f2dede;
-    border-color: #ebccd1;
+    color: #721c24;
+    background-color: #f8d7da;
+    border-left: 5px solid #c0392b;
 }
 
 .vceo-alert-success {
-    color: #3c763d;
-    background-color: #dff0d8;
-    border-color: #d6e9c6;
+    color: #155724;
+    background-color: #d4edda;
+    border-left: 5px solid #28a745;
 }
 
 .vceo-alert-close {
-    position: absolute;
-    top: 5px;
-    right: 10px;
     background: none;
     border: none;
-    font-size: 20px;
+    font-size: 24px;
     font-weight: bold;
-    line-height: 1;
     color: inherit;
-    opacity: 0.7;
+    opacity: 0.6;
     cursor: pointer;
+    padding: 0 5px;
 }
 .vceo-alert-close:hover {
     opacity: 1;
 }
 
-
-/* Tabla */
+/* --- Tabla Moderna --- */
 .vceo-table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    font-size: 0.95em;
 }
 
 .vceo-table th,
 .vceo-table td {
-    border: 1px solid #ddd;
-    padding: 10px 12px;
+    padding: 15px;
     text-align: left;
+    border-bottom: 1px solid #e0e0e0; /* Solo bordes horizontales */
 }
 
-.vceo-table th {
-    background-color: #f8f9fa;
-    font-weight: bold;
-    color: #333;
+.vceo-table thead th {
+    background-color: #f5f7fa;
+    font-weight: 600;
+    color: #34495e;
+    text-transform: uppercase;
+    font-size: 0.85em;
+    letter-spacing: 0.5px;
 }
 
-.vceo-table tr:nth-child(even) {
-    background-color: #f9f9f9;
+.vceo-table tbody tr {
+    transition: background-color 0.2s ease;
 }
 
-.vceo-table tr:hover {
-    background-color: #f1f1f1;
+.vceo-table tbody tr:hover {
+    background-color: #f1f8ff; /* Un azul muy claro al pasar el mouse */
 }
 
 .vceo-estado-inactivo {
-    color: #dc3545; /* Rojo para estado inactivo */
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 4px 8px;
+    border-radius: 15px;
     font-weight: bold;
+    font-size: 0.85em;
+    display: inline-block;
 }
 
-/* Botones */
+/* --- Botones Pulidos --- */
 .vceo-button {
-    padding: 8px 15px;
-    font-size: 14px;
+    padding: 10px 20px;
+    font-size: 0.9em;
+    font-weight: 600;
     border: none;
-    border-radius: 4px;
+    border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.2s ease-in-out;
-    background-color: #007bff;
+    transition: all 0.2s ease;
+    background-color: #3498db; /* Azul primario */
     color: white;
-    margin-right: 5px; /* Espacio entre botones en la misma línea */
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .vceo-button:hover {
-    background-color: #0056b3;
+    background-color: #2980b9;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
 }
 
-.vceo-button-disabled {
-    background-color: #ccc;
-    color: #666;
+.vceo-button.vceo-button-disabled,
+.vceo-button:disabled {
+    background-color: #bdc3c7;
+    color: #7f8c8d;
     cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
 }
-.vceo-button-disabled:hover {
-    background-color: #ccc;
-}
-
 
 .vceo-button-cancel {
-    background-color: #6c757d;
+    background-color: #6c757d; /* Gris para cancelar */
 }
 .vceo-button-cancel:hover {
-    background-color: #545b62;
+    background-color: #5a6268;
 }
 
-
-/* Modal */
+/* --- Modal Rediseñado --- */
 .vceo-modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.6);
+    background-color: rgba(44, 62, 80, 0.85); /* Overlay más oscuro */
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 1000; /* Asegurar que esté por encima de otros contenidos */
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
 .vceo-modal-content {
     background-color: white;
-    padding: 25px 30px;
-    border-radius: 8px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    min-width: 350px;
-    max-width: 500px;
-    text-align: left;
+    padding: 30px 40px;
+    border-radius: 10px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    min-width: 400px;
+    max-width: 550px;
+    transform: scale(0.95);
+    animation: zoomIn 0.3s ease forwards;
 }
+
+@keyframes zoomIn {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
 
 .vceo-modal-content h4 {
     margin-top: 0;
-    font-size: 20px;
-    color: #333;
+    font-size: 1.5em;
+    color: #2c3e50;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
 }
 
 .vceo-modal-content p {
-    margin-bottom: 15px;
+    margin-bottom: 20px;
     color: #555;
-    line-height: 1.6;
+    line-height: 1.7;
+    font-size: 1.1em;
 }
 
 .vceo-modal-content strong {
-    color: #000;
+    color: #3498db;
 }
 
 .vceo-modal-actions {
-    margin-top: 25px;
+    margin-top: 30px;
     text-align: right;
+    display: flex;
+    gap: 15px;
+    justify-content: flex-end;
 }
 
 .vceo-modal-actions .vceo-button {
-    min-width: 100px;
+    min-width: 120px;
+}
+
+/* El botón de confirmar se resalta en verde */
+.vceo-modal-actions .vceo-button:not(.vceo-button-cancel) {
+    background-color: #27ae60;
+}
+.vceo-modal-actions .vceo-button:not(.vceo-button-cancel):hover {
+    background-color: #229954;
 }
