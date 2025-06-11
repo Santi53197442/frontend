@@ -14,6 +14,7 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         const initializeAuth = async () => {
+            setLoading(true);
             const storedToken = localStorage.getItem('authToken');
 
             if (storedToken) {
@@ -24,6 +25,8 @@ export const AuthProvider = ({ children }) => {
 
                     if (userDataFromApi?.id) {
                         const rolLowerCase = userDataFromApi.rol?.toLowerCase() || '';
+
+                        // <<< CAMBIO 1: Guardamos el tipoCliente al inicializar desde el perfil
                         setUser({
                             token: storedToken,
                             id: userDataFromApi.id,
@@ -34,24 +37,37 @@ export const AuthProvider = ({ children }) => {
                             ci: userDataFromApi.ci,
                             telefono: userDataFromApi.telefono,
                             fechaNac: userDataFromApi.fechaNac,
-                            tipoCliente: userDataFromApi.tipoCliente
+                            tipoCliente: userDataFromApi.tipoCliente // Guardamos el tipo de cliente
                         });
+
                         setIsAuthenticated(true);
+                        // Guardar en localStorage para persistencia
+                        localStorage.setItem('userId', String(userDataFromApi.id));
+                        localStorage.setItem('userRol', rolLowerCase);
+                        localStorage.setItem('userEmail', userDataFromApi.email || '');
+                        if (userDataFromApi.tipoCliente) {
+                            localStorage.setItem('userTipoCliente', userDataFromApi.tipoCliente);
+                        }
+
                     } else {
-                        // Si el token es inválido o el perfil no se encuentra
-                        logout();
+                        // Limpiar si el perfil no es válido
+                        ['authToken', 'userId', 'userEmail', 'userRol', 'userTipoCliente'].forEach(item => localStorage.removeItem(item));
+                        setUser(null);
+                        setIsAuthenticated(false);
+                        delete apiClient.defaults.headers.common['Authorization'];
                     }
                 } catch (e) {
-                    // Si la llamada a la API falla (ej. token expirado)
-                    logout();
+                    // Limpiar si hay error
+                    ['authToken', 'userId', 'userEmail', 'userRol', 'userTipoCliente'].forEach(item => localStorage.removeItem(item));
+                    setUser(null);
+                    setIsAuthenticated(false);
+                    delete apiClient.defaults.headers.common['Authorization'];
                 }
             }
-            // Marcamos la carga como finalizada solo después de verificar el token
             setLoading(false);
         };
 
         initializeAuth();
-        // El array de dependencias vacío [] asegura que esto se ejecute solo una vez
     }, []);
 
     const login = async (credentials) => {
@@ -59,6 +75,8 @@ export const AuthProvider = ({ children }) => {
         setLoading(true);
         try {
             const response = await apiClient.post('/auth/login', credentials);
+
+            // <<< CAMBIO 2: Extraemos tipoCliente de la respuesta del login
             const { token, id, email, rol, nombre, apellido, ci, telefono, fechaNac, tipoCliente } = response.data;
 
             if (!token || typeof id === 'undefined' || id === null) {
@@ -77,11 +95,11 @@ export const AuthProvider = ({ children }) => {
             localStorage.setItem('userCI', String(ci || ''));
             localStorage.setItem('userTelefono', String(telefono || ''));
             localStorage.setItem('userFechaNac', fechaNac || '');
-            if (tipoCliente) {
+            if (tipoCliente) { // Solo guardar si existe
                 localStorage.setItem('userTipoCliente', tipoCliente);
             }
 
-            // Establecer el estado del usuario
+            // Establecer el estado del usuario, incluyendo tipoCliente
             setUser({ token, id, email, rol: rolLowerCase, nombre, apellido, ci, telefono, fechaNac, tipoCliente });
             setIsAuthenticated(true);
             apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
@@ -112,6 +130,8 @@ export const AuthProvider = ({ children }) => {
         }
 
         const rolLowerCase = backendResponseData.rol?.toLowerCase() || user?.rol || '';
+
+        // <<< CAMBIO 3: Nos aseguramos de actualizar también el tipoCliente si viene en los datos
         const updatedUserData = {
             token: currentUserToken,
             id: backendResponseData.id,
@@ -122,12 +142,12 @@ export const AuthProvider = ({ children }) => {
             ci: backendResponseData.ci,
             telefono: backendResponseData.telefono,
             fechaNac: backendResponseData.fechaNac,
-            tipoCliente: backendResponseData.tipoCliente
+            tipoCliente: backendResponseData.tipoCliente // Actualizar el tipo de cliente
         };
 
         setUser(updatedUserData);
         setIsAuthenticated(true);
-
+        // Actualizar localStorage también
         localStorage.setItem('userId', String(updatedUserData.id));
         localStorage.setItem('userEmail', updatedUserData.email || '');
         localStorage.setItem('userRol', updatedUserData.rol || '');
@@ -139,6 +159,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     const logout = () => {
+        // <<< CAMBIO 4: Limpiamos también userTipoCliente del localStorage
         ['authToken', 'userId', 'userEmail', 'userRol', 'userNombre', 'userApellido', 'userCI', 'userTelefono', 'userFechaNac', 'userTipoCliente']
             .forEach(item => localStorage.removeItem(item));
         setUser(null);
@@ -147,25 +168,6 @@ export const AuthProvider = ({ children }) => {
         delete apiClient.defaults.headers.common['Authorization'];
         navigate('/login');
     };
-
-    // --- LA SOLUCIÓN ---
-    // Mientras el estado 'loading' sea true (durante la verificación inicial del token),
-    // mostramos un componente de carga en lugar de la aplicación completa.
-    if (loading) {
-        return (
-            <div style={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                height: '100vh',
-                fontSize: '1.5em',
-                fontFamily: 'sans-serif',
-                color: '#333'
-            }}>
-                <h2>Cargando sesión...</h2>
-            </div>
-        );
-    }
 
     return (
         <AuthContext.Provider value={{
@@ -178,6 +180,7 @@ export const AuthProvider = ({ children }) => {
             error,
             setError
         }}>
+            {/* Si no está cargando, muestra los hijos (la app), sino, muestra un mensaje de carga. */}
             {children}
         </AuthContext.Provider>
     );
