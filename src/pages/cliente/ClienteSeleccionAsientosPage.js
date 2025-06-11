@@ -64,45 +64,52 @@ const ClienteSeleccionAsientos = () => {
     };
 
     const handleIrACheckout = async () => {
-        if (asientosSeleccionados.length === 0) {
-            alert("Por favor, seleccione al menos un asiento.");
-            return;
-        }
-        if (!user || !user.id) {
-            alert("Error: No se pudo identificar al usuario. Por favor, inicie sesión de nuevo.");
-            return;
-        }
+    if (asientosSeleccionados.length === 0) {
+        alert("Por favor, seleccione al menos un asiento.");
+        return;
+    }
+    if (!user || !user.id) {
+        alert("Error: No se pudo identificar al usuario. Por favor, inicie sesión de nuevo.");
+        return;
+    }
 
-        setIsReserving(true);
-        try {
-            const reservaDTO = {
-                viajeId: parsedViajeId,
-                clienteId: user.id,
-                numerosAsiento: asientosSeleccionados,
-            };
+    setIsReserving(true);
+    try {
+        const reservaDTO = {
+            viajeId: parsedViajeId,
+            clienteId: user.id,
+            numerosAsiento: asientosSeleccionados,
+        };
 
-            const response = await reservarAsientosTemporalmente(reservaDTO);
-            const { expiracion } = response.data;
+        const response = await reservarAsientosTemporalmente(reservaDTO);
+        const { expiracion } = response.data;
 
-            const asientosString = asientosSeleccionados.join(',');
-            const targetPath = `/compra/viaje/${parsedViajeId}/asientos/${asientosString}/checkout`;
+        const asientosString = asientosSeleccionados.join(',');
+        const targetPath = `/compra/viaje/${parsedViajeId}/asientos/${asientosString}/checkout`;
 
-            navigate(targetPath, {
-                state: {
-                    viajeData: viajeDetalles,
-                    asientosNumeros: asientosSeleccionados,
-                    reservaExpiraEn: expiracion,
-                }
-            });
-        } catch (error) {
-            const errorMessage = error.response?.data?.message || "Uno o más asientos ya no están disponibles. La página se actualizará.";
-            alert(errorMessage);
+        navigate(targetPath, {
+            state: {
+                viajeData: viajeDetalles,
+                asientosNumeros: asientosSeleccionados,
+                reservaExpiraEn: expiracion,
+            }
+        });
+    } catch (error) {
+        // --- INICIO DE LA SECCIÓN CORREGIDA ---
+        const errorMessage = error.response?.data?.message || "Ocurrió un error al procesar su solicitud.";
+        
+        alert(errorMessage);
+
+        // Solo recargamos si el error indica que un asiento fue ocupado por otro usuario.
+        if (errorMessage.toLowerCase().includes("no está disponible")) {
             window.location.reload();
-        } finally {
-            setIsReserving(false);
         }
+        // --- FIN DE LA SECCIÓN CORREGIDA ---
+    } finally {
+        setIsReserving(false);
+    }
     };
-
+    
     const getCapacidadAsientos = () => {
         if (!viajeDetalles) return 0;
         return viajeDetalles.capacidadOmnibus || (viajeDetalles.omnibus && viajeDetalles.omnibus.capacidadAsientos) || 0;
