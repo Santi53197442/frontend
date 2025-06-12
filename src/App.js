@@ -5,13 +5,12 @@ import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from './AuthContext';
 import { PayPalScriptProvider } from "@paypal/react-paypal-js";
 
-import AppRouter from './router'; // Tu archivo con todas las rutas
-import Header from './components/Header'; // O Navbar, según lo llames
-import Footer from './layouts/Footer'; // Tu nuevo footer
+import AppRouter from './router';
+import Header from './components/Header';
+import Footer from './layouts/Footer';
 
 import './App.css';
 
-// Opciones iniciales para el SDK de PayPal con tu Client ID de Sandbox
 const initialOptions = {
     "client-id": "AclKeFueUT6hu_vNmKjHR4MEfn7vyF3J3mzk8DxkkM0y_Gc9DyD2250fCktw_Tt8h3Qu8--U8EDWEc7u",
     currency: "USD",
@@ -20,27 +19,30 @@ const initialOptions = {
 
 function App() {
     return (
-        // 1. Proveedor de PayPal (envuelve todo para que esté disponible en todas partes)
+        // 1. Proveedor de PayPal (puede estar afuera si no depende de otros contextos)
         <PayPalScriptProvider options={initialOptions}>
-            {/* 2. Proveedor de Rutas */}
-            <BrowserRouter>
-                {/* 3. Proveedor de Autenticación */}
-                <AuthProvider>
+            
+            {/* --- ¡AQUÍ ESTÁ LA CORRECCIÓN CLAVE! --- */}
+            {/* 2. El AuthProvider debe envolver al Router. */}
+            {/*    Así, primero se resuelve el estado 'loading' y 'isAuthenticated', */}
+            {/*    y solo DESPUÉS se renderiza el BrowserRouter con las rutas. */}
+            <AuthProvider>
+            
+                {/* 3. El Router ahora está dentro, por lo que hereda el contexto ya resuelto. */}
+                <BrowserRouter>
 
-                    {/* 4. Estructura visual de la página */}
                     <div className="App">
-                        <Header /> {/* O <Navbar />, como lo hayas nombrado */}
+                        <Header />
 
                         <main className="main-content">
-                            {/* AppRouter renderizará el componente de la página actual aquí */}
                             <AppRouter />
                         </main>
 
-                        <Footer /> {/* Tu footer al final de la página */}
+                        <Footer />
                     </div>
 
-                </AuthProvider>
-            </BrowserRouter>
+                </BrowserRouter>
+            </AuthProvider>
         </PayPalScriptProvider>
     );
 }
