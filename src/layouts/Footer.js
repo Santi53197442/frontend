@@ -12,7 +12,7 @@ const Footer = () => {
                         <li><a href="/comprar-pasajes"><i className="fas fa-bus-alt"></i> Comprar pasajes</a></li>
                         <li><a href="/servicios"><i className="fas fa-list"></i> Servicios</a></li>
                         <li><a href="/agencias"><i className="fas fa-map-marker-alt"></i> Agencias</a></li>
-                        <li><a href="tel:1717"><i className="fas fa-phone"></i> 1717</a></li>
+                        <li><a href="tel:3232"><i className="fas fa-phone"></i> 1717</a></li>
                     </ul>
                 </div>
                 <div className="footer-column">

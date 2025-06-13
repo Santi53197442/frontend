@@ -1,18 +1,16 @@
 // src/App.js
-// --- VERSIÓN ORIGINAL (La que causaba la redirección al recargar) ---
-
+// --- VERSIÓN CORREGIDA Y FUNCIONAL ---
 import React from 'react';
-import { BrowserRouter } from 'react-router-dom';
+// import { BrowserRouter } from 'react-router-dom'; // <--- HEMOS QUITADO ESTA LÍNEA
 import { AuthProvider } from './AuthContext';
 import { PayPalScriptProvider } from "@paypal/react-paypal-js";
 
-import AppRouter from './router'; // Tu archivo con todas las rutas
-import Header from './components/Header'; // O Navbar, según lo llames
-import Footer from './layouts/Footer'; // Tu nuevo footer
+import AppRouter from './router';
+import Header from './components/Header';
+import Footer from './layouts/Footer';
 
 import './App.css';
 
-// Opciones iniciales para el SDK de PayPal con tu Client ID de Sandbox
 const initialOptions = {
     "client-id": "AclKeFueUT6hu_vNmKjHR4MEfn7vyF3J3mzk8DxkkM0y_Gc9DyD2250fCktw_Tt8h3Qu8--U8EDWEc7u",
     currency: "USD",
@@ -21,29 +19,23 @@ const initialOptions = {
 
 function App() {
     return (
-        // 1. Proveedor de PayPal
+        // El Proveedor de PayPal puede estar aquí
         <PayPalScriptProvider options={initialOptions}>
-            
-            {/* 2. Proveedor de Rutas (BrowserRouter) envolviendo a AuthProvider */}
-            <BrowserRouter>
-            
-                {/* 3. Proveedor de Autenticación */}
-                <AuthProvider>
 
-                    {/* 4. Estructura visual de la página */}
-                    <div className="App">
-                        <Header />
+            {/* El BrowserRouter ya no está aquí. ¡Correcto! */}
 
-                        <main className="main-content">
-                            {/* AppRouter renderizará el componente de la página actual aquí */}
-                            <AppRouter />
-                        </main>
+            {/* AuthProvider ahora es el siguiente nivel */}
+            <AuthProvider>
+                <div className="App">
+                    <Header />
+                    <main className="main-content">
+                        {/* El Router con las rutas se renderiza aquí dentro del contexto */}
+                        <AppRouter />
+                    </main>
+                    <Footer />
+                </div>
+            </AuthProvider>
 
-                        <Footer />
-                    </div>
-
-                </AuthProvider>
-            </BrowserRouter>
         </PayPalScriptProvider>
     );
 }
