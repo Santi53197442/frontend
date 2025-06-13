@@ -1,0 +1,105 @@
+/* src/pages/ServiciosPage.css */
+
+.servicios-container {
+    display: flex;
+    gap: 30px;
+    padding: 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+/* Sidebar de navegación */
+.servicios-sidebar {
+    flex: 0 0 220px; /* Ancho fijo de 220px */
+}
+
+.servicios-sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    position: sticky; /* Para que se quede fija al hacer scroll */
+    top: 100px; /* Ajusta este valor según la altura de tu header */
+}
+
+.servicios-sidebar li {
+    margin-bottom: 15px;
+}
+
+.servicios-sidebar a {
+    text-decoration: none;
+    color: #555;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.servicios-sidebar a:hover {
+    color: #007bff; /* Un color de realce */
+}
+
+/* Contenido principal */
+.servicios-content {
+    flex: 1; /* Ocupa el resto del espacio */
+}
+
+.servicios-content h1 {
+    font-size: 2.5rem;
+    color: #333;
+    margin-bottom: 40px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.servicios-content section {
+    margin-bottom: 50px;
+    padding-bottom: 30px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.servicios-content section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.servicios-content h2 {
+    font-size: 1.8rem;
+    color: #333;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Estilos para los íconos de FontAwesome */
+.servicios-content .fas {
+    color: #007bff; /* Mismo color de realce */
+}
+
+.servicios-content p {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: #666;
+}
+
+.servicios-content p a {
+    color: #0056b3;
+    text-decoration: underline;
+}
+
+/* Diseño responsivo para móviles */
+@media (max-width: 800px) {
+    .servicios-container {
+        flex-direction: column;
+        padding: 20px;
+    }
+    .servicios-sidebar ul {
+        position: static;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 30px;
+    }
+}

@@ -1,6 +1,7 @@
-// src/components/Layout/Footer.js
+// src/layouts/Footer.js
 import React from 'react';
-import './Footer.css'; // Crearemos este archivo CSS en el siguiente paso
+import { Link } from 'react-router-dom'; // Importamos Link para la navegación interna
+import './Footer.css'; // Asegúrate de que este archivo de estilos exista
 
 const Footer = () => {
     return (
@@ -9,19 +10,25 @@ const Footer = () => {
                 <div className="footer-column">
                     <h4>Navegación</h4>
                     <ul>
-                        <li><a href="/comprar-pasajes"><i className="fas fa-bus-alt"></i> Comprar pasajes</a></li>
-                        <li><a href="/servicios"><i className="fas fa-list"></i> Servicios</a></li>
-                        <li><a href="/agencias"><i className="fas fa-map-marker-alt"></i> Agencias</a></li>
-                        <li><a href="tel:3232"><i className="fas fa-phone"></i> 1717</a></li>
+                        {/* Usamos <Link> para rutas internas para no recargar la página */}
+                        <li><Link to="/viajes"><i className="fas fa-bus-alt"></i> Comprar pasajes</Link></li>
+                        <li><Link to="/servicios"><i className="fas fa-list"></i> Servicios</Link></li>
+                        <li><Link to="/agencias"><i className="fas fa-map-marker-alt"></i> Agencias</Link></li>
+
+                        {/* Para enlaces externos como 'tel:', seguimos usando la etiqueta <a> normal */}
+                        <li><a href="tel:3232"><i className="fas fa-phone"></i> 3232</a></li>
                     </ul>
                 </div>
                 <div className="footer-column">
                     <h4>Información</h4>
                     <ul>
-                        <li><a href="/destinos"><i className="fas fa-route"></i> Destinos</a></li>
-                        <li><a href="/trabaja-con-nosotros"><i className="fas fa-briefcase"></i> Trabajá con nosotros</a></li>
-                        <li><a href="/contacto"><i className="fas fa-envelope"></i> Contacto</a></li>
-                        <li><a href="/colaboradores"><i className="fas fa-users"></i> Colaboradores</a></li>
+                        {/* Reemplazamos todos los <a> internos por <Link> */}
+                        <li><Link to="/destinos"><i className="fas fa-route"></i> Destinos</Link></li>
+                        <li><Link to="/trabaja-con-nosotros"><i className="fas fa-briefcase"></i> Trabajá con nosotros</Link></li>
+                        <li><Link to="/contacto"><i className="fas fa-envelope"></i> Contacto</Link></li>
+                        <li><Link to="/colaboradores"><i className="fas fa-users"></i> Colaboradores</Link></li>
+
+                        {/* 'mailto:' es un enlace externo, así que mantenemos <a> */}
                         <li><a href="mailto:info@carpibus.com.uy"><i className="fas fa-at"></i> info@carpibus.com.uy</a></li>
                     </ul>
                 </div>
@@ -29,15 +36,17 @@ const Footer = () => {
                     <h4>CarpiBus</h4>
                     <p>Tu viaje, nuestra pasión.</p>
                     <div className="payment-logos">
+                        {/* Estos íconos representan métodos de pago, no son enlaces */}
                         <i className="fab fa-cc-visa" title="Visa"></i>
                         <i className="fab fa-cc-mastercard" title="MasterCard"></i>
                         <i className="fab fa-cc-amex" title="American Express"></i>
                     </div>
                     <div className="social-icons">
-                        <a href="#" aria-label="Nuestra ubicación"><i className="fas fa-map-marked-alt"></i></a>
-                        <a href="#" aria-label="Facebook"><i className="fab fa-facebook-f"></i></a>
-                        <a href="#" aria-label="Instagram"><i className="fab fa-instagram"></i></a>
-                        <a href="#" aria-label="YouTube"><i className="fab fa-youtube"></i></a>
+                        {/* Estos deberían apuntar a tus perfiles sociales reales */}
+                        <a href="https://www.google.com/maps" target="_blank" rel="noopener noreferrer" aria-label="Nuestra ubicación"><i className="fas fa-map-marked-alt"></i></a>
+                        <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i className="fab fa-facebook-f"></i></a>
+                        <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i className="fab fa-instagram"></i></a>
+                        <a href="https://www.youtube.com" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><i className="fab fa-youtube"></i></a>
                     </div>
                 </div>
             </div>
