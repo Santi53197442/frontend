@@ -1,6 +1,7 @@
 // src/pages/ServiciosPage.jsx
 import React from 'react';
-import './ServiciosPage.css'; // Crearemos este archivo a continuación
+import { Link } from 'react-router-dom'; // Importamos Link para la navegación interna
+import './ServiciosPage.css';
 
 const ServiciosPage = () => {
     return (
@@ -8,12 +9,11 @@ const ServiciosPage = () => {
             {/* Columna Izquierda: Navegación */}
             <aside className="servicios-sidebar">
                 <ul>
+                    {/* Los enlaces ahora apuntan a los IDs de las secciones */}
                     <li><a href="#venta-pasajes">Venta de pasajes »</a></li>
-                    <li><a href="#encomiendas">Cartas y Encomiendas »</a></li>
-                    <li><a href="#reembolsos">Contra reembolsos »</a></li>
-                    <li><a href="#giros">Giros al instante »</a></li>
+                    <li><a href="#reembolsos">Devolución de pasajes »</a></li>
                     <li><a href="#estudiantes">Estudiantes »</a></li>
-                    <li><a href="#compra-agencias">Compra de pasajes »</a></li>
+                    <li><a href="#compra-agencias">Compra en agencias »</a></li>
                 </ul>
             </aside>
 
@@ -26,29 +26,31 @@ const ServiciosPage = () => {
                     <p>Compre su pasaje en nuestro sitio web y suba directamente al coche sin pasar por mostrador. Ahorre tiempo y molestias.</p>
                 </section>
 
-                <section id="encomiendas">
-                    <h2><i className="fas fa-box-open"></i> Cartas y Encomiendas</h2>
-                    <p>Llevamos cartas y encomiendas a todo el país. Puede solicitar el retiro en su domicilio al <a href="tel:1717">1717</a> o vía e-mail a <a href="mailto:envios@dac.com.uy">envios@dac.com.uy</a>. También puede visitar DAC dónde encontrará tarifas de nuestros productos.</p>
-                </section>
-
+                {/* --- SECCIÓN AÑADIDA Y ACTUALIZADA --- */}
                 <section id="reembolsos">
-                    <h2><i className="fas fa-hand-holding-usd"></i> Contra reembolsos</h2>
-                    <p>(Cash on Delivery). Envíe su mercadería y la misma le será cobrada al destinatario en el momento de la entrega. Para más información haga click aquí o llame al <a href="tel:1717">1717</a>. También puede despachar modalidad de contrarreembolsos en todas nuestras sucursales.</p>
+                    <h2><i className="fas fa-undo-alt"></i> Devolución de pasajes (Reembolso)</h2>
+                    <p>
+                        Entendemos que los planes pueden cambiar. Ofrecemos la posibilidad de solicitar la devolución de su pasaje bajo las siguientes condiciones:
+                    </p>
+                    <ul>
+                        <li>La solicitud de devolución debe realizarse con un mínimo de <strong>24 horas de antelación</strong> a la fecha y hora de salida del viaje.</li>
+                        <li>Las devoluciones están sujetas a una <strong>penalización del 10%</strong> sobre el valor total del pasaje, que se descontará del monto a reembolsar.</li>
+                        <li>Para iniciar el proceso, por favor diríjase a una de nuestras agencias con su pasaje y documento de identidad.</li>
+                    </ul>
+                    <p>
+                        Las solicitudes que no cumplan con el plazo de 24 horas no serán elegibles para un reembolso.
+                    </p>
                 </section>
-
-                <section id="giros">
-                    <h2><i className="fas fa-running"></i> Giros al instante</h2>
-                    <p>Realizamos giros instantáneos a todo el país con la comisión más baja en plaza. Para más información haga click aquí o llame al <a href="tel:1717">1717</a>.</p>
-                </section>
+                {/* --- FIN DE LA SECCIÓN --- */}
 
                 <section id="estudiantes">
                     <h2><i className="fas fa-user-graduate"></i> Estudiantes</h2>
-                    <p>Para solicitar descuento de estudiante enviar constancia de estudio y foto carné a <a href="mailto:estudiantes@agenciacentral.com.uy">estudiantes@agenciacentral.com.uy</a>, cuando sus datos sean validados quedará habilitado el descuento al comprar con su documento en la web.</p>
+                    <p>Para solicitar el descuento de estudiante, envíe su constancia de estudio y foto de carné a <a href="mailto:ccarpibus@gmail.com">ccarpibus@gmail.com</a>. Una vez que sus datos sean validados, el descuento quedará habilitado para sus futuras compras en la web utilizando su documento de identidad.</p>
                 </section>
 
                 <section id="compra-agencias">
-                    <h2><i className="fas fa-check-circle"></i> Compra de pasajes</h2>
-                    <p>También tiene la posibilidad de adquirir sus pasajes en las <a href="/agencias">agencias DAC</a> de todo el país.</p>
+                    <h2><i className="fas fa-building"></i> Compra en Agencias</h2>
+                    <p>También tiene la posibilidad de adquirir sus pasajes en cualquiera de nuestras <Link to="/agencias">agencias</Link> distribuidas en todo el país.</p>
                 </section>
 
             </main>
