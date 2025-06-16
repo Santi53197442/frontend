@@ -1,11 +1,9 @@
 // src/components/Login.js
 import React, { useState } from "react";
-// --- 1. AÑADE useLocation ---
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { useAuth } from "../AuthContext"; // Asegúrate que esta ruta sea correcta
+import { useAuth } from "../AuthContext";
 import './Login.css';
 
-// Asume que tienes tu logo en public/images/logo-omnibus.png
 const logoUrl = process.env.PUBLIC_URL + '/images/logo-omnibus.png';
 
 const Login = () => {
@@ -13,39 +11,30 @@ const Login = () => {
     const [contrasenia, setContrasenia] = useState("");
     const { login, error: authError, setError: setAuthError } = useAuth();
     const [isLoading, setIsLoading] = useState(false);
-    const navigate = useNavigate();
 
-    // --- 2. OBTENEMOS LA UBICACIÓN Y EL DESTINO ORIGINAL ---
+    // Hooks para la redirección
+    const navigate = useNavigate(); // Aunque la navegación la hace el contexto, es bueno tenerlo por si acaso.
     const location = useLocation();
-    // Si ProtectedRoute nos envió una ubicación, la usamos. Si no, vamos a la página principal.
+
+    // Obtenemos la ruta a la que el usuario quería ir antes de ser redirigido aquí.
+    // Si no hay ninguna, el destino por defecto será la página principal "/".
     const from = location.state?.from?.pathname || "/";
 
     const handleLogin = async (e) => {
         e.preventDefault();
-        setAuthError("");
+        setAuthError(""); // Limpiamos errores anteriores
         if (!email || !contrasenia) {
             setAuthError("Por favor, ingrese email y contraseña.");
             return;
         }
         setIsLoading(true);
         try {
-            // --- 3. ¡CAMBIO CLAVE! ---
-            // La función `login` del contexto ahora nos debe devolver si fue exitoso o no.
-            // Le pasamos las credenciales y el destino al que debe redirigir.
-            const loginExitoso = await login({ email, contrasenia }, from);
-
-            // Si el login en el contexto no maneja la navegación, la hacemos aquí.
-            // (Es mejor que la maneje el contexto, pero esto es un fallback).
-            if (loginExitoso) {
-                // Esta navegación solo se ejecutará si tu función `login` en el contexto
-                // no navega por sí misma y devuelve `true`.
-                navigate(from, { replace: true });
-            }
-
+            // Pasamos las credenciales Y el destino de redirección a la función del contexto.
+            // El contexto se encargará de navegar al lugar correcto.
+            await login({ email, contrasenia }, from);
         } catch (err) {
-            // El error ya debería ser manejado y expuesto por el AuthContext,
-            // por lo que este bloque puede que no sea necesario.
-            console.error("Error en el componente Login:", err);
+            // El error ya es manejado por el contexto, pero este log es útil para depurar.
+            console.error("Error capturado en el componente Login:", err);
         } finally {
             setIsLoading(false);
         }
