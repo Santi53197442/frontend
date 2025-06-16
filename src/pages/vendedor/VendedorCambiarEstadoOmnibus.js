@@ -1,37 +1,28 @@
 import React, { useState, useEffect } from 'react';
-// Asegúrate que la ruta a tu api.js sea correcta
 import { obtenerOmnibusPorEstado, marcarOmnibusInactivo } from '../../services/api';
-import './VendedorCambiarEstadoOmnibus.css'; // Asegúrate de que este archivo CSS exista y esté estilizado
+import './VendedorCambiarEstadoOmnibus.css';
 
 function VendedorCambiarEstadoOmnibus() {
     const [omnibusDisponibles, setOmnibusDisponibles] = useState([]);
     const [selectedOmnibusId, setSelectedOmnibusId] = useState('');
     const [inicioInactividad, setInicioInactividad] = useState('');
     const [finInactividad, setFinInactividad] = useState('');
-    const [nuevoEstado, setNuevoEstado] = useState('EN_MANTENIMIENTO'); // Estado por defecto
+    const [nuevoEstado, setNuevoEstado] = useState('EN_MANTENIMIENTO');
     const [isLoading, setIsLoading] = useState(false);
-    const [message, setMessage] = useState({ text: '', type: '' }); // type: 'success' o 'error'
+    const [message, setMessage] = useState({ text: '', type: '' });
     const [viajesConflictivos, setViajesConflictivos] = useState([]);
 
-    // Cargar ómnibus operativos al montar el componente
     useEffect(() => {
         const cargarOmnibusOperativos = async () => {
-            setIsLoading(true); // Indicar carga inicial
-            setMessage({ text: '', type: '' });
+            setIsLoading(true);
             try {
                 const response = await obtenerOmnibusPorEstado('OPERATIVO');
-                setOmnibusDisponibles(response.data || []); // response.data puede ser null si es 204 No Content
-                if (response.data && response.data.length === 0) {
+                setOmnibusDisponibles(response.data || []);
+                if (!response.data || response.data.length === 0) {
                     setMessage({ text: 'No hay ómnibus en estado OPERATIVO disponibles.', type: 'info' });
                 }
             } catch (error) {
-                console.error("Error cargando ómnibus operativos:", error.response || error);
-                let errMsg = "Error al cargar la lista de ómnibus operativos.";
-                if (error.response && error.response.status === 403) {
-                    errMsg = "No tiene permisos para ver los ómnibus. Verifique su sesión.";
-                } else if (error.response && error.response.data && error.response.data.message) {
-                    errMsg = error.response.data.message;
-                }
+                const errMsg = error.response?.data?.message || "Error al cargar la lista de ómnibus.";
                 setMessage({ text: errMsg, type: 'error' });
                 setOmnibusDisponibles([]);
             } finally {
@@ -39,23 +30,15 @@ function VendedorCambiarEstadoOmnibus() {
             }
         };
         cargarOmnibusOperativos();
-    }, []); // El array vacío significa que se ejecuta solo al montar
+    }, []);
 
     const handleSubmit = async (event) => {
         event.preventDefault();
         setMessage({ text: '', type: '' });
         setViajesConflictivos([]);
 
-        if (!selectedOmnibusId) {
-            setMessage({ text: 'Por favor, seleccione un ómnibus.', type: 'error' });
-            return;
-        }
-        if (!inicioInactividad) {
-            setMessage({ text: 'Por favor, ingrese la fecha y hora de inicio de inactividad.', type: 'error' });
-            return;
-        }
-        if (!finInactividad) {
-            setMessage({ text: 'Por favor, ingrese la fecha y hora de fin de inactividad.', type: 'error' });
+        if (!selectedOmnibusId || !inicioInactividad || !finInactividad) {
+            setMessage({ text: 'Por favor, complete todos los campos.', type: 'error' });
             return;
         }
         if (new Date(inicioInactividad) >= new Date(finInactividad)) {
@@ -66,7 +49,7 @@ function VendedorCambiarEstadoOmnibus() {
         setIsLoading(true);
 
         const inactividadData = {
-            inicioInactividad: inicioInactividad, // Formato YYYY-MM-DDTHH:MM (el input datetime-local lo da así)
+            inicioInactividad: inicioInactividad,
             finInactividad: finInactividad,
             nuevoEstado: nuevoEstado,
         };
@@ -77,36 +60,39 @@ function VendedorCambiarEstadoOmnibus() {
                 text: `Ómnibus ID ${response.data.id} (Matrícula: ${response.data.matricula}) cambiado a estado ${response.data.estado} exitosamente.`,
                 type: 'success',
             });
-            // Opcional: Limpiar formulario y recargar ómnibus operativos
             setSelectedOmnibusId('');
             setInicioInactividad('');
             setFinInactividad('');
-            // Recargar la lista para reflejar el cambio de estado del ómnibus (si ya no es OPERATIVO)
             const updatedOmnibusList = await obtenerOmnibusPorEstado('OPERATIVO');
             setOmnibusDisponibles(updatedOmnibusList.data || []);
 
         } catch (error) {
             console.error("Error al marcar ómnibus inactivo:", error.response || error);
-            let errorMessage = 'Ocurrió un error al intentar cambiar el estado del ómnibus.';
-            if (error.response && error.response.data) {
-                errorMessage = error.response.data.message || errorMessage;
-                if (error.response.data.viajesConflictivos) {
-                    setViajesConflictivos(error.response.data.viajesConflictivos);
-                }
-            }
+            // --- LÓGICA DE ERROR MEJORADA ---
+            // Intenta obtener el mensaje de error de validación primero
+            let errorMessage = error.response?.data?.errors?.[0]?.defaultMessage ||
+                error.response?.data?.message ||
+                'Ocurrió un error al intentar cambiar el estado del ómnibus.';
+
             setMessage({ text: errorMessage, type: 'error' });
+
+            if (error.response?.data?.viajesConflictivos) {
+                setViajesConflictivos(error.response.data.viajesConflictivos);
+            }
         } finally {
             setIsLoading(false);
         }
     };
 
-    // Función para obtener la fecha y hora actual en formato YYYY-MM-DDTHH:MM para el min del input
+    // --- FUNCIÓN DE FECHA CORREGIDA ---
     const getCurrentDateTimeLocal = () => {
         const now = new Date();
-        // Ajustar a la zona horaria local para que el 'min' funcione correctamente con el input
+        // Añadimos 1 minuto para dar un margen de seguridad a la validación @FutureOrPresent
+        now.setMinutes(now.getMinutes() + 1);
+
         const offset = now.getTimezoneOffset();
-        const localNow = new Date(now.getTime() - (offset*60*1000));
-        return localNow.toISOString().slice(0,16); // Formato YYYY-MM-DDTHH:mm
+        const localNow = new Date(now.getTime() - (offset * 60 * 1000));
+        return localNow.toISOString().slice(0, 16);
     };
 
     return (
@@ -140,7 +126,7 @@ function VendedorCambiarEstadoOmnibus() {
                         id="inicio-inactividad"
                         value={inicioInactividad}
                         onChange={(e) => setInicioInactividad(e.target.value)}
-                        min={getCurrentDateTimeLocal()}
+                        min={getCurrentDateTimeLocal()} // Ahora el mínimo es en el futuro
                         disabled={isLoading}
                         required
                     />
@@ -153,7 +139,7 @@ function VendedorCambiarEstadoOmnibus() {
                         id="fin-inactividad"
                         value={finInactividad}
                         onChange={(e) => setFinInactividad(e.target.value)}
-                        min={inicioInactividad || getCurrentDateTimeLocal()} // Fin no puede ser antes que inicio
+                        min={inicioInactividad || getCurrentDateTimeLocal()}
                         disabled={isLoading}
                         required
                     />
@@ -179,7 +165,7 @@ function VendedorCambiarEstadoOmnibus() {
             </form>
 
             {message.text && (
-                <div className={`message ${message.type === 'info' ? 'info' : message.type}`}>
+                <div className={`message ${message.type}`}>
                     {message.text}
                 </div>
             )}
@@ -189,7 +175,7 @@ function VendedorCambiarEstadoOmnibus() {
                     <h4>Viajes Conflictivos Detectados:</h4>
                     <ul>
                         {viajesConflictivos.map((viaje, index) => (
-                            <li key={viaje.id || index}> {/* Usar viaje.id si está disponible y es único */}
+                            <li key={viaje.id || index}>
                                 Viaje ID: {viaje.id}, Fecha: {viaje.fecha}, De {viaje.horaSalida} a {viaje.horaLlegada}
                             </li>
                         ))}
