@@ -1,36 +1,51 @@
 // src/components/Login.js
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+// --- 1. AÑADE useLocation ---
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../AuthContext"; // Asegúrate que esta ruta sea correcta
 import './Login.css';
 
 // Asume que tienes tu logo en public/images/logo-omnibus.png
-const logoUrl = process.env.PUBLIC_URL + '/images/logo-omnibus.png'; // Forma más robusta de referenciar assets en public
+const logoUrl = process.env.PUBLIC_URL + '/images/logo-omnibus.png';
 
 const Login = () => {
     const [email, setEmail] = useState("");
     const [contrasenia, setContrasenia] = useState("");
-    const { login, error: authError, setError: setAuthError } = useAuth(); // Obtener error y setError de AuthContext
+    const { login, error: authError, setError: setAuthError } = useAuth();
     const [isLoading, setIsLoading] = useState(false);
-    // const [error, setError] = useState(""); // Usaremos el error del AuthContext
     const navigate = useNavigate();
+
+    // --- 2. OBTENEMOS LA UBICACIÓN Y EL DESTINO ORIGINAL ---
+    const location = useLocation();
+    // Si ProtectedRoute nos envió una ubicación, la usamos. Si no, vamos a la página principal.
+    const from = location.state?.from?.pathname || "/";
 
     const handleLogin = async (e) => {
         e.preventDefault();
-        setAuthError(""); // Limpiar errores previos del contexto
+        setAuthError("");
         if (!email || !contrasenia) {
-            setAuthError("Por favor, ingrese email y contraseña."); // Usar setError del contexto
+            setAuthError("Por favor, ingrese email y contraseña.");
             return;
         }
         setIsLoading(true);
         try {
-            await login({ email, contrasenia }); // login en AuthContext ya debería manejar la navegación en caso de éxito
-            // y setear el error en caso de fallo.
+            // --- 3. ¡CAMBIO CLAVE! ---
+            // La función `login` del contexto ahora nos debe devolver si fue exitoso o no.
+            // Le pasamos las credenciales y el destino al que debe redirigir.
+            const loginExitoso = await login({ email, contrasenia }, from);
+
+            // Si el login en el contexto no maneja la navegación, la hacemos aquí.
+            // (Es mejor que la maneje el contexto, pero esto es un fallback).
+            if (loginExitoso) {
+                // Esta navegación solo se ejecutará si tu función `login` en el contexto
+                // no navega por sí misma y devuelve `true`.
+                navigate(from, { replace: true });
+            }
+
         } catch (err) {
-            // Si login en AuthContext no propaga el error o quieres un fallback
-            // (aunque lo ideal es que AuthContext maneje el error y lo exponga)
-            // setAuthError("Ocurrió un error inesperado durante el login.");
-            console.error("Error en handleLogin:", err);
+            // El error ya debería ser manejado y expuesto por el AuthContext,
+            // por lo que este bloque puede que no sea necesario.
+            console.error("Error en el componente Login:", err);
         } finally {
             setIsLoading(false);
         }
@@ -40,7 +55,7 @@ const Login = () => {
         <div className="login-page-container">
             <div className="login-form-container">
                 <h2>Iniciar Sesión</h2>
-                <img src={logoUrl} alt="Logo Omnibus" className="login-logo" /> {/* Mejor alt text */}
+                <img src={logoUrl} alt="Logo Omnibus" className="login-logo" />
                 <form onSubmit={handleLogin} className="login-form">
                     <div className="form-group">
                         <label htmlFor="email">Email</label>
@@ -68,14 +83,13 @@ const Login = () => {
                             autoComplete="current-password"
                         />
                     </div>
-                    {/* Muestra el error del AuthContext si existe */}
                     {authError && <p className="error-message" style={{color: 'red'}}>{authError}</p>}
                     <button type="submit" className="login-button" disabled={isLoading}>
                         {isLoading ? "Iniciando..." : "Iniciar Sesión"}
                     </button>
                 </form>
-                <p className="forgot-password-link" style={{ marginTop: '10px', textAlign: 'center' }}> {/* Contenedor para el enlace */}
-                    <Link to="/forgot-password">¿Olvidaste tu contraseña?</Link> {/* <-- ENLACE AÑADIDO */}
+                <p className="forgot-password-link" style={{ marginTop: '10px', textAlign: 'center' }}>
+                    <Link to="/forgot-password">¿Olvidaste tu contraseña?</Link>
                 </p>
                 <p className="register-link-text" style={{ marginTop: '10px', textAlign: 'center' }}>
                     ¿No tienes una cuenta? <Link to="/register">Regístrate aquí</Link>
