@@ -3,11 +3,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
-import { obtenerTodasLasLocalidades } from '../services/api'; // Asegúrate de que la ruta sea correcta
+import { obtenerTodasLasLocalidades } from '../services/api';
 import './Home.css';
+import heroBackgroundImage from '../images/uru.png'; // Asegúrate que esta imagen esté en src/images/
 
-
-// El array de lugaresTuristicos se mantiene igual
 const lugaresTuristicos = [
     {
         id: 1,
@@ -58,9 +57,7 @@ const Home = () => {
     const [pasajeros, setPasajeros] = useState(1);
     const [localidades, setLocalidades] = useState([]);
     const [errorFormulario, setErrorFormulario] = useState('');
-    const [montevideoId, setMontevideoId] = useState(null);
 
-    // Cargar localidades al montar el componente
     useEffect(() => {
         const cargarLocalidades = async () => {
             try {
@@ -68,11 +65,13 @@ const Home = () => {
                 const todasLasLocalidades = response.data || [];
                 setLocalidades(todasLasLocalidades);
 
-                // Encontrar y establecer Montevideo como origen por defecto
-                const mvd = todasLasLocalidades.find(loc => loc.nombre.toUpperCase() === 'MONTEVIDEO');
-                if (mvd) {
-                    setOrigenId(mvd.id);
-                    setMontevideoId(mvd.id);
+                // Buscamos la primera localidad que pertenezca al DEPARTAMENTO de Montevideo
+                const localidadPorDefecto = todasLasLocalidades.find(
+                    loc => loc.departamento?.toUpperCase() === 'MONTEVIDEO'
+                );
+
+                if (localidadPorDefecto) {
+                    setOrigenId(localidadPorDefecto.id); // Establecemos el ID del origen por defecto
                 }
             } catch (err) {
                 console.error("Error al cargar las localidades:", err);
@@ -80,7 +79,7 @@ const Home = () => {
             }
         };
         cargarLocalidades();
-    }, []);
+    }, []); // El array vacío asegura que se ejecute solo una vez al montar el componente
 
     // Manejar el envío del formulario de búsqueda
     const handleSearchSubmit = (e) => {
@@ -98,9 +97,13 @@ const Home = () => {
     const esAdmin = isAuthenticated && user?.rol?.toLowerCase() === 'administrador';
     const esVendedor = isAuthenticated && user?.rol?.toLowerCase() === 'vendedor';
 
+    const heroStyle = {
+        backgroundImage: `linear-gradient(rgba(45, 34, 107, 0.7), rgba(45, 34, 107, 0.8)), url(${heroBackgroundImage})`
+    };
+
     return (
         <main className="home-page-main-content">
-            <section className="hero-section">
+            <section className="hero-section" style={heroStyle}>
                 <div className="hero-content">
                     <h1 className="hero-title-main">Comprá tus pasajes online acá.</h1>
 
@@ -109,19 +112,17 @@ const Home = () => {
                         <div className="form-group-home">
                             <label htmlFor="origen">Origen</label>
                             <select id="origen" value={origenId} onChange={(e) => setOrigenId(e.target.value)} required>
-                                {/* Cargar Montevideo como opción fija si se encontró */}
-                                {montevideoId && <option value={montevideoId}>MONTEVIDEO</option>}
-                                {/* Si quieres permitir cambiar el origen, descomenta las siguientes líneas */}
-                                {/* {localidades.map(loc => (
+                                <option value="">Seleccione origen...</option>
+                                {localidades.map(loc => (
                                     <option key={loc.id} value={loc.id}>{loc.nombre}</option>
-                                ))} */}
+                                ))}
                             </select>
                         </div>
 
                         <div className="form-group-home">
                             <label htmlFor="destino">Destino</label>
                             <select id="destino" value={destinoId} onChange={(e) => setDestinoId(e.target.value)} required>
-                                <option value="">Seleccione...</option>
+                                <option value="">Seleccione destino...</option>
                                 {localidades
                                     .filter(loc => loc.id !== parseInt(origenId))
                                     .map(loc => (
@@ -141,14 +142,13 @@ const Home = () => {
                         </div>
 
                         <button type="submit" className="search-button-home">
-                            <i className="fa fa-search" aria-hidden="true"></i> {/* Para el ícono de lupa */}
+                            <i className="fa fa-search" aria-hidden="true"></i>
                             Buscar
                         </button>
                     </form>
                     {errorFormulario && <p className="error-message">{errorFormulario}</p>}
                     {/* --- FIN DEL FORMULARIO DE BÚSQUEDA --- */}
 
-                    {/* Contenido original y botones condicionales */}
                     <p className="hero-subtitle">
                         Descubre Uruguay con Carpibus. Tu aventura por los rincones más bellos del país comienza aquí.
                     </p>
