@@ -10,23 +10,24 @@ const VendedorListadoViajesCompra = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { user, isAuthenticated } = useAuth();
-    const [searchParams] = useSearchParams();
+    const [searchParams, setSearchParams] = useSearchParams();
 
     const [viajes, setViajes] = useState([]);
     const [localidades, setLocalidades] = useState([]);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true); // Empieza en true para la carga inicial
     const [error, setError] = useState(null);
 
+    // Inicializamos los filtros desde la URL si existen
     const [filtros, setFiltros] = useState({
-        origenId: '',
-        destinoId: '',
-        fechaDesde: '',
+        origenId: searchParams.get('origenId') || '',
+        destinoId: searchParams.get('destinoId') || '',
+        fechaDesde: searchParams.get('fecha') || '', // 'fecha' viene de Home.js
         minAsientosDisponibles: '1',
         sortBy: 'fechaSalida',
         sortDir: 'asc',
     });
 
-    // Cargar localidades (no cambia)
+    // Cargar localidades una sola vez
     useEffect(() => {
         const cargarLocalidades = async () => {
             try {
@@ -39,29 +40,13 @@ const VendedorListadoViajesCompra = () => {
         cargarLocalidades();
     }, []);
 
-    // Sincronizar filtros desde la URL (no cambia)
-    useEffect(() => {
-        const origenIdFromUrl = searchParams.get('origenId');
-        const destinoIdFromUrl = searchParams.get('destinoId');
-        const fechaFromUrl = searchParams.get('fecha');
-
-        if (origenIdFromUrl && destinoIdFromUrl && fechaFromUrl) {
-            setFiltros(prevFiltros => ({
-                ...prevFiltros,
-                origenId: origenIdFromUrl,
-                destinoId: destinoIdFromUrl,
-                fechaDesde: fechaFromUrl,
-            }));
-        }
-    }, [searchParams]);
-
-    // Función para buscar viajes (no cambia)
-    const fetchViajes = useCallback(async () => {
+    // Función para buscar viajes, memoizada con useCallback
+    const fetchViajes = useCallback(async (currentFilters) => {
         setLoading(true);
         setError(null);
         try {
             const criteriosActivos = Object.fromEntries(
-                Object.entries(filtros).filter(([, value]) => value !== '' && value !== null)
+                Object.entries(currentFilters).filter(([, value]) => value !== '' && value !== null)
             );
             const response = await buscarViajesConDisponibilidad(criteriosActivos);
             setViajes(Array.isArray(response.data) ? response.data : []);
@@ -71,15 +56,12 @@ const VendedorListadoViajesCompra = () => {
         } finally {
             setLoading(false);
         }
-    }, [filtros]);
+    }, []); // No depende de nada, recibe los filtros como argumento
 
-    // --- ¡ESTE ES EL useEffect CORREGIDO! ---
-    // Se ejecuta al cargar la página y cada vez que `fetchViajes` (que depende de `filtros`) cambia.
-    // Si no hay filtros, `criteriosActivos` estará vacío y el backend devolverá todos los viajes.
-    // Si hay filtros, los enviará y el backend devolverá los resultados filtrados.
+    // Dispara la búsqueda cuando los filtros cambian
     useEffect(() => {
-        fetchViajes();
-    }, [fetchViajes]);
+        fetchViajes(filtros);
+    }, [filtros, fetchViajes]);
 
     const handleFiltroChange = (e) => {
         const { name, value } = e.target;
@@ -88,7 +70,7 @@ const VendedorListadoViajesCompra = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        fetchViajes();
+        fetchViajes(filtros); // Forzar búsqueda con los filtros actuales
     };
 
     const handleSortChange = (newSortBy) => {
@@ -147,7 +129,7 @@ const VendedorListadoViajesCompra = () => {
                     <input type="number" name="minAsientosDisponibles" id="minAsientosDisponibles" min="1" value={filtros.minAsientosDisponibles} onChange={handleFiltroChange} />
                 </div>
                 <button type="submit" disabled={loading}>
-                    {loading ? 'Buscando...' : 'Buscar'}
+                    {loading ? 'Buscando...' : 'Aplicar Filtros'}
                 </button>
             </form>
 
