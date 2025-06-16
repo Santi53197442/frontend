@@ -1,7 +1,10 @@
 // src/pages/vendedor/VendedorListadoViajesCompra.js
+
+// --- ¡CAMBIO IMPORTANTE! ---
+// Usaremos useSearchParams para leer la URL de forma más sencilla.
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { buscarViajesConDisponibilidad, obtenerTodasLasLocalidades } from '../../services/api';
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
+import { buscarViajesConDisponibilidad, obtenerTodasLasLocalidades } from '../../services/api'; // Asegúrate que el nombre del archivo de API sea correcto
 import './ListadoViajes.css';
 import { useAuth } from '../../AuthContext';
 
@@ -9,6 +12,10 @@ const VendedorListadoViajesCompra = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { user } = useAuth();
+
+    // --- ¡CAMBIO IMPORTANTE! ---
+    // Hook para leer los parámetros de la URL.
+    const [searchParams] = useSearchParams();
 
     const [viajes, setViajes] = useState([]);
     const [localidades, setLocalidades] = useState([]);
@@ -19,11 +26,12 @@ const VendedorListadoViajesCompra = () => {
         origenId: '',
         destinoId: '',
         fechaDesde: '',
-        minAsientosDisponibles: '',
+        minAsientosDisponibles: '1', // Por defecto, buscar viajes con al menos 1 asiento
         sortBy: 'fechaSalida',
         sortDir: 'asc',
     });
 
+    // Cargar localidades (esto no cambia)
     useEffect(() => {
         const cargarLocalidades = async () => {
             try {
@@ -36,6 +44,27 @@ const VendedorListadoViajesCompra = () => {
         cargarLocalidades();
     }, []);
 
+    // --- ¡NUEVO Y CLAVE! ---
+    // Este useEffect se ejecuta solo una vez al cargar la página.
+    // Su trabajo es leer los filtros de la URL y actualizar el estado interno.
+    useEffect(() => {
+        const origenIdFromUrl = searchParams.get('origenId');
+        const destinoIdFromUrl = searchParams.get('destinoId');
+        const fechaFromUrl = searchParams.get('fecha'); // Home.js envía 'fecha'
+
+        // Si los parámetros existen en la URL, los usamos para pre-llenar los filtros.
+        if (origenIdFromUrl && destinoIdFromUrl && fechaFromUrl) {
+            setFiltros(prevFiltros => ({
+                ...prevFiltros,
+                origenId: origenIdFromUrl,
+                destinoId: destinoIdFromUrl,
+                fechaDesde: fechaFromUrl, // Mapeamos 'fecha' de la URL a 'fechaDesde' del filtro
+            }));
+        }
+    }, []); // El array vacío asegura que esto se ejecute solo una vez.
+
+    // La lógica de búsqueda se mantiene, ahora será disparada por el useEffect de abajo
+    // cuando los filtros se actualicen con los datos de la URL.
     const fetchViajes = useCallback(async () => {
         setLoading(true);
         setError(null);
@@ -48,14 +77,8 @@ const VendedorListadoViajesCompra = () => {
                 }
             }
             const response = await buscarViajesConDisponibilidad(criteriosActivos);
-            const hoy = new Date();
-            hoy.setHours(0, 0, 0, 0);
-            const data = Array.isArray(response.data) ? response.data : [];
-            const viajesFiltrados = data.filter(viaje => {
-                const fechaViaje = new Date(viaje.fechaSalida);
-                return fechaViaje >= hoy;
-            });
-            setViajes(viajesFiltrados);
+            // Ya no filtramos por fecha aquí, dejamos que el backend lo haga si es necesario
+            setViajes(Array.isArray(response.data) ? response.data : []);
         } catch (err) {
             setError(err.response?.data?.message || err.message || "Error al cargar viajes");
             setViajes([]);
@@ -64,9 +87,17 @@ const VendedorListadoViajesCompra = () => {
         }
     }, [filtros]);
 
+    // Este useEffect ahora reaccionará al cambio inicial de filtros desde la URL
+    // y también a los cambios manuales del usuario.
     useEffect(() => {
-        fetchViajes();
-    }, [fetchViajes]);
+        // Solo realizamos la búsqueda si tenemos un origen, destino y fecha.
+        if (filtros.origenId && filtros.destinoId && filtros.fechaDesde) {
+            fetchViajes();
+        } else {
+            // Si la página carga sin parámetros, no mostramos nada inicialmente.
+            setViajes([]);
+        }
+    }, [fetchViajes, filtros.origenId, filtros.destinoId, filtros.fechaDesde]);
 
     const handleFiltroChange = (e) => {
         const { name, value } = e.target;
@@ -75,7 +106,7 @@ const VendedorListadoViajesCompra = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        fetchViajes();
+        fetchViajes(); // Forzar búsqueda al hacer clic en el botón
     };
 
     const handleSortChange = (newSortBy) => {
@@ -93,44 +124,30 @@ const VendedorListadoViajesCompra = () => {
     };
 
     const handleSeleccionarAsientos = (viajeSeleccionado) => {
-        let targetPathBase = '/vendedor'; // Por defecto para el vendedor
-
-        // Logs para depuración
-        console.log("--- VendedorListadoViajesCompra: handleSeleccionarAsientos DEBUG ---");
-        console.log("Usuario actual:", user);
-        console.log("Rol del usuario:", user?.rol);
-        console.log("Ruta actual (location.pathname):", location.pathname);
-        console.log("Viaje seleccionado (objeto completo):", viajeSeleccionado);
-
-        const esCliente = user && user.rol && user.rol.toLowerCase() === 'cliente';
+        let targetPathBase = '/vendedor';
+        const esCliente = user?.rol?.toLowerCase() === 'cliente';
         const estaEnRutaDeViajesPublica = location.pathname === '/viajes';
-
-        console.log("Condición (esCliente):", esCliente);
-        console.log("Condición (estaEnRutaDeViajesPublica):", estaEnRutaDeViajesPublica);
 
         if (esCliente && estaEnRutaDeViajesPublica) {
             targetPathBase = '/compra';
         }
-        console.log("BasePath decidido para la navegación:", targetPathBase);
 
-        if (!viajeSeleccionado || typeof viajeSeleccionado.id === 'undefined' || viajeSeleccionado.id === null) {
-            console.error("Error crítico: El ID del viaje seleccionado es nulo o indefinido. No se puede navegar.");
-            alert("Se produjo un error al seleccionar el viaje. Falta información del viaje.");
+        if (!viajeSeleccionado?.id) {
+            console.error("Error crítico: El ID del viaje es inválido.");
+            alert("Se produjo un error al seleccionar el viaje.");
             return;
         }
 
         const targetPath = `${targetPathBase}/viaje/${viajeSeleccionado.id}/seleccionar-asientos`;
-        console.log("Intentando navegar a la ruta final:", targetPath);
-
-        navigate(targetPath, {
-            state: { viajeData: viajeSeleccionado }
-        });
+        navigate(targetPath, { state: { viajeData: viajeSeleccionado } });
     };
 
+    // El resto del JSX (la parte visual) se mantiene exactamente igual.
     return (
         <div className="listado-viajes-container">
             <h2>Buscar Viajes Disponibles</h2>
             <form onSubmit={handleSubmit} className="filtros-form">
+                {/* ... tu formulario de filtros no cambia ... */}
                 <div className="filtro-grupo">
                     <label htmlFor="origenId">Origen:</label>
                     <select name="origenId" id="origenId" value={filtros.origenId} onChange={handleFiltroChange}>
@@ -161,7 +178,7 @@ const VendedorListadoViajesCompra = () => {
             {error && <p className="error-mensaje">Error: {error}</p>}
             {loading && !error && <p className="loading-mensaje">Cargando viajes...</p>}
             {!loading && !error && viajes.length === 0 && (
-                <p className="no-viajes-mensaje">No se encontraron viajes con los criterios seleccionados o todos los viajes disponibles ya han pasado.</p>
+                <p className="no-viajes-mensaje">No se encontraron viajes con los criterios seleccionados.</p>
             )}
 
             {!loading && !error && viajes.length > 0 && (
