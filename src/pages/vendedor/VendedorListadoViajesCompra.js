@@ -1,14 +1,15 @@
 // src/pages/vendedor/VendedorListadoViajesCompra.js
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { buscarViajesConDisponibilidad, obtenerTodasLasLocalidades } from '../../services/api';
 import './ListadoViajes.css';
 import { useAuth } from '../../AuthContext';
 
 const VendedorListadoViajesCompra = () => {
     const navigate = useNavigate();
-    const { user } = useAuth();
+    const location = useLocation();
+    const { user, isAuthenticated } = useAuth();
     const [searchParams] = useSearchParams();
 
     const [viajes, setViajes] = useState([]);
@@ -105,18 +106,24 @@ const VendedorListadoViajesCompra = () => {
         return '';
     };
 
-    // --- ¡ESTA ES LA FUNCIÓN CORREGIDA Y SIMPLIFICADA! ---
+    // --- FUNCIÓN DE NAVEGACIÓN CORREGIDA ---
     const handleSeleccionarAsientos = (viajeSeleccionado) => {
         if (!viajeSeleccionado?.id) {
             alert("Se produjo un error al seleccionar el viaje.");
             return;
         }
 
-        // 1. Determinamos la ruta base basándonos SOLAMENTE en el rol del usuario.
+        // 1. Verificamos si el usuario está autenticado
+        if (!isAuthenticated) {
+            // Si NO está logueado, lo mandamos a /login y le decimos que vuelva
+            // a esta misma página (`location`) después de iniciar sesión.
+            navigate('/login', { state: { from: location } });
+            return; // Detenemos la ejecución
+        }
+
+        // 2. Si SÍ está logueado, decidimos la ruta según su rol
         const esCliente = user?.rol?.toLowerCase() === 'cliente';
         const targetPathBase = esCliente ? '/compra' : '/vendedor';
-
-        // 2. Construimos la URL final y navegamos.
         const targetPath = `${targetPathBase}/viaje/${viajeSeleccionado.id}/seleccionar-asientos`;
 
         navigate(targetPath, { state: { viajeData: viajeSeleccionado } });
@@ -198,7 +205,5 @@ const VendedorListadoViajesCompra = () => {
         </div>
     );
 };
-
-
 
 export default VendedorListadoViajesCompra;
