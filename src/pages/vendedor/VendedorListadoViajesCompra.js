@@ -1,10 +1,7 @@
 // src/pages/vendedor/VendedorListadoViajesCompra.js
-
-// --- ¡CAMBIO IMPORTANTE! ---
-// Usaremos useSearchParams para leer la URL de forma más sencilla.
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
-import { buscarViajesConDisponibilidad, obtenerTodasLasLocalidades } from '../../services/api'; // Asegúrate que el nombre del archivo de API sea correcto
+import { buscarViajesConDisponibilidad, obtenerTodasLasLocalidades } from '../../services/api';
 import './ListadoViajes.css';
 import { useAuth } from '../../AuthContext';
 
@@ -12,9 +9,6 @@ const VendedorListadoViajesCompra = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { user } = useAuth();
-
-    // --- ¡CAMBIO IMPORTANTE! ---
-    // Hook para leer los parámetros de la URL.
     const [searchParams] = useSearchParams();
 
     const [viajes, setViajes] = useState([]);
@@ -26,12 +20,11 @@ const VendedorListadoViajesCompra = () => {
         origenId: '',
         destinoId: '',
         fechaDesde: '',
-        minAsientosDisponibles: '1', // Por defecto, buscar viajes con al menos 1 asiento
+        minAsientosDisponibles: '1',
         sortBy: 'fechaSalida',
         sortDir: 'asc',
     });
 
-    // Cargar localidades (esto no cambia)
     useEffect(() => {
         const cargarLocalidades = async () => {
             try {
@@ -44,27 +37,20 @@ const VendedorListadoViajesCompra = () => {
         cargarLocalidades();
     }, []);
 
-    // --- ¡NUEVO Y CLAVE! ---
-    // Este useEffect se ejecuta solo una vez al cargar la página.
-    // Su trabajo es leer los filtros de la URL y actualizar el estado interno.
     useEffect(() => {
         const origenIdFromUrl = searchParams.get('origenId');
         const destinoIdFromUrl = searchParams.get('destinoId');
-        const fechaFromUrl = searchParams.get('fecha'); // Home.js envía 'fecha'
-
-        // Si los parámetros existen en la URL, los usamos para pre-llenar los filtros.
+        const fechaFromUrl = searchParams.get('fecha');
         if (origenIdFromUrl && destinoIdFromUrl && fechaFromUrl) {
             setFiltros(prevFiltros => ({
                 ...prevFiltros,
                 origenId: origenIdFromUrl,
                 destinoId: destinoIdFromUrl,
-                fechaDesde: fechaFromUrl, // Mapeamos 'fecha' de la URL a 'fechaDesde' del filtro
+                fechaDesde: fechaFromUrl,
             }));
         }
-    }, []); // El array vacío asegura que esto se ejecute solo una vez.
+    }, [searchParams]);
 
-    // La lógica de búsqueda se mantiene, ahora será disparada por el useEffect de abajo
-    // cuando los filtros se actualicen con los datos de la URL.
     const fetchViajes = useCallback(async () => {
         setLoading(true);
         setError(null);
@@ -77,7 +63,6 @@ const VendedorListadoViajesCompra = () => {
                 }
             }
             const response = await buscarViajesConDisponibilidad(criteriosActivos);
-            // Ya no filtramos por fecha aquí, dejamos que el backend lo haga si es necesario
             setViajes(Array.isArray(response.data) ? response.data : []);
         } catch (err) {
             setError(err.response?.data?.message || err.message || "Error al cargar viajes");
@@ -87,14 +72,10 @@ const VendedorListadoViajesCompra = () => {
         }
     }, [filtros]);
 
-    // Este useEffect ahora reaccionará al cambio inicial de filtros desde la URL
-    // y también a los cambios manuales del usuario.
     useEffect(() => {
-        // Solo realizamos la búsqueda si tenemos un origen, destino y fecha.
         if (filtros.origenId && filtros.destinoId && filtros.fechaDesde) {
             fetchViajes();
         } else {
-            // Si la página carga sin parámetros, no mostramos nada inicialmente.
             setViajes([]);
         }
     }, [fetchViajes, filtros.origenId, filtros.destinoId, filtros.fechaDesde]);
@@ -106,7 +87,7 @@ const VendedorListadoViajesCompra = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        fetchViajes(); // Forzar búsqueda al hacer clic en el botón
+        fetchViajes();
     };
 
     const handleSortChange = (newSortBy) => {
@@ -123,31 +104,40 @@ const VendedorListadoViajesCompra = () => {
         return '';
     };
 
+    // --- ¡ESTA ES LA FUNCIÓN CLAVE! ---
     const handleSeleccionarAsientos = (viajeSeleccionado) => {
+        // 1. Definimos la ruta por defecto para vendedores/admins
         let targetPathBase = '/vendedor';
+
+        // 2. Verificamos las condiciones para un cliente
         const esCliente = user?.rol?.toLowerCase() === 'cliente';
+        // Verificamos si estamos en la página pública de búsqueda de viajes
         const estaEnRutaDeViajesPublica = location.pathname === '/viajes';
 
+        // 3. Si ambas condiciones son verdaderas, cambiamos la ruta base a la de compra del cliente
         if (esCliente && estaEnRutaDeViajesPublica) {
             targetPathBase = '/compra';
         }
 
+        // 4. Validamos que el viaje tenga un ID antes de navegar
         if (!viajeSeleccionado?.id) {
             console.error("Error crítico: El ID del viaje es inválido.");
             alert("Se produjo un error al seleccionar el viaje.");
             return;
         }
 
+        // 5. Construimos la URL final y navegamos.
+        // Tu AppRouter.js se encargará de renderizar el componente correcto
+        // basado en si la URL empieza con /compra o /vendedor.
         const targetPath = `${targetPathBase}/viaje/${viajeSeleccionado.id}/seleccionar-asientos`;
         navigate(targetPath, { state: { viajeData: viajeSeleccionado } });
     };
 
-    // El resto del JSX (la parte visual) se mantiene exactamente igual.
     return (
         <div className="listado-viajes-container">
             <h2>Buscar Viajes Disponibles</h2>
             <form onSubmit={handleSubmit} className="filtros-form">
-                {/* ... tu formulario de filtros no cambia ... */}
+                {/* ... tu formulario JSX no cambia ... */}
                 <div className="filtro-grupo">
                     <label htmlFor="origenId">Origen:</label>
                     <select name="origenId" id="origenId" value={filtros.origenId} onChange={handleFiltroChange}>
