@@ -1,63 +1,148 @@
-/* src/pages/Home.css */
+/* ==========================================================================
+   Estilos para la Página de Inicio (Home.js)
+   ========================================================================== */
 
-.home-page-wrapper {
-    /* Si necesitas algún estilo para el contenedor de toda la página Home */
-}
+/* --- Sección Principal (Hero) --- */
 
-.home-page-main-content {
-    /* Para el contenido principal, excluyendo header/footer si son globales */
-}
-
-/* --- Hero Section --- */
 .hero-section {
-    text-align: center;
-    padding: 60px 20px; /* Más padding vertical */
-    background-color: #eef1f5; /* Un color de fondo claro y moderno */
-    color: #333;
-    /* Podrías añadir una imagen de fondo aquí:
-    background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/images/hero-background.jpg');
+    /* Esta es la definición correcta y única que debes tener. */
+    /* La ruta '/images/uru.png' es correcta para archivos en la carpeta 'public'. */
+    /* ¡Puedes ignorar de forma segura el error que te muestra tu editor de código aquí! */
+    background: linear-gradient(rgba(45, 34, 107, 0.7), rgba(45, 34, 107, 0.8)), url('/images/uru.png');
     background-size: cover;
     background-position: center;
-    color: #fff;
-    */
+    color: white;
+    text-align: center;
+    padding: 6rem 1rem;
 }
 
 .hero-content {
-    max-width: 800px;
+    max-width: 950px; /* Ancho máximo para alinear con el formulario */
     margin: 0 auto;
-    display: flex; /* Para alinear el título, subtítulo y botón de cliente */
+    display: flex;
     flex-direction: column;
-    align-items: center; /* Centra el contenido del hero */
+    align-items: center;
 }
 
-.hero-section h1 {
-    font-size: 2.8rem; /* Ajusta según tu tipografía */
-    margin-bottom: 15px;
-    font-weight: 700;
-    line-height: 1.2;
-    /* color: #fff;  Si usas imagen de fondo oscura */
+.hero-title-main {
+    font-size: 2.8rem;
+    color: #fff;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.6);
+    margin-bottom: 2rem;
 }
 
-.hero-section .hero-subtitle {
+.hero-subtitle {
     font-size: 1.25rem;
-    margin-bottom: 30px; /* Espacio antes del botón CTA del cliente */
+    margin-bottom: 30px;
     line-height: 1.7;
-    color: #555c66;
-    /* color: #f0f0f0; Si usas imagen de fondo oscura */
+    color: #f0f0f0; /* Color claro para ser legible sobre el fondo oscuro */
 }
 
-/* Estilo para un botón Call to Action principal (usado por el cliente) */
+
+/* --- Formulario de Búsqueda de Viajes --- */
+
+.search-form-home {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    background-color: #ffffff;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    align-items: stretch;
+    max-width: 950px;
+    margin: 0 auto 2rem auto; /* Centrado y con margen inferior */
+}
+
+.form-group-home {
+    flex: 1 1 150px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-right: 1px solid #e0e0e0;
+    padding: 0 1rem;
+    position: relative;
+}
+
+.form-group-home:last-of-type,
+.search-button-home {
+    border-right: none;
+}
+
+.form-group-home label {
+    font-size: 0.8rem;
+    color: #555;
+    margin-bottom: 0.25rem;
+    font-weight: 600;
+}
+
+.form-group-home input,
+.form-group-home select {
+    border: none;
+    background-color: transparent;
+    width: 100%;
+    padding: 0.3rem 0;
+    font-size: 1rem;
+    font-family: inherit;
+    color: #333;
+}
+
+.form-group-home input:focus,
+.form-group-home select:focus {
+    outline: none;
+}
+
+.form-group-pasajeros {
+    flex-basis: 100px;
+    flex-grow: 0;
+}
+
+.search-button-home {
+    flex-basis: 120px;
+    flex-grow: 0;
+    background-color: #3a2e8a;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.8rem 1rem;
+}
+
+.search-button-home:hover {
+    background-color: #2c2268;
+}
+
+.search-button-home .fa-search {
+    font-size: 1rem;
+}
+
+
+/* --- Botones de Acción para Usuarios Logueados --- */
+
+.cliente-actions-home {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
 .cta-button {
     display: inline-block;
     padding: 14px 35px;
-    background-color: #3498db; /* Color primario de tu marca */
+    background-color: #3498db;
     color: white;
     text-decoration: none;
     border-radius: 6px;
     font-weight: bold;
     font-size: 1.1em;
     transition: background-color 0.2s ease, transform 0.2s ease;
-    border: none; /* Para que parezca más botón */
+    border: none;
     cursor: pointer;
 }
 
@@ -66,29 +151,18 @@
     transform: translateY(-2px);
 }
 
-/* Botón específico para "Ver Viajes Disponibles" del cliente si necesitas diferenciarlo de cta-button general */
-/* Hereda estilos de cta-button. Puedes añadir o sobrescribir aquí */
-.cliente-ver-viajes-button {
-    /* Por ejemplo, un color diferente si lo deseas: */
-    /* background-color: #17a2b8; */ /* Un color cian o informativo */
-    /* margin-top: 10px; */ /* Ajustar si es necesario después del subtítulo */
-}
-
-
-/* Contenedor para botones de admin/vendedor */
 .user-specific-actions {
-    margin-top: 30px; /* Espacio desde el hero-content */
-    margin-bottom: 20px;
-    display: flex; /* Para alinear botones si hay más de uno */
-    justify-content: center; /* Centra los botones */
-    gap: 15px; /* Espacio entre botones de admin y vendedor si ambos aparecen */
-    flex-wrap: wrap; /* Para que los botones se ajusten en pantallas pequeñas */
+    margin-top: 2rem;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
 }
 
 .admin-dashboard-button {
     display: inline-block;
     padding: 12px 28px;
-    background-color: #e67e22; /* Naranja, o el color de tu marca para acciones de admin/vendedor */
+    background-color: #e67e22;
     color: white;
     text-decoration: none;
     border-radius: 6px;
@@ -96,25 +170,26 @@
     font-size: 1.05em;
     transition: background-color 0.2s ease, transform 0.2s ease;
     box-shadow: 0 3px 6px rgba(0,0,0,0.1);
-    border: none; /* Para que parezca más botón */
+    border: none;
     cursor: pointer;
 }
 
 .admin-dashboard-button:hover {
-    background-color: #d35400; /* Naranja más oscuro */
+    background-color: #d35400;
     transform: translateY(-2px);
     box-shadow: 0 5px 10px rgba(0,0,0,0.15);
 }
 
 
-/* --- Lugares Turísticos Section --- */
+/* --- Sección de Lugares Turísticos --- */
+
 .lugares-section {
     padding: 40px 20px;
-    max-width: 1200px; /* Limitar el ancho para mejor legibilidad */
-    margin: 0 auto; /* Centrar la sección */
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
-.section-title { /* Para h2 como "Lugares Turísticos Destacados" */
+.section-title {
     text-align: center;
     font-size: 2.2em;
     color: #2c3e50;
@@ -123,7 +198,7 @@
     padding-bottom: 15px;
 }
 
-.section-title::after { /* Línea decorativa debajo del título */
+.section-title::after {
     content: '';
     position: absolute;
     bottom: 0;
@@ -131,20 +206,20 @@
     transform: translateX(-50%);
     width: 80px;
     height: 3px;
-    background-color: #3498db; /* Color de acento */
+    background-color: #3498db;
 }
 
 .lugares-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Columnas responsivas */
-    gap: 30px; /* Espacio entre tarjetas */
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
 }
 
 .lugar-card {
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    overflow: hidden; /* Para que la imagen no se salga del borde redondeado */
+    overflow: hidden;
     display: flex;
     flex-direction: column;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -157,20 +232,20 @@
 
 .lugar-imagen-container {
     width: 100%;
-    height: 200px; /* Altura fija para la imagen */
+    height: 200px;
     overflow: hidden;
 }
 
 .lugar-imagen {
     width: 100%;
     height: 100%;
-    object-fit: cover; /* Para que la imagen cubra el contenedor sin deformarse */
+    object-fit: cover;
     display: block;
 }
 
 .lugar-card-content {
     padding: 20px;
-    flex-grow: 1; /* Para que el contenido ocupe el espacio si las descripciones varían */
+    flex-grow: 1;
     display: flex;
     flex-direction: column;
 }
@@ -186,18 +261,31 @@
     font-size: 0.95em;
     color: #555;
     line-height: 1.6;
-    margin-bottom: 15px; /* Espacio antes del enlace "Ver más" si lo añades */
+    margin-bottom: 15px;
     flex-grow: 1;
 }
 
-.lugar-card-link { /* Si añades un enlace "Ver más" dentro de la tarjeta */
-    display: inline-block;
-    margin-top: auto; /* Empuja el enlace al final de la tarjeta */
-    color: #3498db;
-    text-decoration: none;
-    font-weight: bold;
-}
 
-.lugar-card-link:hover {
-    text-decoration: underline;
+/* --- Estilos Responsivos --- */
+
+@media (max-width: 768px) {
+    .search-form-home {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .form-group-home {
+        border-right: none;
+        border-bottom: 1px solid #e0e0e0;
+        padding: 0.8rem 0.5rem;
+    }
+
+    .form-group-home:last-of-type {
+        border-bottom: none;
+    }
+
+    .search-button-home {
+        width: 100%;
+        margin-top: 1rem;
+    }
 }

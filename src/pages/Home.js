@@ -1,11 +1,14 @@
 // src/pages/Home.js
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { useAuth } from '../AuthContext'; // Asegúrate que esta ruta sea correcta
+
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../AuthContext';
+import { obtenerTodasLasLocalidades } from '../services/api'; // Asegúrate de que la ruta sea correcta
 import './Home.css';
 
+
+// El array de lugaresTuristicos se mantiene igual
 const lugaresTuristicos = [
-    // ... (tu array de lugaresTuristicos se mantiene igual)
     {
         id: 1,
         nombre: "Colonia del Sacramento",
@@ -44,49 +47,122 @@ const lugaresTuristicos = [
     }
 ];
 
-
 const Home = () => {
     const { user, isAuthenticated } = useAuth();
+    const navigate = useNavigate();
 
-    const esCliente = isAuthenticated && user && user.rol && user.rol.toLowerCase() === 'cliente';
-    const esAdmin = isAuthenticated && user && user.rol && user.rol.toLowerCase() === 'administrador';
-    const esVendedor = isAuthenticated && user && user.rol && user.rol.toLowerCase() === 'vendedor';
+    // --- LÓGICA PARA EL FORMULARIO DE BÚSQUEDA ---
+    const [origenId, setOrigenId] = useState('');
+    const [destinoId, setDestinoId] = useState('');
+    const [fecha, setFecha] = useState('');
+    const [pasajeros, setPasajeros] = useState(1);
+    const [localidades, setLocalidades] = useState([]);
+    const [errorFormulario, setErrorFormulario] = useState('');
+    const [montevideoId, setMontevideoId] = useState(null);
+
+    // Cargar localidades al montar el componente
+    useEffect(() => {
+        const cargarLocalidades = async () => {
+            try {
+                const response = await obtenerTodasLasLocalidades();
+                const todasLasLocalidades = response.data || [];
+                setLocalidades(todasLasLocalidades);
+
+                // Encontrar y establecer Montevideo como origen por defecto
+                const mvd = todasLasLocalidades.find(loc => loc.nombre.toUpperCase() === 'MONTEVIDEO');
+                if (mvd) {
+                    setOrigenId(mvd.id);
+                    setMontevideoId(mvd.id);
+                }
+            } catch (err) {
+                console.error("Error al cargar las localidades:", err);
+                setErrorFormulario('No se pudieron cargar los destinos.');
+            }
+        };
+        cargarLocalidades();
+    }, []);
+
+    // Manejar el envío del formulario de búsqueda
+    const handleSearchSubmit = (e) => {
+        e.preventDefault();
+        if (!origenId || !destinoId || !fecha) {
+            alert('Por favor, complete los campos de Origen, Destino y Fecha.');
+            return;
+        }
+        const queryParams = new URLSearchParams({ origenId, destinoId, fecha });
+        navigate(`/viajes?${queryParams.toString()}`);
+    };
+    // --- FIN DE LÓGICA PARA EL FORMULARIO ---
+
+    const esCliente = isAuthenticated && user?.rol?.toLowerCase() === 'cliente';
+    const esAdmin = isAuthenticated && user?.rol?.toLowerCase() === 'administrador';
+    const esVendedor = isAuthenticated && user?.rol?.toLowerCase() === 'vendedor';
 
     return (
         <main className="home-page-main-content">
             <section className="hero-section">
                 <div className="hero-content">
-                    <h1>Descubre Uruguay con Carpibus</h1>
+                    <h1 className="hero-title-main">Comprá tus pasajes online acá.</h1>
+
+                    {/* --- INICIO DEL FORMULARIO DE BÚSQUEDA --- */}
+                    <form className="search-form-home" onSubmit={handleSearchSubmit}>
+                        <div className="form-group-home">
+                            <label htmlFor="origen">Origen</label>
+                            <select id="origen" value={origenId} onChange={(e) => setOrigenId(e.target.value)} required>
+                                {/* Cargar Montevideo como opción fija si se encontró */}
+                                {montevideoId && <option value={montevideoId}>MONTEVIDEO</option>}
+                                {/* Si quieres permitir cambiar el origen, descomenta las siguientes líneas */}
+                                {/* {localidades.map(loc => (
+                                    <option key={loc.id} value={loc.id}>{loc.nombre}</option>
+                                ))} */}
+                            </select>
+                        </div>
+
+                        <div className="form-group-home">
+                            <label htmlFor="destino">Destino</label>
+                            <select id="destino" value={destinoId} onChange={(e) => setDestinoId(e.target.value)} required>
+                                <option value="">Seleccione...</option>
+                                {localidades
+                                    .filter(loc => loc.id !== parseInt(origenId))
+                                    .map(loc => (
+                                        <option key={loc.id} value={loc.id}>{loc.nombre}</option>
+                                    ))}
+                            </select>
+                        </div>
+
+                        <div className="form-group-home">
+                            <label htmlFor="fecha">Fecha</label>
+                            <input type="date" id="fecha" value={fecha} onChange={(e) => setFecha(e.target.value)} required />
+                        </div>
+
+                        <div className="form-group-home form-group-pasajeros">
+                            <label htmlFor="pasajeros">Pasajeros</label>
+                            <input type="number" id="pasajeros" value={pasajeros} onChange={(e) => setPasajeros(e.target.value)} min="1" max="10" required />
+                        </div>
+
+                        <button type="submit" className="search-button-home">
+                            <i className="fa fa-search" aria-hidden="true"></i> {/* Para el ícono de lupa */}
+                            Buscar
+                        </button>
+                    </form>
+                    {errorFormulario && <p className="error-message">{errorFormulario}</p>}
+                    {/* --- FIN DEL FORMULARIO DE BÚSQUEDA --- */}
+
+                    {/* Contenido original y botones condicionales */}
                     <p className="hero-subtitle">
-                        Tu aventura por los rincones más bellos del país comienza aquí.
-                        Encuentra tu próximo destino y viaja con nosotros.
+                        Descubre Uruguay con Carpibus. Tu aventura por los rincones más bellos del país comienza aquí.
                     </p>
-                    {/* Botones para clientes */}
                     {esCliente && (
-                        <div className="cliente-actions-home"> {/* Contenedor para los botones del cliente */}
-                            <Link to="/viajes" className="cta-button cliente-ver-viajes-button">
-                                Ver Viajes Disponibles
-                            </Link>
-                            {/* NUEVO BOTÓN PARA HISTORIAL DE PASAJES */}
-                            <Link to="/mis-pasajes" className="cta-button cliente-mis-pasajes-button">
-                                Mis Pasajes
-                            </Link>
+                        <div className="cliente-actions-home">
+                            <Link to="/viajes" className="cta-button cliente-ver-viajes-button">Ver Viajes Disponibles</Link>
+                            <Link to="/mis-pasajes" className="cta-button cliente-mis-pasajes-button">Mis Pasajes</Link>
                         </div>
                     )}
                 </div>
-                {/* Botones para Admin y Vendedor (si están logueados) */}
                 {(esAdmin || esVendedor) && (
                     <div className="user-specific-actions">
-                        {esAdmin && (
-                            <Link to="/admin/dashboard" className="admin-dashboard-button">
-                                Panel de Administración
-                            </Link>
-                        )}
-                        {esVendedor && (
-                            <Link to="/vendedor/dashboard" className="admin-dashboard-button">
-                                Panel de Vendedor
-                            </Link>
-                        )}
+                        {esAdmin && <Link to="/admin/dashboard" className="admin-dashboard-button">Panel de Administración</Link>}
+                        {esVendedor && <Link to="/vendedor/dashboard" className="admin-dashboard-button">Panel de Vendedor</Link>}
                     </div>
                 )}
             </section>
@@ -98,11 +174,7 @@ const Home = () => {
                         <div key={lugar.id} className="lugar-card">
                             {lugar.imagenUrl && (
                                 <div className="lugar-imagen-container">
-                                    <img
-                                        src={lugar.imagenUrl}
-                                        alt={lugar.nombre}
-                                        className="lugar-imagen"
-                                    />
+                                    <img src={lugar.imagenUrl} alt={lugar.nombre} className="lugar-imagen" />
                                 </div>
                             )}
                             <div className="lugar-card-content">
@@ -116,7 +188,5 @@ const Home = () => {
         </main>
     );
 };
-
-
 
 export default Home;
