@@ -26,7 +26,7 @@ const VendedorListadoViajesCompra = () => {
         sortDir: 'asc',
     });
 
-    // Cargar localidades
+    // Cargar localidades (no cambia)
     useEffect(() => {
         const cargarLocalidades = async () => {
             try {
@@ -39,7 +39,7 @@ const VendedorListadoViajesCompra = () => {
         cargarLocalidades();
     }, []);
 
-    // Sincronizar filtros desde la URL al cargar la página
+    // Sincronizar filtros desde la URL (no cambia)
     useEffect(() => {
         const origenIdFromUrl = searchParams.get('origenId');
         const destinoIdFromUrl = searchParams.get('destinoId');
@@ -55,7 +55,7 @@ const VendedorListadoViajesCompra = () => {
         }
     }, [searchParams]);
 
-    // Función para buscar viajes
+    // Función para buscar viajes (no cambia)
     const fetchViajes = useCallback(async () => {
         setLoading(true);
         setError(null);
@@ -73,7 +73,10 @@ const VendedorListadoViajesCompra = () => {
         }
     }, [filtros]);
 
-    // Dispara la búsqueda al cargar y cada vez que cambian los filtros.
+    // --- ¡ESTE ES EL useEffect CORREGIDO! ---
+    // Se ejecuta al cargar la página y cada vez que `fetchViajes` (que depende de `filtros`) cambia.
+    // Si no hay filtros, `criteriosActivos` estará vacío y el backend devolverá todos los viajes.
+    // Si hay filtros, los enviará y el backend devolverá los resultados filtrados.
     useEffect(() => {
         fetchViajes();
     }, [fetchViajes]);
