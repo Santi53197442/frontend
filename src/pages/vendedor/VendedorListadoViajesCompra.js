@@ -1,13 +1,13 @@
 // src/pages/vendedor/VendedorListadoViajesCompra.js
+
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { buscarViajesConDisponibilidad, obtenerTodasLasLocalidades } from '../../services/api';
 import './ListadoViajes.css';
 import { useAuth } from '../../AuthContext';
 
 const VendedorListadoViajesCompra = () => {
     const navigate = useNavigate();
-    const location = useLocation();
     const { user } = useAuth();
     const [searchParams] = useSearchParams();
 
@@ -25,6 +25,7 @@ const VendedorListadoViajesCompra = () => {
         sortDir: 'asc',
     });
 
+    // Cargar localidades
     useEffect(() => {
         const cargarLocalidades = async () => {
             try {
@@ -37,10 +38,12 @@ const VendedorListadoViajesCompra = () => {
         cargarLocalidades();
     }, []);
 
+    // Sincronizar filtros desde la URL al cargar la página
     useEffect(() => {
         const origenIdFromUrl = searchParams.get('origenId');
         const destinoIdFromUrl = searchParams.get('destinoId');
         const fechaFromUrl = searchParams.get('fecha');
+
         if (origenIdFromUrl && destinoIdFromUrl && fechaFromUrl) {
             setFiltros(prevFiltros => ({
                 ...prevFiltros,
@@ -51,27 +54,25 @@ const VendedorListadoViajesCompra = () => {
         }
     }, [searchParams]);
 
+    // Función para buscar viajes
     const fetchViajes = useCallback(async () => {
         setLoading(true);
         setError(null);
         try {
-            const criteriosActivos = {};
-            for (const key in filtros) {
-                if (filtros[key] !== null && filtros[key] !== '') {
-                    if (key === 'minAsientosDisponibles' && Number(filtros[key]) < 0) continue;
-                    criteriosActivos[key] = filtros[key];
-                }
-            }
+            const criteriosActivos = Object.fromEntries(
+                Object.entries(filtros).filter(([, value]) => value !== '' && value !== null)
+            );
             const response = await buscarViajesConDisponibilidad(criteriosActivos);
             setViajes(Array.isArray(response.data) ? response.data : []);
         } catch (err) {
-            setError(err.response?.data?.message || err.message || "Error al cargar viajes");
+            setError(err.response?.data?.message || "Error al cargar viajes");
             setViajes([]);
         } finally {
             setLoading(false);
         }
     }, [filtros]);
 
+    // Disparar la búsqueda cuando los filtros relevantes cambian
     useEffect(() => {
         if (filtros.origenId && filtros.destinoId && filtros.fechaDesde) {
             fetchViajes();
@@ -104,32 +105,20 @@ const VendedorListadoViajesCompra = () => {
         return '';
     };
 
-    // --- ¡ESTA ES LA FUNCIÓN CLAVE! ---
+    // --- ¡ESTA ES LA FUNCIÓN CORREGIDA Y SIMPLIFICADA! ---
     const handleSeleccionarAsientos = (viajeSeleccionado) => {
-        // 1. Definimos la ruta por defecto para vendedores/admins
-        let targetPathBase = '/vendedor';
-
-        // 2. Verificamos las condiciones para un cliente
-        const esCliente = user?.rol?.toLowerCase() === 'cliente';
-        // Verificamos si estamos en la página pública de búsqueda de viajes
-        const estaEnRutaDeViajesPublica = location.pathname === '/viajes';
-
-        // 3. Si ambas condiciones son verdaderas, cambiamos la ruta base a la de compra del cliente
-        if (esCliente && estaEnRutaDeViajesPublica) {
-            targetPathBase = '/compra';
-        }
-
-        // 4. Validamos que el viaje tenga un ID antes de navegar
         if (!viajeSeleccionado?.id) {
-            console.error("Error crítico: El ID del viaje es inválido.");
             alert("Se produjo un error al seleccionar el viaje.");
             return;
         }
 
-        // 5. Construimos la URL final y navegamos.
-        // Tu AppRouter.js se encargará de renderizar el componente correcto
-        // basado en si la URL empieza con /compra o /vendedor.
+        // 1. Determinamos la ruta base basándonos SOLAMENTE en el rol del usuario.
+        const esCliente = user?.rol?.toLowerCase() === 'cliente';
+        const targetPathBase = esCliente ? '/compra' : '/vendedor';
+
+        // 2. Construimos la URL final y navegamos.
         const targetPath = `${targetPathBase}/viaje/${viajeSeleccionado.id}/seleccionar-asientos`;
+
         navigate(targetPath, { state: { viajeData: viajeSeleccionado } });
     };
 
@@ -137,7 +126,6 @@ const VendedorListadoViajesCompra = () => {
         <div className="listado-viajes-container">
             <h2>Buscar Viajes Disponibles</h2>
             <form onSubmit={handleSubmit} className="filtros-form">
-                {/* ... tu formulario JSX no cambia ... */}
                 <div className="filtro-grupo">
                     <label htmlFor="origenId">Origen:</label>
                     <select name="origenId" id="origenId" value={filtros.origenId} onChange={handleFiltroChange}>
@@ -153,22 +141,22 @@ const VendedorListadoViajesCompra = () => {
                     </select>
                 </div>
                 <div className="filtro-grupo">
-                    <label htmlFor="fechaDesde">Fecha Desde:</label>
+                    <label htmlFor="fechaDesde">Fecha:</label>
                     <input type="date" name="fechaDesde" id="fechaDesde" value={filtros.fechaDesde} onChange={handleFiltroChange} />
                 </div>
                 <div className="filtro-grupo">
-                    <label htmlFor="minAsientosDisponibles">Mín. Asientos Disp.:</label>
-                    <input type="number" name="minAsientosDisponibles" id="minAsientosDisponibles" min="0" value={filtros.minAsientosDisponibles} onChange={handleFiltroChange} placeholder="Ej: 1" />
+                    <label htmlFor="minAsientosDisponibles">Mín. Asientos:</label>
+                    <input type="number" name="minAsientosDisponibles" id="minAsientosDisponibles" min="1" value={filtros.minAsientosDisponibles} onChange={handleFiltroChange} />
                 </div>
                 <button type="submit" disabled={loading}>
-                    {loading ? 'Buscando...' : 'Buscar Viajes'}
+                    {loading ? 'Buscando...' : 'Buscar'}
                 </button>
             </form>
 
             {error && <p className="error-mensaje">Error: {error}</p>}
-            {loading && !error && <p className="loading-mensaje">Cargando viajes...</p>}
+            {loading && !error && <div className="loading-mensaje">Cargando viajes...</div>}
             {!loading && !error && viajes.length === 0 && (
-                <p className="no-viajes-mensaje">No se encontraron viajes con los criterios seleccionados.</p>
+                <div className="no-viajes-mensaje">No se encontraron viajes con los criterios seleccionados.</div>
             )}
 
             {!loading && !error && viajes.length > 0 && (
@@ -177,11 +165,10 @@ const VendedorListadoViajesCompra = () => {
                     <tr>
                         <th onClick={() => handleSortChange('origenNombre')}>Origen {getSortIndicator('origenNombre')}</th>
                         <th onClick={() => handleSortChange('destinoNombre')}>Destino {getSortIndicator('destinoNombre')}</th>
-                        <th onClick={() => handleSortChange('fechaSalida')}>Fecha Salida {getSortIndicator('fechaSalida')}</th>
+                        <th onClick={() => handleSortChange('fechaSalida')}>Fecha y Hora Salida {getSortIndicator('fechaSalida')}</th>
                         <th>Ómnibus</th>
                         <th onClick={() => handleSortChange('asientosDisponibles')}>Asientos Disp. {getSortIndicator('asientosDisponibles')}</th>
                         <th onClick={() => handleSortChange('precio')}>Precio {getSortIndicator('precio')}</th>
-                        <th>Estado</th>
                         <th>Acciones</th>
                     </tr>
                     </thead>
@@ -190,15 +177,15 @@ const VendedorListadoViajesCompra = () => {
                         <tr key={viaje.id}>
                             <td>{viaje.origenNombre}</td>
                             <td>{viaje.destinoNombre}</td>
-                            <td>{new Date(viaje.fechaSalida).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })}</td>
+                            <td>{new Date(viaje.fechaSalida).toLocaleString('es-UY', { dateStyle: 'short', timeStyle: 'short' })}</td>
                             <td>{viaje.omnibusMatricula}</td>
                             <td className="asientos-disponibles">{viaje.asientosDisponibles}</td>
                             <td>${viaje.precio ? parseFloat(viaje.precio).toFixed(2) : 'N/A'}</td>
-                            <td>{viaje.estado}</td>
                             <td>
                                 <button
                                     className="btn-comprar"
                                     onClick={() => handleSeleccionarAsientos(viaje)}
+                                    disabled={viaje.asientosDisponibles === 0}
                                 >
                                     Seleccionar Asientos
                                 </button>
