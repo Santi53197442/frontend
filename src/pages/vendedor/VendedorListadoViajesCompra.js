@@ -73,14 +73,10 @@ const VendedorListadoViajesCompra = () => {
         }
     }, [filtros]);
 
-    // Disparar la búsqueda cuando los filtros relevantes cambian
+    // Dispara la búsqueda al cargar y cada vez que cambian los filtros.
     useEffect(() => {
-        if (filtros.origenId && filtros.destinoId && filtros.fechaDesde) {
-            fetchViajes();
-        } else {
-            setViajes([]);
-        }
-    }, [fetchViajes, filtros.origenId, filtros.destinoId, filtros.fechaDesde]);
+        fetchViajes();
+    }, [fetchViajes]);
 
     const handleFiltroChange = (e) => {
         const { name, value } = e.target;
@@ -106,26 +102,18 @@ const VendedorListadoViajesCompra = () => {
         return '';
     };
 
-    // --- FUNCIÓN DE NAVEGACIÓN CORREGIDA ---
     const handleSeleccionarAsientos = (viajeSeleccionado) => {
         if (!viajeSeleccionado?.id) {
             alert("Se produjo un error al seleccionar el viaje.");
             return;
         }
-
-        // 1. Verificamos si el usuario está autenticado
         if (!isAuthenticated) {
-            // Si NO está logueado, lo mandamos a /login y le decimos que vuelva
-            // a esta misma página (`location`) después de iniciar sesión.
             navigate('/login', { state: { from: location } });
-            return; // Detenemos la ejecución
+            return;
         }
-
-        // 2. Si SÍ está logueado, decidimos la ruta según su rol
         const esCliente = user?.rol?.toLowerCase() === 'cliente';
         const targetPathBase = esCliente ? '/compra' : '/vendedor';
         const targetPath = `${targetPathBase}/viaje/${viajeSeleccionado.id}/seleccionar-asientos`;
-
         navigate(targetPath, { state: { viajeData: viajeSeleccionado } });
     };
 
