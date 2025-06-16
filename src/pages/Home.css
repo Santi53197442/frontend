@@ -8,7 +8,7 @@
     /* Esta es la definición correcta y única que debes tener. */
     /* La ruta '/images/uru.png' es correcta para archivos en la carpeta 'public'. */
     /* ¡Puedes ignorar de forma segura el error que te muestra tu editor de código aquí! */
-    background: linear-gradient(rgba(45, 34, 107, 0.7), rgba(45, 34, 107, 0.8)), url('/images/uru.png');
+    background: linear-gradient(rgba(45, 34, 107, 0.7), rgba(45, 34, 107, 0.8)), url('uru.png');
     background-size: cover;
     background-position: center;
     color: white;
