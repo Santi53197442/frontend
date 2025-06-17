@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
 import './Header.css';
 
-const logoUrl = '/images/logo-omnibus.png';
+const logoUrl = '/images/logo-omnibus.png'; // Asegúrate que esta ruta sea correcta
 
 const Header = () => {
     const { user, logout, isAuthenticated } = useAuth();
@@ -57,25 +57,27 @@ const Header = () => {
 
     return (
         <header className="app-header">
-            <div className="header-left">
-                <Link to="/" className="logo-link">
-                    <img src={logoUrl} alt="Logo Sistema" className="logo-image" />
-                    <h1>Sistema de Ómnibus</h1>
-                </Link>
+            {/* Div agrupador para la parte izquierda y central */}
+            <div className="header-main-nav">
+                <div className="header-left">
+                    <Link to="/" className="logo-link">
+                        <img src={logoUrl} alt="Logo Sistema" className="logo-image" />
+                        <h1>Sistema de Ómnibus</h1>
+                    </Link>
+                </div>
+
+                <nav className="header-center-nav">
+                    {/* Botón público */}
+                    <Link to="/tarifas-horarios" className="header-nav-button">Tarifas y Horarios</Link>
+
+                    {/* Botones solo para clientes logueados */}
+                    {esCliente && (
+                        <Link to="/mis-pasajes" className="header-nav-button">Mis Pasajes</Link>
+                    )}
+                </nav>
             </div>
 
-            <nav className="header-center-nav">
-                {/* --- BOTÓN PÚBLICO --- */}
-                <Link to="/tarifas-horarios" className="header-nav-button">Tarifas y Horarios</Link>
-
-                {/* --- BOTONES SOLO PARA CLIENTES --- */}
-                {esCliente && (
-                    <>
-                        <Link to="/mis-pasajes" className="header-nav-button">Mis Pasajes</Link>
-                    </>
-                )}
-            </nav>
-
+            {/* Contenedor para la parte derecha, que será empujado por el layout */}
             <div className="header-right">
                 {isAuthenticated && user ? (
                     <div className="user-actions" ref={userMenuRef}>
