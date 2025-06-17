@@ -1,0 +1,138 @@
+/* src/pages/TarifasHorarios.css */
+
+/* Contenedor principal de la página */
+.tarifas-horarios-container {
+    padding: 2rem 1rem;
+    max-width: 1200px;
+    margin: 2rem auto; /* Centra el contenido y añade espacio superior/inferior */
+    background-color: #f9fafb; /* Un fondo muy claro y suave */
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Títulos y párrafos */
+.tarifas-horarios-container h1 {
+    color: #1a202c; /* Un negro suave */
+    font-size: 2.25rem; /* Tamaño grande y legible */
+    text-align: center;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+}
+
+.tarifas-horarios-container p {
+    color: #4a5568; /* Un gris oscuro para el texto secundario */
+    text-align: center;
+    font-size: 1.1rem;
+    margin-bottom: 2.5rem;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Contenedor de la tabla para permitir scroll horizontal en móviles */
+.tabla-viajes-wrapper {
+    overflow-x: auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Estilos de la tabla */
+.tabla-viajes {
+    width: 100%;
+    border-collapse: collapse; /* Elimina espacios entre celdas */
+    background-color: #ffffff;
+    font-size: 0.95rem;
+}
+
+/* Encabezados de la tabla */
+.tabla-viajes th {
+    background-color: #2d226b; /* Color principal de tu marca */
+    color: #ffffff;
+    padding: 1rem 1.25rem;
+    text-align: left;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap; /* Evita que el texto del encabezado se rompa */
+}
+
+/* Celdas de la tabla */
+.tabla-viajes td {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #e2e8f0; /* Línea de separación sutil */
+    color: #2d3748;
+    white-space: nowrap;
+}
+
+/* Estilo para filas alternas (efecto cebra) */
+.tabla-viajes tbody tr:nth-of-type(even) {
+    background-color: #f7fafc;
+}
+
+/* Efecto hover sobre las filas */
+.tabla-viajes tbody tr:hover {
+    background-color: #edf2f7;
+    cursor: default;
+}
+
+/* Mensajes de carga y error */
+.tarifas-horarios-container .loading-message,
+.tarifas-horarios-container .error-message {
+    text-align: center;
+    padding: 2rem;
+    font-size: 1.2rem;
+    font-weight: 500;
+}
+
+.tarifas-horarios-container .error-message {
+    color: #c53030; /* Un rojo para errores */
+    background-color: #fff5f5;
+    border: 1px solid #fed7d7;
+    border-radius: 8px;
+}
+
+/* Celda para cuando no hay viajes */
+.tabla-viajes td[colSpan="7"] {
+    text-align: center;
+    font-style: italic;
+    color: #718096;
+    padding: 3rem;
+}
+
+/* --- Media Queries para Responsividad --- */
+
+/* Para pantallas más pequeñas como tablets */
+@media (max-width: 768px) {
+    .tarifas-horarios-container {
+        padding: 1.5rem 0.5rem;
+        margin: 1rem auto;
+    }
+
+    .tarifas-horarios-container h1 {
+        font-size: 1.8rem;
+    }
+
+    .tarifas-horarios-container p {
+        font-size: 1rem;
+        margin-bottom: 2rem;
+    }
+}
+
+/* Para móviles */
+@media (max-width: 480px) {
+    .tarifas-horarios-container {
+        padding: 1rem 0; /* Sin padding a los lados para que la tabla ocupe todo */
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    .tabla-viajes-wrapper {
+        border-radius: 0;
+    }
+
+    .tabla-viajes th,
+    .tabla-viajes td {
+        padding: 0.75rem; /* Menos padding en celdas para móviles */
+        font-size: 0.85rem; /* Letra un poco más pequeña */
+    }
+}

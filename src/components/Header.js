@@ -1,10 +1,9 @@
-// src/components/Header.js
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
 import './Header.css';
 
-const logoUrl = '/images/logo-omnibus.png'; // Asegúrate que esta ruta sea correcta
+const logoUrl = '/images/logo-omnibus.png';
 
 const Header = () => {
     const { user, logout, isAuthenticated } = useAuth();
@@ -17,17 +16,17 @@ const Header = () => {
 
     const handleLogout = () => {
         logout();
-        setUserMenuOpen(false); // También cierra el menú de usuario al hacer logout
+        setUserMenuOpen(false);
     };
 
     const toggleMainMenu = () => {
         setMainMenuOpen(!mainMenuOpen);
-        setUserMenuOpen(false); // Cierra el otro menú si está abierto
+        setUserMenuOpen(false);
     };
 
     const toggleUserMenu = () => {
         setUserMenuOpen(!userMenuOpen);
-        setMainMenuOpen(false); // Cierra el otro menú si está abierto
+        setMainMenuOpen(false);
     };
 
     useEffect(() => {
@@ -47,23 +46,35 @@ const Header = () => {
     }, []);
 
     const getDisplayName = () => {
-        if (user && user.nombre && user.apellido && user.nombre !== "null" && user.apellido !== "null") {
+        if (user?.nombre && user?.apellido && user.nombre !== "null" && user.apellido !== "null") {
             return `${user.nombre} ${user.apellido}`;
-        } else if (user && user.email) {
-            return user.email;
         }
-        return 'Usuario';
+        return user?.email || 'Usuario';
     };
+
+    const esCliente = isAuthenticated && user?.rol?.toLowerCase() === 'cliente';
+    const esAdmin = isAuthenticated && user?.rol?.toLowerCase() === 'administrador';
 
     return (
         <header className="app-header">
             <div className="header-left">
-                {/* Mantengo el comportamiento original del logo que tenías */}
-                <Link to={isAuthenticated ? (user?.rol === 'admin' ? "/menu" : "/") : "/"} className="logo-link">
+                <Link to="/" className="logo-link">
                     <img src={logoUrl} alt="Logo Sistema" className="logo-image" />
                     <h1>Sistema de Ómnibus</h1>
                 </Link>
             </div>
+
+            <nav className="header-center-nav">
+                {/* --- BOTÓN PÚBLICO --- */}
+                <Link to="/tarifas-horarios" className="header-nav-button">Tarifas y Horarios</Link>
+
+                {/* --- BOTONES SOLO PARA CLIENTES --- */}
+                {esCliente && (
+                    <>
+                        <Link to="/mis-pasajes" className="header-nav-button">Mis Pasajes</Link>
+                    </>
+                )}
+            </nav>
 
             <div className="header-right">
                 {isAuthenticated && user ? (
@@ -75,7 +86,6 @@ const Header = () => {
                         {userMenuOpen && (
                             <div className="dropdown-menu user-dropdown">
                                 <Link to="/editar-perfil" onClick={() => setUserMenuOpen(false)}>Editar Mis Datos</Link>
-                                {/* --- ENLACE A CAMBIAR CONTRASEÑA AÑADIDO AQUÍ --- */}
                                 <Link to="/cambiar-contraseña" onClick={() => setUserMenuOpen(false)}>Cambiar Contraseña</Link>
                                 <button onClick={handleLogout} className="logout-button">Cerrar Sesión</button>
                             </div>
@@ -88,8 +98,7 @@ const Header = () => {
                     </div>
                 )}
 
-                {/* Menú principal (ej. para admin) - Mantenido como lo tenías */}
-                {isAuthenticated && user && user.rol === 'admin' && (
+                {esAdmin && (
                     <div className="main-menu-button-container" ref={mainMenuRef}>
                         <button onClick={toggleMainMenu} className="main-menu-button">
                             Menú Admin <span className={`arrow ${mainMenuOpen ? 'up' : 'down'}`}>▼</span>
@@ -99,7 +108,6 @@ const Header = () => {
                                 <Link to="/crear-usuario" onClick={() => setMainMenuOpen(false)}>Crear Usuario</Link>
                                 <Link to="/eliminar-usuario" onClick={() => setMainMenuOpen(false)}>Eliminar Usuario</Link>
                                 <Link to="/listar-usuarios" onClick={() => setMainMenuOpen(false)}>Listar Usuarios</Link>
-                                {/* Agrega aquí más enlaces para el admin si es necesario */}
                             </div>
                         )}
                     </div>

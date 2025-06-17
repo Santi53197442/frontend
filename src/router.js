@@ -10,6 +10,7 @@ import Register from "./components/Register";
 import ForgotPasswordPage from './components/ForgotPassword';
 import ResetPasswordPage from './components/ResetPassword';
 import ServiciosPage from "./pages/ServiciosPage";
+import TarifasHorarios from "./pages/TarifasHorarios";
 
 // Layouts
 import AdminLayout from './layouts/AdminLayout';
@@ -77,6 +78,7 @@ const AppRouter = () => {
             <Route path="/unauthorized" element={<UnauthorizedPage />} />
             <Route path="/viajes" element={<VendedorListadoViajesCompra />} />
             <Route path="/servicios" element={<ServiciosPage />} />
+            <Route path="/tarifas-horarios" element={<TarifasHorarios />} />
 
             {/* --- RUTAS DEL FLUJO DE COMPRA DEL CLIENTE --- */}
             <Route element={<ProtectedRoute allowedRoles={['CLIENTE', 'cliente', 'VENDEDOR', 'vendedor', 'ADMINISTRADOR', 'administrador']} />}>
