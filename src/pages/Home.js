@@ -5,7 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
 import { obtenerTodasLasLocalidades } from '../services/api';
 import './Home.css';
-import heroBackgroundImage from './uru.png'; // Asegúrate que esta imagen esté en src/images/
+import heroBackgroundImage from './uruu.png'; // Asegúrate que esta imagen esté en src/images/
 
 const lugaresTuristicos = [
     {
