@@ -1,23 +1,28 @@
 import React, { useState, useEffect } from 'react';
-// --- LÍNEA CORREGIDA ---
-// Importamos la función correcta que ya existe en tu apiService.js
 import { obtenerListadoViajesConPrecio } from '../services/api';
 import './TarifasHorarios.css';
 
 const TarifasHorarios = () => {
-    const [viajes, setViajes] = useState([]);
+    // Estado para guardar los viajes *filtrados*
+    const [viajesMostrados, setViajesMostrados] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
     useEffect(() => {
-        const cargarViajes = async () => {
+        const cargarYFiltrarViajes = async () => {
             try {
                 setLoading(true);
                 setError('');
-                // --- LÍNEA CORREGIDA ---
-                // Ahora llamamos a la función con el nombre correcto
                 const response = await obtenerListadoViajesConPrecio();
-                setViajes(response.data || []);
+                const todosLosViajes = response.data || [];
+
+                // --- LÓGICA DE FILTRADO EN EL FRONTEND ---
+                const viajesFiltrados = todosLosViajes.filter(
+                    viaje => viaje.estado === 'PROGRAMADO'
+                );
+
+                setViajesMostrados(viajesFiltrados);
+
             } catch (err) {
                 console.error("Error al cargar tarifas y horarios:", err);
                 setError("No se pudieron cargar los datos de los viajes. Intente más tarde.");
@@ -26,13 +31,11 @@ const TarifasHorarios = () => {
             }
         };
 
-        cargarViajes();
+        cargarYFiltrarViajes();
     }, []);
 
-    // Función para formatear la fecha usando los getters transitorios de la entidad
     const formatDate = (fecha) => {
         const dateObj = new Date(fecha);
-        // Ajustamos para evitar problemas de zona horaria que resten un día
         dateObj.setMinutes(dateObj.getMinutes() + dateObj.getTimezoneOffset());
         const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
         return dateObj.toLocaleDateString('es-UY', options);
@@ -41,7 +44,7 @@ const TarifasHorarios = () => {
     return (
         <div className="tarifas-horarios-container">
             <h1>Tarifas y Horarios</h1>
-            <p>Consulta todos nuestros viajes programados, sus rutas, horarios y precios.</p>
+            <p>Consulta todos nuestros próximos viajes, sus rutas, horarios y precios.</p>
 
             {loading && <p>Cargando horarios...</p>}
             {error && <p className="error-message">{error}</p>}
@@ -56,26 +59,28 @@ const TarifasHorarios = () => {
                             <th>Destino</th>
                             <th>Salida</th>
                             <th>Llegada</th>
-                            <th>Estado</th>
+                            {/* La columna "Estado" ya no se renderiza */}
                             <th>Precio</th>
                         </tr>
                         </thead>
                         <tbody>
-                        {viajes.length > 0 ? (
-                            viajes.map(viaje => (
+                        {viajesMostrados.length > 0 ? (
+                            // Ahora iteramos sobre la lista ya filtrada
+                            viajesMostrados.map(viaje => (
                                 <tr key={viaje.id}>
                                     <td>{formatDate(viaje.fecha)}</td>
                                     <td>{viaje.origenNombre}</td>
                                     <td>{viaje.destinoNombre}</td>
                                     <td>{viaje.horaSalida}</td>
                                     <td>{viaje.horaLlegada}</td>
-                                    <td>{viaje.estado}</td>
-                                    <td>${viaje.precio.toFixed(2)}</td> {/* Usar toFixed para mostrar 2 decimales */}
+                                    {/* La celda "Estado" ya no se renderiza */}
+                                    <td>${viaje.precio.toFixed(2)}</td>
                                 </tr>
                             ))
                         ) : (
                             <tr>
-                                <td colSpan="7">No hay viajes programados para mostrar en este momento.</td>
+                                {/* Ajustamos el colspan a 6 columnas */}
+                                <td colSpan="6">No hay viajes programados para mostrar en este momento.</td>
                             </tr>
                         )}
                         </tbody>
