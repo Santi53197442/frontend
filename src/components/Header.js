@@ -100,20 +100,6 @@ const Header = () => {
                     </div>
                 )}
 
-                {esAdmin && (
-                    <div className="main-menu-button-container" ref={mainMenuRef}>
-                        <button onClick={toggleMainMenu} className="main-menu-button">
-                            Menú Admin <span className={`arrow ${mainMenuOpen ? 'up' : 'down'}`}>▼</span>
-                        </button>
-                        {mainMenuOpen && (
-                            <div className="dropdown-menu main-dropdown">
-                                <Link to="/crear-usuario" onClick={() => setMainMenuOpen(false)}>Crear Usuario</Link>
-                                <Link to="/eliminar-usuario" onClick={() => setMainMenuOpen(false)}>Eliminar Usuario</Link>
-                                <Link to="/listar-usuarios" onClick={() => setMainMenuOpen(false)}>Listar Usuarios</Link>
-                            </div>
-                        )}
-                    </div>
-                )}
             </div>
         </header>
     );
