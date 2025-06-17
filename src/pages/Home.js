@@ -62,24 +62,20 @@ const Home = () => {
         const cargarLocalidades = async () => {
             try {
                 const response = await obtenerTodasLasLocalidades();
-                const todasLasLocalidades = response.data || [];
-                setLocalidades(todasLasLocalidades);
+                setLocalidades(response.data || []);
 
-                // Buscamos la primera localidad que pertenezca al DEPARTAMENTO de Montevideo
-                const localidadPorDefecto = todasLasLocalidades.find(
-                    loc => loc.departamento?.toUpperCase() === 'MONTEVIDEO'
-                );
+                // ¡LÓGICA ELIMINADA!
+                // Ya no buscamos ni establecemos un origen por defecto.
+                // El estado 'origenId' se mantendrá como un string vacío (''),
+                // lo que hará que el <select> muestre la opción "Seleccione origen...".
 
-                if (localidadPorDefecto) {
-                    setOrigenId(localidadPorDefecto.id); // Establecemos el ID del origen por defecto
-                }
             } catch (err) {
                 console.error("Error al cargar las localidades:", err);
                 setErrorFormulario('No se pudieron cargar los destinos.');
             }
         };
         cargarLocalidades();
-    }, []); // El array vacío asegura que se ejecute solo una vez al montar el componente
+    }, []);
 
     // Manejar el envío del formulario de búsqueda
     const handleSearchSubmit = (e) => {
