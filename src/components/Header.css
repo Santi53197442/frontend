@@ -4,7 +4,7 @@
     color: white;
     padding: 10px 25px;
     display: flex;
-    justify-content: space-between; /* Mantenemos esto para separar los 2 grupos principales */
+    justify-content: space-between;
     align-items: center;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     position: sticky;
@@ -14,19 +14,15 @@
     box-sizing: border-box;
 }
 
-/* --- NUEVO ESTILO --- */
-/* Contenedor que agrupa la parte izquierda y central */
 .header-main-nav {
     display: flex;
     align-items: center;
 }
 
-/* --- NUEVO ESTILO --- */
-/* Barra de navegación central */
 .header-center-nav {
-    margin-left: 2rem; /* Espacio entre el logo/título y el primer botón */
+    margin-left: 2rem;
     display: flex;
-    gap: 10px; /* Espacio entre los botones de navegación */
+    gap: 10px;
 }
 
 .header-left {
@@ -52,10 +48,12 @@
     font-weight: 600;
 }
 
+/* --- ESTILO MODIFICADO --- */
+/* Alinear la campana y el menú de usuario */
 .header-right {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 20px; /* Espacio entre la campana y el menú del usuario */
 }
 
 .user-actions, .main-menu-button-container {
@@ -71,8 +69,8 @@
     cursor: pointer;
     font-size: 0.9em;
     transition: background-color 0.2s;
-    text-decoration: none; /* Asegura que los Link se vean como botones */
-    display: inline-flex; /* Para alinear correctamente el texto */
+    text-decoration: none;
+    display: inline-flex;
     align-items: center;
 }
 
@@ -101,7 +99,7 @@
 .dropdown-menu {
     position: absolute;
     top: 100%;
-    margin-top: 5px; /* Pequeño espacio para que no esté pegado */
+    margin-top: 5px;
     background-color: white;
     border: 1px solid #ccc;
     border-radius: 4px;
@@ -139,4 +137,11 @@
 .auth-links {
     display: flex;
     gap: 10px;
+}
+
+/* --- NUEVO ESTILO PARA LA CAMPANA --- */
+/* Cambiamos el color del ícono para que coincida con el texto del header */
+.bell-icon-wrapper {
+    color: white; /* O el color que prefieras, ej: #f0f0f0 */
+    font-size: 22px; /* Ajusta el tamaño si es necesario */
 }

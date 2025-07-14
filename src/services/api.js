@@ -517,5 +517,21 @@ export const procesarDevolucionPasaje = async (pasajeId) => {
     }
 };
 
+export const getUnreadNotificationsCount = () => {
+    // La URL ahora apunta al VendedorController
+    return apiClient.get('/vendedor/notificaciones/unread-count');
+};
+
+export const getMyNotifications = () => {
+    // La URL ahora apunta al VendedorController
+    return apiClient.get('/vendedor/notificaciones');
+};
+
+export const markNotificationAsRead = (id) => {
+    // La URL ahora apunta al VendedorController
+    return apiClient.post(`/vendedor/notificaciones/${id}/marcar-leida`);
+};
+
+
 
 export default apiClient;

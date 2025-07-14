@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
+import NotificationBell from './NotificationBell'; // <-- 1. IMPORTAR EL COMPONENTE
 import './Header.css';
 
 const logoUrl = '/images/logo-omnibus.png'; // Asegúrate que esta ruta sea correcta
@@ -57,7 +58,6 @@ const Header = () => {
 
     return (
         <header className="app-header">
-            {/* Div agrupador para la parte izquierda y central */}
             <div className="header-main-nav">
                 <div className="header-left">
                     <Link to="/" className="logo-link">
@@ -67,32 +67,32 @@ const Header = () => {
                 </div>
 
                 <nav className="header-center-nav">
-                    {/* Botón público */}
                     <Link to="/tarifas-horarios" className="header-nav-button">Tarifas y Horarios</Link>
-
-                    {/* Botones solo para clientes logueados */}
                     {esCliente && (
                         <Link to="/mis-pasajes" className="header-nav-button">Mis Pasajes</Link>
                     )}
                 </nav>
             </div>
 
-            {/* Contenedor para la parte derecha, que será empujado por el layout */}
             <div className="header-right">
                 {isAuthenticated && user ? (
-                    <div className="user-actions" ref={userMenuRef}>
-                        <button onClick={toggleUserMenu} className="user-menu-button">
-                            {getDisplayName()}
-                            <span className={`arrow ${userMenuOpen ? 'up' : 'down'}`}>▼</span>
-                        </button>
-                        {userMenuOpen && (
-                            <div className="dropdown-menu user-dropdown">
-                                <Link to="/editar-perfil" onClick={() => setUserMenuOpen(false)}>Editar Mis Datos</Link>
-                                <Link to="/cambiar-contraseña" onClick={() => setUserMenuOpen(false)}>Cambiar Contraseña</Link>
-                                <button onClick={handleLogout} className="logout-button">Cerrar Sesión</button>
-                            </div>
-                        )}
-                    </div>
+                    // <-- 2. AÑADIMOS NotificationBell AQUÍ, AL MISMO NIVEL QUE user-actions
+                    <>
+                        <NotificationBell />
+                        <div className="user-actions" ref={userMenuRef}>
+                            <button onClick={toggleUserMenu} className="user-menu-button">
+                                {getDisplayName()}
+                                <span className={`arrow ${userMenuOpen ? 'up' : 'down'}`}>▼</span>
+                            </button>
+                            {userMenuOpen && (
+                                <div className="dropdown-menu user-dropdown">
+                                    <Link to="/editar-perfil" onClick={() => setUserMenuOpen(false)}>Editar Mis Datos</Link>
+                                    <Link to="/cambiar-contraseña" onClick={() => setUserMenuOpen(false)}>Cambiar Contraseña</Link>
+                                    <button onClick={handleLogout} className="logout-button">Cerrar Sesión</button>
+                                </div>
+                            )}
+                        </div>
+                    </>
                 ) : (
                     <div className="auth-links">
                         <Link to="/login" className="header-nav-button">Iniciar Sesión</Link>
