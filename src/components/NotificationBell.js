@@ -1,7 +1,7 @@
 // Ruta del archivo: src/components/NotificationBell.js
 
 import React, { useState, useEffect, useRef } from 'react';
-import { getUnreadNotificationsCount, getMyNotifications, markNotificationAsRead } from '../services/apiService';
+import { getUnreadNotificationsCount, getMyNotifications, markNotificationAsRead } from '../services/api';
 import './NotificationBell.css'; // Importamos los estilos
 
 const NotificationBell = () => {
