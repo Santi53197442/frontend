@@ -531,3 +531,7 @@ export const markNotificationAsRead = (id) => {
     // La URL ahora apunta al VendedorController
     return apiClient.post(`/vendedor/notificaciones/${id}/marcar-leida`);
 };
+
+
+
+export default apiClient;
