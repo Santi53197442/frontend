@@ -114,7 +114,7 @@ const AppRouter = () => {
             </Route>
 
             {/* --- Rutas de VENDEDOR (y Admin también puede acceder) --- */}
-            <Route element={<ProtectedRoute allowedRoles={['VENDEDOR', 'vendedor', 'ADMINISTRADOR', 'administrador']} />}>
+            <Route element={<ProtectedRoute allowedRoles={['VENDEDOR', 'vendedor']} />}>
                 <Route path="/vendedor" element={<VendedorLayout />}>
                     <Route index element={<Navigate to="dashboard" replace />} />
                     <Route path="dashboard" element={<VendedorDashboard />} />
