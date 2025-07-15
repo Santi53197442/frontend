@@ -123,7 +123,7 @@ export const AuthProvider = ({ children }) => {
                 localStorage.removeItem(key);
             }
         });
-        navigate('/login');
+        navigate('/login', { replace: true });
     };
 
     const value = { user, isAuthenticated, loading, error, login, logout, updateUserContext, setError };
