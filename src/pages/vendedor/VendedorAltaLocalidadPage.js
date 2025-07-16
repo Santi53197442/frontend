@@ -95,7 +95,7 @@ const VendedorAltaLocalidadPage = () => {
                     </div>
 
                     <div className="form-group">
-                        <label htmlFor="direccion-localidad">Dirección (Opcional - Referencia):</label>
+                        <label htmlFor="direccion-localidad">Dirección (referencia opcional):</label>
                         <input
                             type="text"
                             id="direccion-localidad"

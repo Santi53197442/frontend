@@ -102,7 +102,7 @@ const EditProfile = () => {
     return (
         <div className="edit-profile-page-container">
             <div className="edit-profile-form-container">
-                <h2>Editar Mis Datos</h2>
+                <h2>Editar mis datos</h2>
                 {error && <p className="error-message">{error}</p>}
                 {successMessage && <p className="success-message">{successMessage}</p>}
 
@@ -128,7 +128,7 @@ const EditProfile = () => {
                         <input id="telefono" name="telefono" type="text" placeholder="Tu número de teléfono" value={formData.telefono} onChange={handleChange} required disabled={isLoading} />
                     </div>
                     <div className="form-group">
-                        <label htmlFor="fechaNac">Fecha de Nacimiento</label>
+                        <label htmlFor="fechaNac">Fecha de nacimiento</label>
                         <input id="fechaNac" name="fechaNac" type="date" value={formData.fechaNac} onChange={handleChange} required disabled={isLoading} />
                     </div>
                     <button type="submit" className="submit-button" disabled={isLoading}>

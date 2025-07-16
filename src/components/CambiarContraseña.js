@@ -55,7 +55,7 @@ const CambiarContraseña = () => {
                 {message && <p className="success-message">{message}</p>}
 
                 <div className="form-group">
-                    <label htmlFor="currentPassword">Contraseña Actual:</label>
+                    <label htmlFor="currentPassword">Contraseña actual:</label>
                     <input
                         type="password"
                         id="currentPassword"
@@ -67,7 +67,7 @@ const CambiarContraseña = () => {
                 </div>
 
                 <div className="form-group">
-                    <label htmlFor="newPassword">Nueva Contraseña:</label>
+                    <label htmlFor="newPassword">Nueva contraseña:</label>
                     <input
                         type="password"
                         id="newPassword"
@@ -80,7 +80,7 @@ const CambiarContraseña = () => {
                 </div>
 
                 <div className="form-group">
-                    <label htmlFor="confirmNewPassword">Confirmar Nueva Contraseña:</label>
+                    <label htmlFor="confirmNewPassword">Confirmar nueva contraseña:</label>
                     <input
                         type="password"
                         id="confirmNewPassword"

@@ -86,9 +86,9 @@ const Header = () => {
                             </button>
                             {userMenuOpen && (
                                 <div className="dropdown-menu user-dropdown">
-                                    <Link to="/editar-perfil" onClick={() => setUserMenuOpen(false)}>Editar Mis Datos</Link>
-                                    <Link to="/cambiar-contraseña" onClick={() => setUserMenuOpen(false)}>Cambiar Contraseña</Link>
-                                    <button onClick={handleLogout} className="logout-button">Cerrar Sesión</button>
+                                    <Link to="/editar-perfil" onClick={() => setUserMenuOpen(false)}>Editar mis datos</Link>
+                                    <Link to="/cambiar-contraseña" onClick={() => setUserMenuOpen(false)}>Cambiar contraseña</Link>
+                                    <button onClick={handleLogout} className="logout-button">Cerrar sesión</button>
                                 </div>
                             )}
                         </div>

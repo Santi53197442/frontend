@@ -66,57 +66,57 @@ const VendedorLayout = () => {
                         </li>
                         <li>
                             <NavLink to="/vendedor/alta-localidad" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"} onClick={handleNavLinkClick}>
-                                <span>Alta de Localidad</span>
+                                <span>Alta de localidad</span>
                             </NavLink>
                         </li>
                         <li>
                             <NavLink to="/vendedor/alta-masiva-localidades" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"} onClick={handleNavLinkClick}>
-                                <span>Alta masiva de Localidades</span>
+                                <span>Alta masiva de localidades (CSV)</span>
                             </NavLink>
                         </li>
                         <li>
                             <NavLink to="/vendedor/alta-omnibus" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"} onClick={handleNavLinkClick}>
-                                <span>Alta de Ómnibus</span>
+                                <span>Alta de ómnibus</span>
                             </NavLink>
                         </li>
                         <li>
                             <NavLink to="/vendedor/alta-masiva-omnibus" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"} onClick={handleNavLinkClick}>
-                                <span>Omnibus Masivo (CSV)</span>
+                                <span>Alta masiva de ómnibus (CSV)</span>
                             </NavLink>
                         </li>
                         <li>
                             <NavLink to="/vendedor/listar-omnibus" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"} onClick={handleNavLinkClick}>
-                                <span> Listar Omnibus</span>
+                                <span>Listado de ómnibus</span>
                             </NavLink>
                         </li>
                         <li>
                             <NavLink to="/vendedor/cambiar-a-inactivo" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"} onClick={handleNavLinkClick}>
-                                <span>Cambiar omnibus a inactivo</span>
+                                <span>Marcar ómnibus como inactivo</span>
                             </NavLink>
                         </li>
                         <li>
                             <NavLink to="/vendedor/cambiar-a-activo" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"} onClick={handleNavLinkClick}>
-                                <span>Cambiar omnibus a Activo</span>
+                                <span>Marcar ómnibus como activo</span>
                             </NavLink>
                         </li>
                         <li>
                             <NavLink to="/vendedor/alta-viaje" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"} onClick={handleNavLinkClick}>
-                                <span>Alta Viaje</span>
+                                <span>Alta de nuevo viaje</span>
                             </NavLink>
                         </li>
                         <li>
                             <NavLink to="/vendedor/reasignar-viaje" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"} onClick={handleNavLinkClick}>
-                                <span>Reasignar Viaje</span>
+                                <span>Reasignación de un viaje</span>
                             </NavLink>
                         </li>
                         <li>
                             <NavLink to="/vendedor/listar-viajes" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"} onClick={handleNavLinkClick}>
-                                <span>Listar Viajes</span>
+                                <span>Listado de viajes por ómnibus</span>
                             </NavLink>
                         </li>
                         <li>
                             <NavLink to="/vendedor/listar-viajes-compra" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"} onClick={handleNavLinkClick}>
-                                <span>Listar Viajes Compra</span>
+                                <span>Comprar pasaje</span>
                             </NavLink>
                         </li>
                         <li>
@@ -125,7 +125,7 @@ const VendedorLayout = () => {
                                 className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
                                 onClick={handleNavLinkClick}
                             >
-                                <span>Pasajes por Viaje</span>
+                                <span>Listado de pasajes vendidos por viaje</span>
                             </NavLink>
                         </li>
                         <li>
@@ -134,7 +134,7 @@ const VendedorLayout = () => {
                                 className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
                                 onClick={handleNavLinkClick}
                             >
-                                <span>Gestión de Devoluciones</span>
+                                <span>Gestión de devoluciones</span>
                             </NavLink>
                         </li>
                         <li>
@@ -143,7 +143,7 @@ const VendedorLayout = () => {
                                 className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
                                 onClick={handleNavLinkClick}
                             >
-                                <span>Estadísticas de Viajes</span>
+                                <span>Estadísticas de viajes</span>
                             </NavLink>
                         </li>
                         <li>
@@ -152,7 +152,7 @@ const VendedorLayout = () => {
                                 className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
                                 onClick={handleNavLinkClick}
                             >
-                                <span>Estadísticas de Ómnibus</span>
+                                <span>Estadísticas de ómnibus</span>
                             </NavLink>
                         </li>
                         <li>
@@ -161,7 +161,7 @@ const VendedorLayout = () => {
                                 className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
                                 onClick={handleNavLinkClick}
                             >
-                                <span>Estadísticas de Ventas</span>
+                                <span>Estadísticas de ventas</span>
                             </NavLink>
                         </li>
                     </ul>

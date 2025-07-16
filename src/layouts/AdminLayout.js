@@ -55,7 +55,7 @@ const AdminLayout = () => {
 
             <aside className={`admin-sidebar ${isMobileMenuOpen ? 'open' : ''}`}>
                 <div className="sidebar-header">
-                    <h3>Panel de Admin</h3>
+                    <h3>Panel de admin</h3>
                 </div>
                 <nav className="sidebar-nav">
                     <ul>
@@ -66,22 +66,22 @@ const AdminLayout = () => {
                         </li>
                         <li>
                             <NavLink to="/admin/crear-usuario" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"} onClick={handleNavLinkClick}>
-                                Crear Usuario
+                                Alta de usuario
                             </NavLink>
                         </li>
                         <li>
                             <NavLink to="/admin/carga-masiva-usuarios" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"} onClick={handleNavLinkClick}>
-                                Carga Masiva
+                                Carga masiva de usuarios (CSV)
                             </NavLink>
                         </li>
                         <li>
                             <NavLink to="/admin/listar-usuarios" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"} onClick={handleNavLinkClick}>
-                                Listar Usuarios
+                                Listado de usuarios
                             </NavLink>
                         </li>
                         <li>
                             <NavLink to="/admin/eliminar-usuarios" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"} onClick={handleNavLinkClick}>
-                                Eliminar Usuarios
+                                Baja de usuario
                             </NavLink>
                         </li>
                         <li>
@@ -90,7 +90,7 @@ const AdminLayout = () => {
                                 className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
                                 onClick={handleNavLinkClick}
                             >
-                                <span>Estadísticas de Usuarios</span>
+                                <span>Estadísticas de usuarios</span>
                             </NavLink>
                         </li>
                         {/* Otros enlaces */}
