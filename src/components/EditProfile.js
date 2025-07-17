@@ -117,14 +117,7 @@ const EditProfile = () => {
                     </div>
                     <div className="form-group">
                         <label htmlFor="ci">CI</label>
-                        <input
-                            id="ci"
-                            name="ci"
-                            type="text"
-                            value={formData.ci}
-                            readOnly
-                            className="readonly-input"
-                        />
+                        <input id="ci" name="ci" type="text" value={formData.ci} readOnly className="readonly-input"/>
                     </div>
                     <div className="form-group">
                         <label htmlFor="email">Email</label>
