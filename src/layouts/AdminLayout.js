@@ -66,12 +66,12 @@ const AdminLayout = () => {
                         </li>
                         <li>
                             <NavLink to="/admin/crear-usuario" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"} onClick={handleNavLinkClick}>
-                                Alta de usuario
+                                Alta individual de usuario
                             </NavLink>
                         </li>
                         <li>
                             <NavLink to="/admin/carga-masiva-usuarios" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"} onClick={handleNavLinkClick}>
-                                Carga masiva de usuarios (CSV)
+                                Alta masiva de usuarios (CSV)
                             </NavLink>
                         </li>
                         <li>

@@ -36,7 +36,7 @@ const AdminDashboard = () => {
         {
             title: "Estadísticas de Usuarios",
             description: "Visualizar reportes y datos sobre la actividad de los usuarios.",
-            link: "/admin/estadisticas", // Asegúrate de que esta ruta exista
+            link: "/admin/estadisticas-usuarios",
             color: "#f39c12" // Naranja
         },
     ];
