@@ -15,61 +15,61 @@ const VendedorDashboard = () => {
             color: "#54a0ff" // Un azul claro
         },
         {
-            title: "Alta de Localidad",
+            title: "Alta de localidad",
             description: "Registrar una nueva localidad para la operativa.",
             link: "/vendedor/alta-localidad",
             color: "#1abc9c"
         },
         {
-            title: "Alta Masiva de Localidades",
+            title: "Alta masiva de Localidades (CSV)",
             description: "Cargar múltiples localidades desde un archivo (ej. CSV).",
             link: "/vendedor/alta-masiva-localidades",
             color: "#2ecc71" // Un verde más fuerte
         },
         {
-            title: "Alta de Ómnibus",
+            title: "Alta de ómnibus",
             description: "Registrar un nuevo vehículo en la flota.",
             link: "/vendedor/alta-omnibus",
             color: "#3498db" // Azul
         },
         {
-            title: "Alta Masiva de Ómnibus (CSV)",
+            title: "Alta masiva de ómnibus (CSV)",
             description: "Cargar datos de múltiples ómnibus vía archivo CSV.",
             link: "/vendedor/alta-masiva-omnibus",
             color: "#9b59b6" // Morado
         },
         {
-            title: "Listar Ómnibus",
+            title: "Listado de ómnibus",
             description: "Ver y gestionar la flota de ómnibus existentes.",
             link: "/vendedor/listar-omnibus",
             color: "#f1c40f" // Amarillo
         },
         {
-            title: "Cambiar Ómnibus a Inactivo",
+            title: "Marcar ómnibus como inactivo",
             description: "Marcar un ómnibus como no disponible para viajes.",
             link: "/vendedor/cambiar-a-inactivo", // Considera si esto es una acción en la lista de ómnibus
             color: "#e74c3c" // Rojo claro
         },
         {
-            title: "Cambiar Ómnibus a Activo",
+            title: "Marcar ómnibus como activo",
             description: "Reactivar un ómnibus para asignarlo a viajes.",
             link: "/vendedor/cambiar-a-activo", // Considera si esto es una acción en la lista de ómnibus
             color: "#27ae60" // Verde oscuro
         },
         {
-            title: "Alta de Viaje",
+            title: "Alta de nuevo viaje",
             description: "Programar un nuevo viaje (ruta, horario, ómnibus).",
             link: "/vendedor/alta-viaje",
             color: "#e67e22" // Naranja
         },
         {
-            title: "Reasignar Viaje",
+            title: "Reasignación de un viaje",
             description: "Modificar la asignación de ómnibus o detalles de un viaje.",
             link: "/vendedor/reasignar-viaje",
             color: "#d35400" // Naranja oscuro
         },
         {
-            title: "Listar Viajes Programados",
+            title: "Listado de viajes por ómnibus",
             description: "Consultar y gestionar todos los viajes planificados.",
             link: "/vendedor/listar-viajes",
             color: "#8e44ad" // Morado oscuro
@@ -88,7 +88,7 @@ const VendedorDashboard = () => {
         //     color: "#7f8c8d" // Gris
         // },
         {
-            title: "Mi Perfil",
+            title: "Editar mis datos",
             description: "Actualizar tu información personal y contraseña.",
             link: "/editar-perfil", // Ruta general de edición de perfil
             color: "#bdc3c7" // Gris claro
